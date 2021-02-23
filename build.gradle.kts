@@ -16,7 +16,6 @@ allprojects {
 
     apply {
         plugin("org.jetbrains.kotlin.jvm")
-        plugin("com.github.johnrengelman.shadow")
     }
 
     repositories {
