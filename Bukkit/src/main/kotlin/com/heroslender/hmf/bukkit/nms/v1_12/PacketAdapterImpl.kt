@@ -1,5 +1,7 @@
 package com.heroslender.hmf.bukkit.nms.v1_12
 
+import com.heroslender.hmf.bukkit.Direction
+import com.heroslender.hmf.bukkit.map.MapIcon
 import com.heroslender.hmf.bukkit.nms.PacketAdapter
 import net.minecraft.server.v1_12_R1.DataWatcher
 import net.minecraft.server.v1_12_R1.DataWatcherObject
@@ -24,14 +26,18 @@ class PacketAdapterImpl : PacketAdapter {
         )
     }
 
-    override fun sendMapPacket(player: Player) {
-        val x = 0.0
-        val y = 0.0
-        val z = 0.0
-
+    override fun spawnMapItemFrame(
+        itemFrameID: Int,
+        mapID: Int,
+        x: Int,
+        y: Int,
+        z: Int,
+        direction: Direction,
+        vararg players: Player
+    ) {
         val spawnPacket = PacketPlayOutSpawnEntity().apply {
             // ID
-            setValue("a", 9999)
+            setValue("a", itemFrameID)
             // UUID
             setValue("b", UUID.randomUUID())
             //entityTypeId
@@ -44,22 +50,39 @@ class PacketAdapterImpl : PacketAdapter {
             setValue("e", z)
 
             // Yaw : Int = `direction * 90 * 256.0F / 360.0F`
-            setValue("j", 0)
+            setValue("j", direction.packetYaw)
             // Rotation/direction?: Int
-            setValue("l", 0)
+            setValue("l", direction.rotation)
         }
 
+        // Place map on item frame
         val metadata = PacketPlayOutEntityMetadata(
-            9999,
+            itemFrameID,
             DataWatcher(null).apply {
-                register(itemFrameItemWatcher, ItemStack(MAP_ITEM, 1, 9999))
+                register(itemFrameItemWatcher, ItemStack(MAP_ITEM, 1, mapID))
             },
             true
         )
 
-        val playerConnection = (player as CraftPlayer).handle.playerConnection
-        playerConnection.sendPacket(spawnPacket)
-        playerConnection.sendPacket(metadata)
+        for (player in players) {
+            val playerConnection = (player as CraftPlayer).handle.playerConnection
+            playerConnection.sendPacket(spawnPacket)
+            playerConnection.sendPacket(metadata)
+        }
+    }
+
+    override fun updateMap(
+        mapId: Int,
+        scale: Byte,
+        icons: Collection<MapIcon?>,
+        data: ByteArray,
+        offsetX: Int,
+        offsetY: Int,
+        sizeX: Int,
+        sizeZ: Int,
+        vararg players: Player,
+    ) {
+        TODO("To be implemented!")
     }
 
     private fun Packet<*>.setValue(field: String, value: Any) {

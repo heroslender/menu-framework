@@ -1,11 +1,14 @@
 package com.heroslender.hmf.bukkit.nms.v1_8
 
+import com.heroslender.hmf.bukkit.Direction
+import com.heroslender.hmf.bukkit.map.MapIcon
 import com.heroslender.hmf.bukkit.nms.PacketAdapter
 import net.minecraft.server.v1_8_R3.DataWatcher
 import net.minecraft.server.v1_8_R3.Item
 import net.minecraft.server.v1_8_R3.ItemStack
 import net.minecraft.server.v1_8_R3.Packet
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityMetadata
+import net.minecraft.server.v1_8_R3.PacketPlayOutMap
 import net.minecraft.server.v1_8_R3.PacketPlayOutSpawnEntity
 import org.bukkit.Material
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer
@@ -17,14 +20,18 @@ class PacketAdapterImpl : PacketAdapter {
         private val MAP_ITEM: Item = CraftMagicNumbers.getItem(Material.MAP)
     }
 
-    override fun sendMapPacket(player: Player) {
-        val x = 0
-        val y = 0
-        val z = 0
-
+    override fun spawnMapItemFrame(
+        itemFrameID: Int,
+        mapID: Int,
+        x: Int,
+        y: Int,
+        z: Int,
+        direction: Direction,
+        vararg players: Player,
+    ) {
         val spawnPacket = PacketPlayOutSpawnEntity().apply {
             // ID
-            setValue("a", 9999)
+            setValue("a", itemFrameID)
             //entityTypeId
             setValue("j", 71)
             // x location
@@ -35,22 +42,48 @@ class PacketAdapterImpl : PacketAdapter {
             setValue("d", z * 32)
 
             // Yaw : Int = `direction * 90 * 256.0F / 360.0F`
-            setValue("i", 0)
+            setValue("i", direction.packetYaw)
             // Rotation/direction?: Int
-            setValue("k", 0)
+            setValue("k", direction.rotation)
         }
 
+        // Place map on item frame
         val metadata = PacketPlayOutEntityMetadata(
-            9999,
+            itemFrameID,
             DataWatcher(null).apply {
-                a(8, ItemStack(MAP_ITEM, 1, 9999))
+                a(8, ItemStack(MAP_ITEM, 1, mapID))
             },
             true
         )
 
-        val playerConnection = (player as CraftPlayer).handle.playerConnection
-        playerConnection.sendPacket(spawnPacket)
-        playerConnection.sendPacket(metadata)
+        for (player in players) {
+            val playerConnection = (player as CraftPlayer).handle.playerConnection
+            playerConnection.sendPacket(spawnPacket)
+            playerConnection.sendPacket(metadata)
+        }
+    }
+
+    override fun updateMap(
+        mapId: Int,
+        scale: Byte,
+        icons: Collection<MapIcon?>,
+        data: ByteArray,
+        offsetX: Int,
+        offsetY: Int,
+        sizeX: Int,
+        sizeZ: Int,
+        vararg players: Player,
+    ) {
+        val cursors = icons.mapNotNull {
+            it?.let { net.minecraft.server.v1_8_R3.MapIcon(it.type.typeId, it.x, it.y, it.direction) }
+        }
+
+        val mapPacket = PacketPlayOutMap(mapId, scale, cursors, data, offsetX, offsetY, sizeX, sizeZ)
+
+
+        for (player in players) {
+            (player as CraftPlayer).handle.playerConnection.sendPacket(mapPacket)
+        }
     }
 
     private fun Packet<*>.setValue(field: String, value: Any) {
