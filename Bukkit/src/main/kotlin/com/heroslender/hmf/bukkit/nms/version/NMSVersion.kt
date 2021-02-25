@@ -1,6 +1,5 @@
 package com.heroslender.hmf.bukkit.nms.version
 
-import com.google.common.base.Objects
 import java.util.regex.Pattern
 
 /**
@@ -34,20 +33,17 @@ class NMSVersion private constructor(val major: Int, val minor: Int, val release
     fun isLowerThanOrEqualTo(o: NMSVersion): Boolean = compareTo(o) <= 0
 
     override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
+        if (this === other) return true
+        if (other !is NMSVersion) return false
 
-        if (other == null || javaClass != other.javaClass) {
-            return false
-        }
-
-        val that = other as NMSVersion
-        return major == that.major && minor == that.minor && release == that.release
+        return major == other.major && minor == other.minor && release == other.release
     }
 
     override fun hashCode(): Int {
-        return Objects.hashCode(major, minor, release)
+        var result = major
+        result = 31 * result + minor
+        result = 31 * result + release
+        return result
     }
 
     override fun toString(): String {
