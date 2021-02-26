@@ -11,6 +11,7 @@ import net.minecraft.server.v1_12_R1.Item
 import net.minecraft.server.v1_12_R1.ItemStack
 import net.minecraft.server.v1_12_R1.Packet
 import net.minecraft.server.v1_12_R1.PacketPlayOutEntityMetadata
+import net.minecraft.server.v1_12_R1.PacketPlayOutMap
 import net.minecraft.server.v1_12_R1.PacketPlayOutSpawnEntity
 import org.bukkit.Material
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
@@ -82,7 +83,30 @@ class PacketAdapterImpl : PacketAdapter {
         sizeZ: Int,
         vararg players: Player,
     ) {
-        TODO("To be implemented!")
+        val cursors = icons.mapNotNull {
+            it?.let { net.minecraft.server.v1_12_R1.MapIcon(it.type.toNMS(), it.x, it.y, it.direction) }
+        }
+
+        // 3rd param is Tracking Position - Specifies whether player and item frame icons are shown.
+        val mapPacket = PacketPlayOutMap(mapId, scale, false, cursors, data, offsetX, offsetY, sizeX, sizeZ)
+
+        for (player in players) {
+            (player as CraftPlayer).handle.playerConnection.sendPacket(mapPacket)
+        }
+    }
+
+    private fun MapIcon.Type.toNMS(): net.minecraft.server.v1_12_R1.MapIcon.Type = when (this) {
+        MapIcon.Type.WHITE_POINTER -> net.minecraft.server.v1_12_R1.MapIcon.Type.PLAYER
+        MapIcon.Type.GREEN_POINTER -> net.minecraft.server.v1_12_R1.MapIcon.Type.FRAME
+        MapIcon.Type.RED_POINTER -> net.minecraft.server.v1_12_R1.MapIcon.Type.RED_MARKER
+        MapIcon.Type.BLUE_POINTER -> net.minecraft.server.v1_12_R1.MapIcon.Type.BLUE_MARKER
+        MapIcon.Type.WHITE_CROSS -> net.minecraft.server.v1_12_R1.MapIcon.Type.TARGET_X
+        MapIcon.Type.RED_TRIANGLE -> net.minecraft.server.v1_12_R1.MapIcon.Type.TARGET_POINT
+        MapIcon.Type.LARGE_WHITE_DOT -> net.minecraft.server.v1_12_R1.MapIcon.Type.PLAYER_OFF_MAP
+        MapIcon.Type.WHITE_DOT -> net.minecraft.server.v1_12_R1.MapIcon.Type.PLAYER_OFF_LIMITS
+        MapIcon.Type.WOODLAND_MANSION -> net.minecraft.server.v1_12_R1.MapIcon.Type.MANSION
+        MapIcon.Type.OCEAN_MONUMENT -> net.minecraft.server.v1_12_R1.MapIcon.Type.MONUMENT
+        else -> net.minecraft.server.v1_12_R1.MapIcon.Type.PLAYER
     }
 
     private fun Packet<*>.setValue(field: String, value: Any) {
