@@ -7,6 +7,7 @@ import net.minecraft.server.v1_8_R3.DataWatcher
 import net.minecraft.server.v1_8_R3.Item
 import net.minecraft.server.v1_8_R3.ItemStack
 import net.minecraft.server.v1_8_R3.Packet
+import net.minecraft.server.v1_8_R3.PacketPlayOutEntityDestroy
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityMetadata
 import net.minecraft.server.v1_8_R3.PacketPlayOutMap
 import net.minecraft.server.v1_8_R3.PacketPlayOutSpawnEntity
@@ -83,6 +84,13 @@ class PacketAdapterImpl : PacketAdapter {
 
         for (player in players) {
             (player as CraftPlayer).handle.playerConnection.sendPacket(mapPacket)
+        }
+    }
+
+    override fun destroy(itemFrameID: Int, vararg players: Player) {
+        val destroyPacket = PacketPlayOutEntityDestroy(itemFrameID)
+        for (player in players) {
+            (player as CraftPlayer).handle.playerConnection.sendPacket(destroyPacket)
         }
     }
 

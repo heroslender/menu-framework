@@ -10,6 +10,7 @@ import net.minecraft.server.v1_12_R1.EntityItemFrame
 import net.minecraft.server.v1_12_R1.Item
 import net.minecraft.server.v1_12_R1.ItemStack
 import net.minecraft.server.v1_12_R1.Packet
+import net.minecraft.server.v1_12_R1.PacketPlayOutEntityDestroy
 import net.minecraft.server.v1_12_R1.PacketPlayOutEntityMetadata
 import net.minecraft.server.v1_12_R1.PacketPlayOutMap
 import net.minecraft.server.v1_12_R1.PacketPlayOutSpawnEntity
@@ -34,7 +35,7 @@ class PacketAdapterImpl : PacketAdapter {
         y: Int,
         z: Int,
         direction: Direction,
-        vararg players: Player
+        vararg players: Player,
     ) {
         val spawnPacket = PacketPlayOutSpawnEntity().apply {
             // ID
@@ -92,6 +93,13 @@ class PacketAdapterImpl : PacketAdapter {
 
         for (player in players) {
             (player as CraftPlayer).handle.playerConnection.sendPacket(mapPacket)
+        }
+    }
+
+    override fun destroy(itemFrameID: Int, vararg players: Player) {
+        val destroyPacket = PacketPlayOutEntityDestroy(itemFrameID)
+        for (player in players) {
+            (player as CraftPlayer).handle.playerConnection.sendPacket(destroyPacket)
         }
     }
 

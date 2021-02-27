@@ -26,4 +26,9 @@ interface PacketAdapter {
         sizeZ: Int,
         vararg players: Player,
     )
+
+    fun destroy(
+        itemFrameID: Int,
+        vararg players: Player,
+    )
 }
