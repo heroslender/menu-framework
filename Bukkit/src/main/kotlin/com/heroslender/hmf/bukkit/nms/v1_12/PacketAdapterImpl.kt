@@ -6,7 +6,6 @@ import com.heroslender.hmf.bukkit.nms.PacketAdapter
 import net.minecraft.server.v1_12_R1.DataWatcher
 import net.minecraft.server.v1_12_R1.DataWatcherObject
 import net.minecraft.server.v1_12_R1.DataWatcherRegistry
-import net.minecraft.server.v1_12_R1.EntityItemFrame
 import net.minecraft.server.v1_12_R1.Item
 import net.minecraft.server.v1_12_R1.ItemStack
 import net.minecraft.server.v1_12_R1.Packet
@@ -23,9 +22,8 @@ import java.util.*
 class PacketAdapterImpl : PacketAdapter {
     companion object {
         private val MAP_ITEM: Item = CraftMagicNumbers.getItem(Material.MAP)
-        private val itemFrameItemWatcher: DataWatcherObject<ItemStack>? = DataWatcher.a(
-            EntityItemFrame::class.java, DataWatcherRegistry.f
-        )
+
+        private val itemFrameItemWatcher: DataWatcherObject<ItemStack> = DataWatcherRegistry.f.a(6)
     }
 
     override fun spawnMapItemFrame(
