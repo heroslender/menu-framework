@@ -1,0 +1,3 @@
+[*.kt]
+# Disable wildcard imports for NMS
+ij_kotlin_name_count_to_use_star_import = 15

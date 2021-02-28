@@ -3,7 +3,6 @@ package com.heroslender.hmf.bukkit
 import com.heroslender.hmf.bukkit.map.MapIcon
 import com.heroslender.hmf.bukkit.nms.PacketAdapter
 import org.bukkit.entity.Player
-import org.bukkit.map.MapView
 
 /**
  * This represents a single item frame/map in the menu.
@@ -22,17 +21,18 @@ class MenuChunk(
     }
 
     fun sendCursorUpdate(
-        cursor: MapIcon,
+        cursor: MapIcon? = null,
     ) {
         packetAdapter.updateMap(
             id,
-            MapView.Scale.CLOSEST.value,
-            listOf(cursor),
+            0,
+            cursor?.let { listOf(cursor) } ?: emptyList(),
             EMPTY_BUFFER,
             0,
             0,
             0,
-            0
+            0,
+            owner,
         )
     }
 
