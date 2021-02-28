@@ -60,9 +60,9 @@ subprojects {
 
                 credentials {
                     username = project.findProperty("nexus.user") as? String
-                        ?: System.getenv("USERNAME")
+                        ?: System.getenv("NEXUS_USERNAME")
                     password = project.findProperty("nexus.key") as? String
-                        ?: System.getenv("TOKEN")
+                        ?: System.getenv("NEXUS_PASSWORD")
                 }
             }
         }

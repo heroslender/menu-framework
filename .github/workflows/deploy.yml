@@ -1,0 +1,23 @@
+name: Deploy to Nexus repository
+on: [ push, pull_request ]
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                java: [ 8 ]
+            fail-fast: true
+        steps:
+            - uses: actions/checkout@v2
+            - name: JDK ${{ matrix.java }}
+              uses: actions/setup-java@v1
+              with:
+                  java-version: ${{ matrix.java }}
+            - name: Build
+              run: gradle clean build
+            - name: Publish
+              run: gradle publish
+              env:
+                  NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+                  NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
