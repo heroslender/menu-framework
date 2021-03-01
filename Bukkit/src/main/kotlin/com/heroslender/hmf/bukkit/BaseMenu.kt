@@ -9,7 +9,7 @@ import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 
-class BaseMenu(
+open class BaseMenu(
     val owner: Player,
     val width: Int = 4,
     val height: Int = 3,
