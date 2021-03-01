@@ -10,7 +10,5 @@ data class MenuOptions(
         val updateDelay: Long = 2,
         val iconType: MapIcon.Type = MapIcon.Type.GREEN_POINTER,
         val iconRotation: Byte = 6,
-    ) {
-
-    }
+    )
 }

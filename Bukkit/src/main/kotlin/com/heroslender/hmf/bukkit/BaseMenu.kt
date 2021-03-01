@@ -1,5 +1,7 @@
 package com.heroslender.hmf.bukkit
 
+import com.heroslender.hmf.bukkit.listeners.MenuListeners
+import com.heroslender.hmf.bukkit.map.Color
 import com.heroslender.hmf.bukkit.map.MapIcon
 import com.heroslender.hmf.bukkit.utils.BoundingBox
 import com.heroslender.hmf.bukkit.utils.clamp
@@ -7,6 +9,7 @@ import com.heroslender.hmf.bukkit.utils.clampByte
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.entity.Player
+import org.bukkit.event.block.Action
 import org.bukkit.plugin.java.JavaPlugin
 
 open class BaseMenu(
@@ -102,6 +105,8 @@ open class BaseMenu(
         }
 
         registerMouseCursor()
+
+        HmfBukkit.manager.add(this)
     }
 
     fun destroy() {
@@ -143,6 +148,29 @@ open class BaseMenu(
 
                 prevId = index
             }
+        }
+    }
+
+    fun onInteract(action: Action) {
+        raytrace { x, y ->
+            val index = clamp(x.toInt(), 0, width - 1) + clamp(y.toInt(), 0, height - 1) * width
+            if (index >= chunks.size) {
+                // Outside the menu? This should not happen
+                return@raytrace
+            }
+
+            val chunk = chunks[index]
+            val mapX = ((x % 1) * 128).toInt()
+            val mapY = ((y % 1) * 128).toInt()
+
+            val color = when (action) {
+                Action.LEFT_CLICK_AIR, Action.LEFT_CLICK_BLOCK -> Color.BLACK_1.id
+                Action.RIGHT_CLICK_AIR, Action.RIGHT_CLICK_BLOCK -> Color.WHITE_11.id
+                else -> Color.GREEN_18.id
+            }
+
+            chunk.buffer[mapX + mapY * 128] = color
+            chunk.sendUpdate()
         }
     }
 
