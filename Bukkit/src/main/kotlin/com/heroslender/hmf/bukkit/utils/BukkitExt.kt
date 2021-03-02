@@ -1,8 +1,8 @@
-package com.heroslender.hmf.bukkit
+package com.heroslender.hmf.bukkit.utils
 
 import org.bukkit.Bukkit
 import org.bukkit.Location
-import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.plugin.Plugin
 
 /**
  * Fixes the yaw angle.
@@ -26,5 +26,5 @@ val Location.patchedYaw: Float
 /**
  * Simplify scheduling bukkit tasks.
  */
-inline fun scheduleAsyncTimer(plugin: JavaPlugin, delay: Long, op: Runnable): Int =
+inline fun scheduleAsyncTimer(plugin: Plugin, delay: Long, op: Runnable): Int =
     Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, op, 0, delay).taskId

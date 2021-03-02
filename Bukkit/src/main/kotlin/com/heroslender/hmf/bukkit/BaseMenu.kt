@@ -1,31 +1,29 @@
 package com.heroslender.hmf.bukkit
 
-import com.heroslender.hmf.bukkit.listeners.MenuListeners
 import com.heroslender.hmf.bukkit.map.Color
 import com.heroslender.hmf.bukkit.map.MapIcon
 import com.heroslender.hmf.bukkit.utils.BoundingBox
 import com.heroslender.hmf.bukkit.utils.clamp
 import com.heroslender.hmf.bukkit.utils.clampByte
-import org.bukkit.Bukkit
+import com.heroslender.hmf.bukkit.utils.ignore
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.event.block.Action
-import org.bukkit.plugin.java.JavaPlugin
 
-open class BaseMenu(
+abstract class BaseMenu(
     val owner: Player,
     val width: Int = 4,
     val height: Int = 3,
     val direction: Direction = Direction.from(owner).opposite(),
+    val manager: BukkitMenuManager,
     val opts: MenuOptions = MenuOptions(),
-) {
+) : BukkitMenu {
     var startX: Int = 0
     var startY: Int = 0
     var startZ: Int = 0
 
     private var chunks: Array<MenuChunk> = emptyArray()
-
-    private var boundingBox: BoundingBox = BoundingBox.EMPTY
+    override var boundingBox: BoundingBox = BoundingBox.EMPTY
 
     fun setupAndSend() {
         setup()
@@ -104,82 +102,69 @@ open class BaseMenu(
             chunk.sendUpdate()
         }
 
-        registerMouseCursor()
-
-        HmfBukkit.manager.add(this)
+        manager.add(this)
     }
 
     fun destroy() {
-        Bukkit.getScheduler().cancelTask(cursorTaskId)
-
         for (chunk in chunks) {
             chunk.destroy()
         }
     }
 
-    var cursorTaskId: Int = 0
-    private fun registerMouseCursor() {
-        var prevId = -1
-
-        // Mouse render
-        cursorTaskId = scheduleAsyncTimer(JavaPlugin.getProvidingPlugin(this::class.java), opts.cursor.updateDelay) {
-            raytrace { x, y ->
-                val index = clamp(x.toInt(), 0, width - 1) + clamp(y.toInt(), 0, height - 1) * width
-                if (index >= chunks.size) {
-                    // Outside the menu? This should not happen
-                    return@raytrace
-                }
-
-                val chunk = chunks[index]
-                val mapX = ((x % 1) * 256).toInt() - 118
-                val mapY = ((y % 1) * 256).toInt() - 118
-
-                chunk.sendCursorUpdate(MapIcon(
-                    clampByte(mapX),
-                    clampByte(mapY),
-                    opts.cursor.iconRotation,
-                    opts.cursor.iconType,
-                ))
-
-                // Remove the cursor from previous map
-                if (prevId >= 0 && prevId != index) {
-                    chunks[prevId].sendCursorUpdate()
-                }
-
-                prevId = index
-            }
+    var prevCursorMapId = -1
+    override fun tickCursor() = raytrace { x, y ->
+        val index = clamp(x.toInt(), 0, width - 1) + clamp(y.toInt(), 0, height - 1) * width
+        if (index >= chunks.size) {
+            // Outside the menu? This should not happen
+            return@raytrace
         }
+
+        val chunk = chunks[index]
+        val mapX = ((x % 1) * 256).toInt() - 118
+        val mapY = ((y % 1) * 256).toInt() - 118
+
+        chunk.sendCursorUpdate(MapIcon(
+            clampByte(mapX),
+            clampByte(mapY),
+            opts.cursor.iconRotation,
+            opts.cursor.iconType,
+        ))
+
+        // Remove the cursor from previous map
+        if (prevCursorMapId >= 0 && prevCursorMapId != index) {
+            chunks[prevCursorMapId].sendCursorUpdate()
+        }
+
+        prevCursorMapId = index
+    }.ignore()
+
+    override fun onInteract(action: Action): Boolean = raytrace { x, y ->
+        val index = clamp(x.toInt(), 0, width - 1) + clamp(y.toInt(), 0, height - 1) * width
+        if (index >= chunks.size) {
+            // Outside the menu? This should not happen
+            return@raytrace
+        }
+
+        val chunk = chunks[index]
+        val mapX = ((x % 1) * 128).toInt()
+        val mapY = ((y % 1) * 128).toInt()
+
+        val color = when (action) {
+            Action.LEFT_CLICK_AIR, Action.LEFT_CLICK_BLOCK -> Color.BLACK_1.id
+            Action.RIGHT_CLICK_AIR, Action.RIGHT_CLICK_BLOCK -> Color.WHITE_11.id
+            else -> Color.GREEN_18.id
+        }
+
+        chunk.buffer[mapX + mapY * 128] = color
+        chunk.sendUpdate()
     }
 
-    fun onInteract(action: Action) {
-        raytrace { x, y ->
-            val index = clamp(x.toInt(), 0, width - 1) + clamp(y.toInt(), 0, height - 1) * width
-            if (index >= chunks.size) {
-                // Outside the menu? This should not happen
-                return@raytrace
-            }
-
-            val chunk = chunks[index]
-            val mapX = ((x % 1) * 128).toInt()
-            val mapY = ((y % 1) * 128).toInt()
-
-            val color = when (action) {
-                Action.LEFT_CLICK_AIR, Action.LEFT_CLICK_BLOCK -> Color.BLACK_1.id
-                Action.RIGHT_CLICK_AIR, Action.RIGHT_CLICK_BLOCK -> Color.WHITE_11.id
-                else -> Color.GREEN_18.id
-            }
-
-            chunk.buffer[mapX + mapY * 128] = color
-            chunk.sendUpdate()
-        }
-    }
-
-    private inline fun raytrace(onIntersect: (x: Double, y: Double) -> Unit) {
+    private inline fun raytrace(onIntersect: (x: Double, y: Double) -> Unit): Boolean {
         val intersection = boundingBox.rayTrace(
             start = owner.eyeLocation.toVector(),
             direction = owner.location.direction,
-            maxDistance = opts.maxInteractDistance
-        ) ?: return
+            maxDistance = manager.opts.maxInteractDistance
+        ) ?: return false
 
         val rd = direction.rotateLeft()
         val x = if (rd.x != 0) {
@@ -190,5 +175,6 @@ open class BaseMenu(
         val y = boundingBox.maxY - intersection.y
 
         onIntersect(if (x < 0) x + width else x, y)
+        return true
     }
 }
