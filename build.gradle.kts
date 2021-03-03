@@ -6,16 +6,9 @@ plugins {
     `java-library`
 }
 
-val projectGroup = "com.heroslender"
-val projectVersion = "0.0.1-SNAPSHOT"
-
-group = projectGroup
-version = projectVersion
-displayName
-
 allprojects {
-    group = projectGroup
-    version = projectVersion
+    group = "com.heroslender"
+    version = "0.0.1-SNAPSHOT"
 
     repositories {
         mavenCentral()
