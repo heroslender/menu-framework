@@ -15,10 +15,10 @@ class BukkitMenuManager(
 ) : MenuManager<Player, BaseMenu> {
     private val menus: MutableList<BaseMenu> = mutableListOf()
 
-    var cursorTaskId: Int = 0
+    private var cursorTaskId: Int = 0
 
-    var menuClickListener: Listener? = null
-    var menuListeners: Listener? = null
+    private var menuClickListener: Listener? = null
+    private var menuListeners: Listener? = null
 
     init {
         if (opts.cursorUpdateDelay > 0) {

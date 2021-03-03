@@ -1,6 +1,7 @@
 package com.heroslender.hmf.bukkit
 
 import com.heroslender.hmf.bukkit.map.Color
+import com.heroslender.hmf.bukkit.map.MapCanvas
 import com.heroslender.hmf.bukkit.map.MapIcon
 import com.heroslender.hmf.bukkit.utils.BoundingBox
 import com.heroslender.hmf.bukkit.utils.clamp
@@ -16,6 +17,7 @@ abstract class BaseMenu(
     val height: Int = 3,
     val direction: Direction = Direction.from(owner).opposite(),
     val manager: BukkitMenuManager,
+    override val context: BukkitContext = Context(MapCanvas(width * 128, height * 128)),
     val opts: MenuOptions = MenuOptions(),
 ) : BukkitMenu {
     var startX: Int = 0
@@ -23,14 +25,9 @@ abstract class BaseMenu(
     var startZ: Int = 0
 
     private var chunks: Array<MenuChunk> = emptyArray()
-    override var boundingBox: BoundingBox = BoundingBox.EMPTY
+    final override var boundingBox: BoundingBox = BoundingBox.EMPTY
 
-    fun setupAndSend() {
-        setup()
-        send()
-    }
-
-    fun setup() {
+    init {
         val startScreen: Location = owner.location.clone()
             .apply { pitch = 0F }
             .let { it.add(it.direction.multiply(2)) }
@@ -94,12 +91,34 @@ abstract class BaseMenu(
             val y = index / width
 
             chunk.create(chunk.id, startX + x * pd.x, startY + -y, startZ + x * pd.z, direction)
+        }
 
-            // Fill screen
-            for (i in chunk.buffer.indices) {
-                chunk.buffer[i] = 20
+        context.onUpdate {
+            val canvas = context.canvas
+
+            chunks.forEachIndexed { index, chunk ->
+                val startX = index % width * 128
+                val startY = index / width * 128
+
+                for (x in 0..127) {
+                    for (y in 0..127) {
+                        chunk.buffer[x + y * 128] = canvas[x + startX, y + startY]
+                    }
+                }
+
+                chunk.sendUpdate()
             }
-            chunk.sendUpdate()
+        }
+
+        // Fill the canvas
+        with(context.canvas) {
+            for (x in 0 until width) {
+                for (y in 0 until height) {
+                    setPixel(x, y, Color.BLUE_20)
+                }
+            }
+
+            context.update()
         }
 
         manager.add(this)
@@ -145,18 +164,16 @@ abstract class BaseMenu(
             return@raytrace
         }
 
-        val chunk = chunks[index]
-        val mapX = ((x % 1) * 128).toInt()
-        val mapY = ((y % 1) * 128).toInt()
-
+        val mapX = (x * 128).toInt()
+        val mapY = (y * 128).toInt()
         val color = when (action) {
-            Action.LEFT_CLICK_AIR, Action.LEFT_CLICK_BLOCK -> Color.BLACK_1.id
-            Action.RIGHT_CLICK_AIR, Action.RIGHT_CLICK_BLOCK -> Color.WHITE_11.id
-            else -> Color.GREEN_18.id
+            Action.LEFT_CLICK_AIR, Action.LEFT_CLICK_BLOCK -> Color.BLACK_1
+            Action.RIGHT_CLICK_AIR, Action.RIGHT_CLICK_BLOCK -> Color.WHITE_11
+            else -> Color.GREEN_18
         }
 
-        chunk.buffer[mapX + mapY * 128] = color
-        chunk.sendUpdate()
+        context.canvas.setPixel(mapX, mapY, color)
+        context.update()
     }
 
     private inline fun raytrace(onIntersect: (x: Double, y: Double) -> Unit): Boolean {
