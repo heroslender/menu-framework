@@ -46,7 +46,6 @@ abstract class DrawableComponent(
             return false
         }
 
-        println("rendering")
         val context = renderContext ?: return false
         isDirty = false
         val positionX = positionX

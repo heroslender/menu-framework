@@ -51,7 +51,6 @@ class BoxComponent(
 
     override fun render(): Boolean {
         super.render()
-        println("render:" + this.javaClass.simpleName + " -> " + children.size)
 
         var rendered = false
         for (child in children) {
@@ -77,7 +76,6 @@ class BoxComponent(
 
         val currOffX = offsetX + modifier.paddingLeft
         val currOffY = offsetY + modifier.paddingTop
-        println(this.javaClass.simpleName + " -> " + children.size)
 
         val childrenIterator = _children.iterator()
         for (child in childrenIterator) {
@@ -159,7 +157,6 @@ class BoxComponent(
                 }
             }
 
-            println("$offX $offY ${child.javaClass.simpleName}")
             child.reRender(offX, offY, context)
         }
     }
