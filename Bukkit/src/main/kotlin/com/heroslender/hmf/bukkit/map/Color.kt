@@ -8,8 +8,12 @@ import com.heroslender.hmf.core.IColor
  * @see <a href="https://minecraft.gamepedia.com/Map_item_format#Color_table">Map Item Format - Color Table</a>
  */
 @Suppress("unused")
-enum class Color(override val id: Byte, override val color: java.awt.Color) : IColor {
-    TRANSPARENT(0, java.awt.Color(0, 0, 0, 0)),
+enum class Color(
+    override val id: Byte,
+    override val color: java.awt.Color,
+    override val isTransparent: Boolean = false,
+) : IColor {
+    TRANSPARENT(0, java.awt.Color(0, 0, 0, 0), isTransparent = true),
     BLACK_1(119, java.awt.Color(13, 13, 13)),
     BLACK_2(116, java.awt.Color(17, 17, 17)),
     BLACK_3(117, java.awt.Color(21, 21, 21)),
@@ -152,4 +156,10 @@ enum class Color(override val id: Byte, override val color: java.awt.Color) : IC
     PINK_4(81, java.awt.Color(206, 108, 140));
 
     constructor(color: Int, ignored: java.awt.Color) : this(color.toByte(), ignored)
+
+    companion object {
+        init {
+            IColor.TRANSPARENT = TRANSPARENT
+        }
+    }
 }

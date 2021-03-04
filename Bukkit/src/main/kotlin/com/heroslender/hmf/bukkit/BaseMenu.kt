@@ -77,6 +77,7 @@ abstract class BaseMenu(
     }
 
     fun send() {
+
         chunks = Array(width * height) { index ->
             // TODO Fix map ids
             MenuChunk(
@@ -110,18 +111,9 @@ abstract class BaseMenu(
             }
         }
 
-        // Fill the canvas
-        with(context.canvas) {
-            for (x in 0 until width) {
-                for (y in 0 until height) {
-                    setPixel(x, y, Color.BLUE_20)
-                }
-            }
-
-            context.update()
-        }
-
         manager.add(this)
+
+        render()
     }
 
     fun destroy() {

@@ -17,4 +17,10 @@ interface IColor {
      * The color value.
      */
     val color: Color
+
+    val isTransparent: Boolean
+
+    companion object {
+        lateinit var TRANSPARENT: IColor
+    }
 }
