@@ -54,29 +54,30 @@ class Font(
             stream { spriteX, spriteY ->
                 val x = spriteX + 1
                 val y = spriteY + 1
+                val width = this.width + 2
 
-                if (!getValue(x + 1, y)) {
+                if (!getValue(spriteX + 1, spriteY)) {
                     border[y * width + x + 1] = true
                 }
-                if (!getValue(x - 1, y)) {
+                if (!getValue(spriteX - 1, spriteY)) {
                     border[y * width + x - 1] = true
                 }
-                if (!getValue(x, y + 1)) {
+                if (!getValue(spriteX, spriteY + 1)) {
                     border[(y + 1) * width + x] = true
                 }
-                if (!getValue(x, y - 1)) {
+                if (!getValue(spriteX, spriteY - 1)) {
                     border[(y - 1) * width + x] = true
                 }
-                if (!getValue(x + 1, y + 1)) {
+                if (!getValue(spriteX + 1, spriteY + 1)) {
                     border[(y + 1) * width + x + 1] = true
                 }
-                if (!getValue(x - 1, y - 1)) {
+                if (!getValue(spriteX - 1, spriteY - 1)) {
                     border[(y - 1) * width + x - 1] = true
                 }
-                if (!getValue(x - 1, y + 1)) {
+                if (!getValue(spriteX - 1, spriteY + 1)) {
                     border[(y + 1) * width + x - 1] = true
                 }
-                if (!getValue(x + 1, y - 1)) {
+                if (!getValue(spriteX + 1, spriteY - 1)) {
                     border[(y - 1) * width + x + 1] = true
                 }
             }
@@ -111,6 +112,8 @@ class Font(
         }
 
         inline fun streamBorder(op: (x: Int, y: Int) -> Unit) {
+            val width = this.width + 2
+
             border.forEachIndexed { i, v ->
                 if (v) {
                     val x: Int = i % width - 1
