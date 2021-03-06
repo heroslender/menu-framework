@@ -108,7 +108,7 @@ class LabelComponent(
                     }
                 } else if (!shadowColor.isTransparent) {
                     sprite.streamShadow { x, y ->
-                        setPixel(startX + x, startY + y, borderColor)
+                        setPixel(startX + x, startY + y, shadowColor)
                     }
                 }
 
