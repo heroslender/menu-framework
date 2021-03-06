@@ -24,6 +24,7 @@ subprojects {
     dependencies {
         implementation(kotlin("stdlib-jdk8"))
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2")
+        implementation("it.unimi.dsi:fastutil:8.5.2")
 
         testImplementation(platform("org.junit:junit-bom:5.7.1"))
         testImplementation("org.junit.jupiter:junit-jupiter")
