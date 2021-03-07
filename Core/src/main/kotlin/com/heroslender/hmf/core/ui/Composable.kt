@@ -32,10 +32,10 @@ interface Composable : Component {
     override fun <R> foldOut(acc: R, op: (R, Component) -> R): R {
         var a = acc
 
-        for (child in children) {
-            a = child.foldIn(a, op)
+        for (child in children.reversed()) {
+            a = child.foldOut(a, op)
         }
 
-        return super.foldIn(a, op)
+        return super.foldOut(a, op)
     }
 }
