@@ -21,10 +21,14 @@ subprojects {
         plugin("org.gradle.maven-publish")
     }
 
+    repositories {
+        maven("https://nexus.heroslender.com/repository/maven-public/")
+    }
+
     dependencies {
-        implementation(kotlin("stdlib-jdk8"))
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2")
-        implementation("it.unimi.dsi:fastutil:8.5.2")
+        compileOnly(kotlin("stdlib-jdk8"))
+        // Custom minimized fastutil dep made using `./find-deps.sh`
+        implementation("it.unimi.dsi:fastutil-min:8.5.2-HMF")
 
         testImplementation(platform("org.junit:junit-bom:5.7.1"))
         testImplementation("org.junit.jupiter:junit-jupiter")

@@ -10,7 +10,7 @@ dependencies {
     v1_12("org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT")
     v1_8("org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT")
 
-    implementation(project(":Core"))
+    api(project(":Core"))
 }
 
 sourceSets {
