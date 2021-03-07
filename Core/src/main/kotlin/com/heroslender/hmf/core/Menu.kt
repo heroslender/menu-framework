@@ -18,6 +18,7 @@ interface Menu {
 
         root.render()
 
+        context.root = root
         context.update()
     }
 }

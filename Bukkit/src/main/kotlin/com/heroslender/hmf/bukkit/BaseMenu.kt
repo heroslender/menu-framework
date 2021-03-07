@@ -1,12 +1,12 @@
 package com.heroslender.hmf.bukkit
 
-import com.heroslender.hmf.bukkit.map.Color
 import com.heroslender.hmf.bukkit.map.MapCanvas
 import com.heroslender.hmf.bukkit.map.MapIcon
 import com.heroslender.hmf.bukkit.utils.BoundingBox
 import com.heroslender.hmf.bukkit.utils.clamp
 import com.heroslender.hmf.bukkit.utils.clampByte
 import com.heroslender.hmf.bukkit.utils.ignore
+import com.heroslender.hmf.core.ui.modifier.modifiers.ClickEvent
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.event.block.Action
@@ -77,7 +77,6 @@ abstract class BaseMenu(
     }
 
     fun send() {
-
         chunks = Array(width * height) { index ->
             // TODO Fix map ids
             MenuChunk(
@@ -150,22 +149,17 @@ abstract class BaseMenu(
     }.ignore()
 
     override fun onInteract(action: Action): Boolean = raytrace { x, y ->
-        val index = clamp(x.toInt(), 0, width - 1) + clamp(y.toInt(), 0, height - 1) * width
-        if (index >= chunks.size) {
-            // Outside the menu? This should not happen
-            return@raytrace
-        }
-
         val mapX = (x * 128).toInt()
         val mapY = (y * 128).toInt()
-        val color = when (action) {
-            Action.LEFT_CLICK_AIR, Action.LEFT_CLICK_BLOCK -> Color.BLACK_1
-            Action.RIGHT_CLICK_AIR, Action.RIGHT_CLICK_BLOCK -> Color.WHITE_11
-            else -> Color.GREEN_18
+
+        val type = when (action) {
+            Action.RIGHT_CLICK_BLOCK, Action.RIGHT_CLICK_AIR ->
+                ClickEvent.Type.RIGHT_CLICK
+            else ->
+                ClickEvent.Type.LEFT_CLICK
         }
 
-        context.canvas.setPixel(mapX, mapY, color)
-        context.update()
+        context.handleClick(mapX, mapY, type)
     }
 
     private inline fun raytrace(onIntersect: (x: Double, y: Double) -> Unit): Boolean {

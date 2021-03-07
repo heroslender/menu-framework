@@ -1,7 +1,7 @@
 package com.heroslender.hmf.core.ui
 
 import com.heroslender.hmf.core.RenderContext
-import com.heroslender.hmf.core.ui.modifier.*
+import com.heroslender.hmf.core.ui.modifier.Modifier
 import com.heroslender.hmf.core.ui.modifier.modifiers.marginHorizontal
 import com.heroslender.hmf.core.ui.modifier.modifiers.marginVertical
 import com.heroslender.hmf.core.ui.modifier.modifiers.paddingHorizontal
@@ -119,4 +119,9 @@ interface Component {
      * Render the component to the canvas if needed
      */
     fun render(): Boolean
+
+    fun <R> foldIn(acc: R, op: (R, Component) -> R): R = op(acc, this)
+
+    fun <R> foldOut(acc: R, op: (R, Component) -> R): R = op(acc, this)
+
 }

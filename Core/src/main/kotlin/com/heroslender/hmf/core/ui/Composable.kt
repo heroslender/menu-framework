@@ -18,4 +18,24 @@ interface Composable : Component {
      * Initialize this composable composition.
      */
     fun compose()
+
+    override fun <R> foldIn(acc: R, op: (R, Component) -> R): R {
+        var a = super.foldIn(acc, op)
+
+        for (child in children) {
+            a = child.foldIn(a, op)
+        }
+
+        return a
+    }
+
+    override fun <R> foldOut(acc: R, op: (R, Component) -> R): R {
+        var a = acc
+
+        for (child in children) {
+            a = child.foldIn(a, op)
+        }
+
+        return super.foldIn(a, op)
+    }
 }
