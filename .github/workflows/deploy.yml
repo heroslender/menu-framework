@@ -1,5 +1,10 @@
 name: Deploy to Nexus repository
-on: [ push, pull_request ]
+on:
+    workflow_run:
+        workflows: [ "Build" ]
+        branches: [ main ]
+        types:
+            - completed
 
 jobs:
     deploy:
@@ -14,8 +19,6 @@ jobs:
               uses: actions/setup-java@v1
               with:
                   java-version: ${{ matrix.java }}
-            - name: Build
-              run: gradle clean build
             - name: Publish
               run: gradle publish
               env:
