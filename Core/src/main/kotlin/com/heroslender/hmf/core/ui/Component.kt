@@ -123,5 +123,4 @@ interface Component {
     fun <R> foldIn(acc: R, op: (R, Component) -> R): R = op(acc, this)
 
     fun <R> foldOut(acc: R, op: (R, Component) -> R): R = op(acc, this)
-
 }

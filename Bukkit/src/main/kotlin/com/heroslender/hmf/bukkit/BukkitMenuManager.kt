@@ -23,7 +23,6 @@ class BukkitMenuManager(
     init {
         if (opts.cursorUpdateDelay > 0) {
             registerCursorTask()
-            menus.filter { true }.count()
         }
 
         if (opts.listenClicks) {
