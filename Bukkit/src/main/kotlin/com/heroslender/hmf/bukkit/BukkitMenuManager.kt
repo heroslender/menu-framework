@@ -16,13 +16,14 @@ class BukkitMenuManager(
     private val menus: MutableList<BaseMenu> = mutableListOf()
 
     private var cursorTaskId: Int = 0
+    private var renderTaskId: Int = 0
 
     private var menuClickListener: Listener? = null
     private var menuListeners: Listener? = null
 
     init {
         if (opts.cursorUpdateDelay > 0) {
-            registerCursorTask()
+            launchCursorTask()
         }
 
         if (opts.listenClicks) {
@@ -34,6 +35,8 @@ class BukkitMenuManager(
         this.menuListeners = MenuListeners(this).also { listener ->
             Bukkit.getPluginManager().registerEvents(listener, plugin)
         }
+
+        launchRenderTask()
     }
 
     override fun get(owner: Player): BaseMenu? {
@@ -50,10 +53,18 @@ class BukkitMenuManager(
         menus.add(menu)
     }
 
-    private fun registerCursorTask() {
+    private fun launchCursorTask() {
         cursorTaskId = scheduleAsyncTimer(plugin, opts.cursorUpdateDelay) {
             for (menu in menus) {
                 menu.tickCursor()
+            }
+        }
+    }
+
+    private fun launchRenderTask() {
+        renderTaskId = scheduleAsyncTimer(plugin, 10) {
+            for (menu in menus) {
+                render(menu)
             }
         }
     }
