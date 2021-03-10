@@ -52,13 +52,11 @@ abstract class DrawableComponent(
         val positionY = positionY
 
         // Temporary canvas to handle transparent pixels
-        val tempCanvas: Canvas = context.canvas.newCanvas()
+        val tempCanvas: Canvas = context.canvas.newCanvas(this.width, this.height)
 
-        draw { x, y, color ->
-            tempCanvas.setPixel(x + positionX, y + positionY, color)
-        }
+        draw(tempCanvas::setPixel)
 
-        context.canvas.draw(tempCanvas)
+        context.canvas.draw(tempCanvas, positionX, positionY)
 
         return true
     }

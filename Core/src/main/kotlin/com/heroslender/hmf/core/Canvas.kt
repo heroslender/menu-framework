@@ -12,7 +12,7 @@ interface Canvas {
 
     fun getPixelByte(x: Int, y: Int): Byte
 
-    fun draw(other: Canvas)
+    fun draw(other: Canvas, offsetX: Int = 0, offsetY: Int = 0)
 
     fun newCanvas(width: Int = this.width, height: Int = this.height): Canvas
 }
