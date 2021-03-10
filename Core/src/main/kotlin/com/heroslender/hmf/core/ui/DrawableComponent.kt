@@ -18,6 +18,12 @@ abstract class DrawableComponent(
 
     override var isDirty: Boolean = true
 
+    override var hasState: Boolean = false
+
+    // Keep track of the previous canvas, so that when the state updates
+    // this component won't be drawn over the previous
+    private var prevCanvas: Canvas? = null
+
     override var isDisposed: Boolean = false
 
     override var width: Int = 0
@@ -51,8 +57,13 @@ abstract class DrawableComponent(
         val positionX = positionX
         val positionY = positionY
 
+        if (hasState && prevCanvas == null) {
+            prevCanvas = context.canvas.subCanvas(this.width, this.height, positionX, positionY)
+        }
+        ensureCachedCanvasSize()
+
         // Temporary canvas to handle transparent pixels
-        val tempCanvas: Canvas = context.canvas.newCanvas(this.width, this.height)
+        val tempCanvas: Canvas = this.prevCanvas?.clone() ?: context.canvas.newCanvas(this.width, this.height)
 
         draw(tempCanvas::setPixel)
 
@@ -65,5 +76,60 @@ abstract class DrawableComponent(
         this.positionX = offsetX
         this.positionY = offsetY
         this.renderContext = context
+    }
+
+    private fun ensureCachedCanvasSize() {
+        val prevCanvas = this.prevCanvas
+        if (prevCanvas != null && (prevCanvas.width != this.width || prevCanvas.height != this.height)) {
+            // Component resized, adapt the previous canvas cache to the new component size
+            val contextCanvas = renderContext?.canvas ?: return
+            val newPrev = prevCanvas.subCanvas(this.width, this.height)
+
+            if (prevCanvas.width < this.width) {
+                for (x in prevCanvas.width until this.width) {
+                    for (y in 0 until prevCanvas.height) {
+                        newPrev.setPixelByte(x, y, contextCanvas.getPixelByte(x + positionX, y + positionY))
+                    }
+                }
+            }
+            if (prevCanvas.height < this.height) {
+                for (x in 0 until prevCanvas.width) {
+                    for (y in prevCanvas.height until this.height) {
+                        newPrev.setPixelByte(x, y, contextCanvas.getPixelByte(x + positionX, y + positionY))
+                    }
+                }
+            }
+            if (prevCanvas.width < this.width && prevCanvas.height < this.height) {
+                for (x in prevCanvas.width until this.width) {
+                    for (y in prevCanvas.height until this.height) {
+                        newPrev.setPixelByte(x, y, contextCanvas.getPixelByte(x + positionX, y + positionY))
+                    }
+                }
+            }
+
+            if (prevCanvas.width > this.width) {
+                for (x in this.width until prevCanvas.width) {
+                    for (y in 0 until prevCanvas.height) {
+                        contextCanvas.setPixelByte(x + positionX, y + positionY, prevCanvas.getPixelByte(x, y))
+                    }
+                }
+            }
+            if (prevCanvas.height > this.height) {
+                for (x in 0 until prevCanvas.width) {
+                    for (y in this.height until prevCanvas.height) {
+                        contextCanvas.setPixelByte(x + positionX, y + positionY, prevCanvas.getPixelByte(x, y))
+                    }
+                }
+            }
+            if (prevCanvas.width > this.width && prevCanvas.height > this.height) {
+                for (x in this.width until prevCanvas.width) {
+                    for (y in this.height until prevCanvas.height) {
+                        contextCanvas.setPixelByte(x + positionX, y + positionY, prevCanvas.getPixelByte(x, y))
+                    }
+                }
+            }
+
+            this.prevCanvas = newPrev
+        }
     }
 }
