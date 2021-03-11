@@ -30,7 +30,7 @@ interface MenuManager<O, M : Menu> {
             component.compose()
         }
 
-        rootComponent.reRender(0, 0, context)
+        rootComponent.reRender(0, 0)
 
         val rendered = rootComponent.render()
         if (rendered) {

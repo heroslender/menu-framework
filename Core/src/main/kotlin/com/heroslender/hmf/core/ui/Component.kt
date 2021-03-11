@@ -65,7 +65,7 @@ interface Component {
     /**
      * The context in which this component is being rendered.
      */
-    var renderContext: RenderContext?
+    val renderContext: RenderContext
 
     /**
      * The `x` position for this component in the canvas.
@@ -118,7 +118,7 @@ interface Component {
      * Initialize the component position and [context], preparing
      * it for rendering.
      */
-    fun reRender(offsetX: Int, offsetY: Int, context: RenderContext)
+    fun reRender(offsetX: Int, offsetY: Int)
 
     /**
      * Render the component to the canvas if needed

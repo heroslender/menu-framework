@@ -11,8 +11,8 @@ import com.heroslender.hmf.core.ui.modifier.drawer.Drawer
 abstract class DrawableComponent(
     override val parent: Composable?,
     override val modifier: Modifier = Modifier,
+    override val renderContext: RenderContext = parent!!.renderContext,
 ) : Component {
-    override var renderContext: RenderContext? = null
     override var positionX: Int = 0
     override var positionY: Int = 0
 
@@ -72,17 +72,16 @@ abstract class DrawableComponent(
         return true
     }
 
-    override fun reRender(offsetX: Int, offsetY: Int, context: RenderContext) {
+    override fun reRender(offsetX: Int, offsetY: Int) {
         this.positionX = offsetX
         this.positionY = offsetY
-        this.renderContext = context
     }
 
     private fun ensureCachedCanvasSize() {
         val prevCanvas = this.prevCanvas
         if (prevCanvas != null && (prevCanvas.width != this.width || prevCanvas.height != this.height)) {
             // Component resized, adapt the previous canvas cache to the new component size
-            val contextCanvas = renderContext?.canvas ?: return
+            val contextCanvas = renderContext.canvas
             val newPrev = prevCanvas.subCanvas(this.width, this.height)
 
             if (prevCanvas.width < this.width) {

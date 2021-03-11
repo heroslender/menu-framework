@@ -58,8 +58,8 @@ abstract class ComponentBuilder(
         children.filterIsInstance<Composable>().forEach(Composable::compose)
     }
 
-    override fun reRender(offsetX: Int, offsetY: Int, context: RenderContext) {
-        super.reRender(offsetX, offsetY, context)
+    override fun reRender(offsetX: Int, offsetY: Int) {
+        super.reRender(offsetX, offsetY)
 
         computeChildrenSizes(_children, width - modifier.paddingHorizontal, height - modifier.paddingVertical)
 
@@ -75,9 +75,9 @@ abstract class ComponentBuilder(
         }
 
         if (orientation == Orientation.HORIZONTAL) {
-            computeHorizontalPositions(currOffX, currOffY, this._children, context)
+            computeHorizontalPositions(currOffX, currOffY, this._children)
         } else {
-            computeVerticalPositions(currOffX, currOffY, this._children, context)
+            computeVerticalPositions(currOffX, currOffY, this._children)
         }
     }
 
@@ -190,7 +190,6 @@ abstract class ComponentBuilder(
         componentOffX: Int,
         componentOffY: Int,
         children: List<Component>,
-        context: RenderContext,
     ) {
         var currOffX: Int = componentOffX
         val widthFillCount = children.count { it.modifier.width === Fill }
@@ -241,7 +240,7 @@ abstract class ComponentBuilder(
                         componentOffY + height - modifier.paddingVertical - child.height
                     }
                 }
-                child.reRender(currOffX, offY, context)
+                child.reRender(currOffX, offY)
                 currOffX += child.width + mod.marginRight
             }
         } else {
@@ -260,7 +259,7 @@ abstract class ComponentBuilder(
                         componentOffY + height - modifier.paddingVertical - child.height
                     }
                 }
-                child.reRender(currOffX, offY, context)
+                child.reRender(currOffX, offY)
                 currOffX += child.width + mod.marginRight
             }
         }
@@ -270,7 +269,6 @@ abstract class ComponentBuilder(
         componentOffX: Int,
         componentOffY: Int,
         children: List<Component>,
-        context: RenderContext,
     ) {
         var currOffY: Int = componentOffY
         val heightFillCount = children.count { it.modifier.height === Fill }
@@ -321,7 +319,7 @@ abstract class ComponentBuilder(
                         componentOffX + width - modifier.marginHorizontal - child.width
                     }
                 }
-                child.reRender(offX, currOffY, context)
+                child.reRender(offX, currOffY)
                 currOffY += child.height + mod.marginBottom
             }
         } else {
@@ -341,7 +339,7 @@ abstract class ComponentBuilder(
                     }
                 }
 
-                child.reRender(offX, currOffY, context)
+                child.reRender(offX, currOffY)
                 currOffY += child.height + mod.marginBottom
             }
         }

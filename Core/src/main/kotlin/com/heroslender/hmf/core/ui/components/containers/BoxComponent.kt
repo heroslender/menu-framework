@@ -32,11 +32,13 @@ fun Composable.Box(
 /**
  * A composable that will stack its children one on top of another.
  */
-class BoxComponent(
+open class BoxComponent(
     parent: Composable?,
-    override val modifier: Modifier = Modifier,
+    renderContext: RenderContext = parent!!.renderContext,
+    modifier: Modifier = Modifier,
     val builder: Composable.() -> Unit,
-) : DrawableComponent(parent), Composable {
+) : DrawableComponent(parent, modifier, renderContext), Composable {
+
     private val _children: MutableList<Component> = mutableListOf()
     override val children: List<Component>
         get() = _children
@@ -69,8 +71,8 @@ class BoxComponent(
         _children.filterIsInstance<Composable>().forEach(Composable::compose)
     }
 
-    override fun reRender(offsetX: Int, offsetY: Int, context: RenderContext) {
-        super.reRender(offsetX, offsetY, context)
+    override fun reRender(offsetX: Int, offsetY: Int) {
+        super.reRender(offsetX, offsetY)
 
         computeChildrenSizes(_children, width - modifier.paddingHorizontal, height - modifier.paddingVertical)
 
@@ -85,7 +87,7 @@ class BoxComponent(
             }
         }
 
-        computePositions(currOffX, currOffY, this._children, context)
+        computePositions(currOffX, currOffY, this._children)
     }
 
     open fun computeChildrenSizes(children: List<Component>, availableWidth: Int, availableHeight: Int) {
@@ -126,7 +128,6 @@ class BoxComponent(
         componentOffX: Int,
         componentOffY: Int,
         children: List<Component>,
-        context: RenderContext,
     ) {
         for (child in children.sortedBy { it.modifier.horizontalAlignment }) {
             val mod = child.modifier
@@ -157,7 +158,7 @@ class BoxComponent(
                 }
             }
 
-            child.reRender(offX, offY, context)
+            child.reRender(offX, offY)
         }
     }
 

@@ -126,7 +126,6 @@ class FlowRowComponent(
         componentOffX: Int,
         componentOffY: Int,
         children: List<Component>,
-        context: RenderContext,
     ) {
         val availableWidth = availableWidth
         val availableHeight = availableHeight
@@ -143,7 +142,7 @@ class FlowRowComponent(
                     break
                 }
 
-                super.computeHorizontalPositions(componentOffX, componentOffY + height, row, context)
+                super.computeHorizontalPositions(componentOffX, componentOffY + height, row)
                 height += maxHeight
                 width = 0
                 maxHeight = 0
@@ -159,7 +158,7 @@ class FlowRowComponent(
         }
 
         if (row.isNotEmpty()) {
-            super.computeHorizontalPositions(componentOffX, componentOffY + height, row, context)
+            super.computeHorizontalPositions(componentOffX, componentOffY + height, row)
         }
     }
 }

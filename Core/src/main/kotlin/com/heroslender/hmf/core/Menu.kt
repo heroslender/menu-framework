@@ -9,12 +9,12 @@ interface Menu {
     fun Composable.getUi()
 
     fun render() {
-        val root = RootComponent(context.canvas.width, context.canvas.height) {
+        val root = RootComponent(context.canvas.width, context.canvas.height, renderContext = context) {
             getUi()
         }
 
         root.compose()
-        root.reRender(0, 0, context)
+        root.reRender(0, 0)
 
         root.render()
 

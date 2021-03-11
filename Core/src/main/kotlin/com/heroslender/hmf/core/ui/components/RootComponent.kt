@@ -1,7 +1,8 @@
 package com.heroslender.hmf.core.ui.components
 
+import com.heroslender.hmf.core.RenderContext
 import com.heroslender.hmf.core.ui.Composable
-import com.heroslender.hmf.core.ui.components.containers.RowComponent
+import com.heroslender.hmf.core.ui.components.containers.BoxComponent
 import com.heroslender.hmf.core.ui.modifier.Modifier
 import com.heroslender.hmf.core.ui.modifier.modifiers.marginHorizontal
 import com.heroslender.hmf.core.ui.modifier.modifiers.marginVertical
@@ -12,8 +13,9 @@ class RootComponent(
     width: Int,
     height: Int,
     modifier: Modifier = Modifier,
+    renderContext: RenderContext,
     content: Composable.() -> Unit,
-) : RowComponent(null, modifier, builder = content) {
+) : BoxComponent(null, renderContext, modifier, builder = content) {
     @Suppress("SetterBackingFieldAssignment")
     override var width: Int = width
         set(_) {}

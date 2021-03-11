@@ -127,7 +127,6 @@ class FlowColumnComponent(
         componentOffX: Int,
         componentOffY: Int,
         children: List<Component>,
-        context: RenderContext,
     ) {
         val availableWidth = availableWidth
         val availableHeight = availableHeight
@@ -142,7 +141,7 @@ class FlowColumnComponent(
                 if (width + maxWidth > availableWidth) {
                     break
                 }
-                super.computeVerticalPositions(componentOffX + width, componentOffY, row, context)
+                super.computeVerticalPositions(componentOffX + width, componentOffY, row)
                 width += maxWidth
                 height = 0
                 maxWidth = 0
@@ -158,7 +157,7 @@ class FlowColumnComponent(
         }
 
         if (row.isNotEmpty()) {
-            super.computeVerticalPositions(componentOffX + width, componentOffY, row, context)
+            super.computeVerticalPositions(componentOffX + width, componentOffY, row)
         }
     }
 }
