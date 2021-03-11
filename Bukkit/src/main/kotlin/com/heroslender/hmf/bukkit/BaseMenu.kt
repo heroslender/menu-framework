@@ -77,6 +77,8 @@ abstract class BaseMenu(
     }
 
     fun send() {
+        manager.add(this)
+
         chunks = Array(width * height) { index ->
             // TODO Fix map ids
             MenuChunk(
@@ -110,8 +112,6 @@ abstract class BaseMenu(
             }
         }
 
-        manager.add(this)
-
         render()
     }
 
@@ -119,6 +119,8 @@ abstract class BaseMenu(
         for (chunk in chunks) {
             chunk.destroy()
         }
+
+        manager.remove(owner)
     }
 
     var prevCursorMapId = -1

@@ -51,7 +51,7 @@ class MenuChunk(
     }
 
     fun destroy() {
-        packetAdapter.destroy(id)
+        packetAdapter.destroy(id, owner)
     }
 
     companion object {
