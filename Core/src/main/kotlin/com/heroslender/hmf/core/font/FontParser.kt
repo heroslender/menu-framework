@@ -1,5 +1,6 @@
 package com.heroslender.hmf.core.font
 
+import com.heroslender.hmf.core.utils.getResource
 import it.unimi.dsi.fastutil.chars.Char2ObjectArrayMap
 import java.awt.Color
 import java.awt.Font
@@ -7,8 +8,6 @@ import java.awt.FontFormatException
 import java.awt.GraphicsEnvironment
 import java.awt.image.BufferedImage
 import java.io.IOException
-import java.io.InputStream
-import java.net.URL
 
 @Suppress("MemberVisibilityCanBePrivate")
 object FontParser {
@@ -66,17 +65,5 @@ object FontParser {
         }
 
         return com.heroslender.hmf.core.font.Font.CharacterSprite(width, rows.size, data)
-    }
-
-
-    private fun getResource(filename: String): InputStream? {
-        return try {
-            val url: URL = this.javaClass.classLoader.getResource(filename) ?: return null
-            val connection = url.openConnection()
-            connection.useCaches = false
-            connection.getInputStream()
-        } catch (ignored: IOException) {
-            null
-        }
     }
 }

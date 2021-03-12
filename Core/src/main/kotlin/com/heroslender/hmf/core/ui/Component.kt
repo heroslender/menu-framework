@@ -1,5 +1,6 @@
 package com.heroslender.hmf.core.ui
 
+import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.RenderContext
 import com.heroslender.hmf.core.ui.modifier.Modifier
 import com.heroslender.hmf.core.ui.modifier.modifiers.marginHorizontal
@@ -113,6 +114,8 @@ interface Component {
      * Drawing should be done using the [setPixel] function.
      */
     fun draw(setPixel: DrawFunc)
+
+    fun draw(canvas: Canvas)
 
     /**
      * Initialize the component position and [context], preparing

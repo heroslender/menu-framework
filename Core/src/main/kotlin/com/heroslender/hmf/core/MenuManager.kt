@@ -1,6 +1,7 @@
 package com.heroslender.hmf.core
 
 import com.heroslender.hmf.core.ui.Composable
+import com.heroslender.hmf.core.ui.components.Image
 import com.heroslender.hmf.core.ui.components.RootComponent
 
 interface MenuManager<O, M : Menu> {
@@ -9,6 +10,8 @@ interface MenuManager<O, M : Menu> {
     fun remove(owner: O): M?
 
     fun add(menu: M)
+
+    fun getImage(url: String, cached: Boolean = true): Image?
 
     fun render(menu: Menu): Boolean {
         val context = menu.context

@@ -17,7 +17,7 @@ abstract class BaseMenu(
     val height: Int = 3,
     val direction: Direction = Direction.from(owner).opposite(),
     val manager: BukkitMenuManager,
-    override val context: BukkitContext = Context(MapCanvas(width * 128, height * 128)),
+    override val context: BukkitContext = Context(manager, MapCanvas(width * 128, height * 128)),
     val opts: MenuOptions = MenuOptions(),
 ) : BukkitMenu {
     var startX: Int = 0

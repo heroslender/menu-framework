@@ -29,30 +29,18 @@ abstract class DrawableComponent(
     override var width: Int = 0
     override var height: Int = 0
 
-    override fun draw(setPixel: DrawFunc) {
-        if (!modifier.extra.any { it is Drawer }) {
-            return
-        }
-
-        modifier.extra.foldIn(Unit) { acc, elem ->
-            if (elem is Drawer) {
-                with(elem) {
-                    onDraw { x, y, color ->
-                        setPixel(x, y, color)
-                    }
-                }
-            }
-
-            return@foldIn acc
-        }
+    override fun draw(canvas: Canvas) {
+        draw(canvas::setPixel)
     }
+
+    override fun draw(setPixel: DrawFunc) {}
 
     override fun render(): Boolean {
         if (!isDirty) {
             return false
         }
 
-        val context = renderContext ?: return false
+        val context = renderContext
         isDirty = false
         val positionX = positionX
         val positionY = positionY
@@ -65,7 +53,17 @@ abstract class DrawableComponent(
         // Temporary canvas to handle transparent pixels
         val tempCanvas: Canvas = this.prevCanvas?.clone() ?: context.canvas.newCanvas(this.width, this.height)
 
-        draw(tempCanvas::setPixel)
+        modifier.extra.foldIn(Unit) { acc, elem ->
+            if (elem is Drawer) {
+                with(elem) {
+                    onDraw(tempCanvas::setPixel)
+                }
+            }
+
+            return@foldIn acc
+        }
+
+        draw(tempCanvas)
 
         context.canvas.draw(tempCanvas, positionX, positionY)
 

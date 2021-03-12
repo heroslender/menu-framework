@@ -8,6 +8,7 @@ import com.heroslender.hmf.core.ui.modifier.modifiers.ClickListener
 import com.heroslender.hmf.core.ui.modifier.modifiers.CursorListener
 
 class Context(
+    override val manager: BukkitMenuManager,
     override val canvas: MapCanvas,
     override var root: RootComponent? = null,
 ) : BukkitContext {

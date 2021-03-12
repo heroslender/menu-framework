@@ -1,9 +1,12 @@
 package com.heroslender.hmf.bukkit
 
+import com.heroslender.hmf.bukkit.image.ImageCache
+import com.heroslender.hmf.bukkit.image.ImageLoader
 import com.heroslender.hmf.bukkit.listeners.MenuClickListener
 import com.heroslender.hmf.bukkit.listeners.MenuListeners
 import com.heroslender.hmf.bukkit.utils.scheduleAsyncTimer
 import com.heroslender.hmf.core.MenuManager
+import com.heroslender.hmf.core.ui.components.Image
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
@@ -12,6 +15,7 @@ import org.bukkit.plugin.Plugin
 class BukkitMenuManager(
     val plugin: Plugin,
     val opts: Options = Options(),
+    private val imageCache: ImageCache = ImageCache(),
 ) : MenuManager<Player, BaseMenu> {
     private val menus: MutableList<BaseMenu> = mutableListOf()
 
@@ -51,6 +55,14 @@ class BukkitMenuManager(
         remove(menu.owner)?.destroy()
 
         menus.add(menu)
+    }
+
+    override fun getImage(url: String, cached: Boolean): Image? {
+        if (cached) {
+            return imageCache.getImageOrCompute(url)
+        }
+
+        return ImageLoader.getImageResource(url)
     }
 
     private fun launchCursorTask() {
