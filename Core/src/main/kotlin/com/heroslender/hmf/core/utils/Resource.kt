@@ -4,9 +4,12 @@ import java.io.IOException
 import java.io.InputStream
 import java.net.URL
 
-fun getResource(filename: String): InputStream? {
+/**
+ * Get a resource [InputStream] from the jar located at [fileName].
+ */
+inline fun getResource(fileName: String): InputStream? {
     return try {
-        val url: URL = object: Any() {}.javaClass.classLoader.getResource(filename) ?: return null
+        val url: URL = object : Any() {}.javaClass.classLoader.getResource(fileName) ?: return null
         val connection = url.openConnection()
         connection.useCaches = false
         connection.getInputStream()

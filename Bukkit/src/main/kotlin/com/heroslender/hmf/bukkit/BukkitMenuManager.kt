@@ -1,7 +1,6 @@
 package com.heroslender.hmf.bukkit
 
-import com.heroslender.hmf.bukkit.image.ImageCache
-import com.heroslender.hmf.bukkit.image.ImageLoader
+import com.heroslender.hmf.bukkit.image.ImageManager
 import com.heroslender.hmf.bukkit.listeners.MenuClickListener
 import com.heroslender.hmf.bukkit.listeners.MenuListeners
 import com.heroslender.hmf.bukkit.utils.scheduleAsyncTimer
@@ -15,7 +14,7 @@ import org.bukkit.plugin.Plugin
 class BukkitMenuManager(
     val plugin: Plugin,
     val opts: Options = Options(),
-    private val imageCache: ImageCache = ImageCache(),
+    private val imageManager: ImageManager = ImageManager(),
 ) : MenuManager<Player, BaseMenu> {
     private val menus: MutableList<BaseMenu> = mutableListOf()
 
@@ -57,13 +56,8 @@ class BukkitMenuManager(
         menus.add(menu)
     }
 
-    override fun getImage(url: String, cached: Boolean): Image? {
-        if (cached) {
-            return imageCache.getImageOrCompute(url)
-        }
-
-        return ImageLoader.getImageResource(url)
-    }
+    override fun getImage(url: String, width: Int, height: Int, cached: Boolean): Image? =
+        imageManager.getImage(url, width, height, cached)
 
     private fun launchCursorTask() {
         cursorTaskId = scheduleAsyncTimer(plugin, opts.cursorUpdateDelay) {

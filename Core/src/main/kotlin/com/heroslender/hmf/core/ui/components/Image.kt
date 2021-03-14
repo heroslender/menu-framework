@@ -17,10 +17,12 @@ interface Image {
 
 inline fun Composable.Image(
     asset: String,
+    width: Int = -1,
+    height: Int = -1,
     cached: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
-    val image = renderContext.manager.getImage(asset, cached)?: return
+    val image = renderContext.manager.getImage(asset, width, height, cached)?: return
 
     Image(
         image = image,
