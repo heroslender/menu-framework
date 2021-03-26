@@ -1,3 +1,3 @@
 rootProject.name = "Heroslender Menu Framework"
 
-include("Core", "Bukkit")
+include("core", "bukkit", "bukkit-sdk")

@@ -3,6 +3,7 @@ package com.heroslender.hmf.bukkit.nms.version
 import org.bukkit.Bukkit
 import java.util.*
 
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 enum class ServerVersion(val id: String, val displayName: String) {
     V1_8_R3("v1_8_R3", "1.8.8"),
     V1_12_R1("v1_12_R1", "1.12.2");

@@ -4,6 +4,7 @@ import com.heroslender.hmf.bukkit.utils.patchedYaw
 import org.bukkit.Location
 import org.bukkit.entity.Player
 
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 enum class Direction(val x: Int, val y: Int, val z: Int, val rotation: Int) {
     NORTH(0, 0, -1, 2),
     EAST(1, 0, 0, 3),
