@@ -1,6 +1,5 @@
 package com.heroslender.hmf.core.ui.components.containers
 
-import com.heroslender.hmf.core.RenderContext
 import com.heroslender.hmf.core.ui.Component
 import com.heroslender.hmf.core.ui.Composable
 import com.heroslender.hmf.core.ui.DrawableComponent
@@ -8,8 +7,6 @@ import com.heroslender.hmf.core.ui.Orientation
 import com.heroslender.hmf.core.ui.modifier.*
 import com.heroslender.hmf.core.ui.modifier.modifiers.marginHorizontal
 import com.heroslender.hmf.core.ui.modifier.modifiers.marginVertical
-import com.heroslender.hmf.core.ui.modifier.modifiers.paddingHorizontal
-import com.heroslender.hmf.core.ui.modifier.modifiers.paddingVertical
 import kotlin.math.max
 
 abstract class ComponentBuilder(
@@ -24,18 +21,19 @@ abstract class ComponentBuilder(
 
     override val contentWidth: Int
         get() = if (orientation == Orientation.HORIZONTAL) {
-            _children.map { it.contentWidth + it.modifier.marginHorizontal + it.modifier.paddingHorizontal }.sum()
+            _children.map { it.contentWidth + it.modifier.marginHorizontal + it.modifier.padding.horizontal }.sum()
         } else {
-            _children.map { it.contentWidth + it.modifier.marginHorizontal + it.modifier.paddingHorizontal }.maxOrNull()
+            _children.map { it.contentWidth + it.modifier.marginHorizontal + it.modifier.padding.horizontal }
+                .maxOrNull()
                 ?: 0
         }
 
     override val contentHeight: Int
         get() = if (orientation == Orientation.HORIZONTAL) {
-            _children.map { it.contentHeight + it.modifier.marginVertical + it.modifier.paddingVertical }.maxOrNull()
+            _children.map { it.contentHeight + it.modifier.marginVertical + it.modifier.padding.vertical }.maxOrNull()
                 ?: 0
         } else {
-            _children.map { it.contentHeight + it.modifier.marginVertical + it.modifier.paddingVertical }.sum()
+            _children.map { it.contentHeight + it.modifier.marginVertical + it.modifier.padding.vertical }.sum()
         }
 
     override fun render(): Boolean {
@@ -61,10 +59,10 @@ abstract class ComponentBuilder(
     override fun reRender(offsetX: Int, offsetY: Int) {
         super.reRender(offsetX, offsetY)
 
-        computeChildrenSizes(_children, width - modifier.paddingHorizontal, height - modifier.paddingVertical)
+        computeChildrenSizes(_children, width - modifier.padding.horizontal, height - modifier.padding.vertical)
 
-        val currOffX = offsetX + modifier.paddingLeft
-        val currOffY = offsetY + modifier.paddingTop
+        val currOffX = offsetX + modifier.padding.left
+        val currOffY = offsetY + modifier.padding.top
 
         val childrenIterator = _children.iterator()
         for (child in childrenIterator) {
@@ -87,7 +85,7 @@ abstract class ComponentBuilder(
             children.sumBy { child ->
                 when (child.modifier.width) {
                     is FixedSize -> child.modifier.width.value + child.modifier.marginHorizontal
-                    is FitContent -> child.contentWidth + child.modifier.paddingHorizontal + child.modifier.marginHorizontal
+                    is FitContent -> child.contentWidth + child.modifier.padding.horizontal + child.modifier.marginHorizontal
                     else -> 0
                 }
             }
@@ -99,7 +97,7 @@ abstract class ComponentBuilder(
             for (child in children) {
                 if (child.modifier.width is Fill) {
                     val childFullWidth =
-                        child.contentWidth + child.modifier.paddingHorizontal + child.modifier.marginHorizontal
+                        child.contentWidth + child.modifier.padding.horizontal + child.modifier.marginHorizontal
                     if (childFullWidth > fillSize) {
                         freeWidth -= childFullWidth
                         widthFillCount--
@@ -117,7 +115,7 @@ abstract class ComponentBuilder(
             children.sumBy { child ->
                 when (child.modifier.height) {
                     is FixedSize -> child.modifier.height.value + child.modifier.marginVertical
-                    is FitContent -> child.contentHeight + child.modifier.paddingVertical + child.modifier.marginVertical
+                    is FitContent -> child.contentHeight + child.modifier.padding.vertical + child.modifier.marginVertical
                     else -> 0
                 }
             }
@@ -129,7 +127,7 @@ abstract class ComponentBuilder(
             for (child in children) {
                 if (child.modifier.height is Fill) {
                     val childFullHeight =
-                        child.contentHeight + child.modifier.paddingVertical + child.modifier.marginVertical
+                        child.contentHeight + child.modifier.padding.vertical + child.modifier.marginVertical
                     if (childFullHeight > fillSize) {
                         freeHeight -= childFullHeight
                         heightFillCount--
@@ -157,9 +155,9 @@ abstract class ComponentBuilder(
     ) {
         child.width = when (child.modifier.width) {
             is FixedSize -> child.modifier.width.value
-            is FitContent -> child.contentWidth + child.modifier.paddingHorizontal
+            is FitContent -> child.contentWidth + child.modifier.padding.horizontal
             is Fill -> {
-                val childFullWidth = child.contentWidth + child.modifier.paddingHorizontal
+                val childFullWidth = child.contentWidth + child.modifier.padding.horizontal
                 val fillWidth = if (orientation == Orientation.HORIZONTAL) {
                     freeWidth / widthFillCount
                 } else {
@@ -172,9 +170,9 @@ abstract class ComponentBuilder(
 
         child.height = when (child.modifier.height) {
             is FixedSize -> child.modifier.height.value
-            is FitContent -> child.contentHeight + child.modifier.paddingVertical
+            is FitContent -> child.contentHeight + child.modifier.padding.vertical
             is Fill -> {
-                val childFullHeight = child.contentHeight + child.modifier.paddingVertical
+                val childFullHeight = child.contentHeight + child.modifier.padding.vertical
                 val fillHeight = if (orientation == Orientation.VERTICAL) {
                     freeHeight / heightFillCount
                 } else {
@@ -214,7 +212,7 @@ abstract class ComponentBuilder(
                     }
                     HorizontalAlignment.CENTER -> {
                         val step =
-                            (width - modifier.paddingHorizontal - startSize - endSize - centerSize) / centerCount
+                            (width - modifier.padding.horizontal - startSize - endSize - centerSize) / centerCount
                         currOffX += step
                     }
                     HorizontalAlignment.END -> {
@@ -222,7 +220,7 @@ abstract class ComponentBuilder(
                             isPlacingEnd = true
 
                             val step =
-                                (width - modifier.paddingHorizontal - startSize - endSize - centerSize) / centerCount
+                                (width - modifier.padding.horizontal - startSize - endSize - centerSize) / centerCount
                             currOffX += step
                         }
                     }
@@ -234,10 +232,10 @@ abstract class ComponentBuilder(
                         componentOffY + mod.marginTop
                     }
                     VerticalAlignment.CENTER -> {
-                        componentOffY + (height - modifier.paddingVertical - child.height) / 2
+                        componentOffY + (height - modifier.padding.vertical - child.height) / 2
                     }
                     VerticalAlignment.BOTTOM -> {
-                        componentOffY + height - modifier.paddingVertical - child.height
+                        componentOffY + height - modifier.padding.vertical - child.height
                     }
                 }
                 child.reRender(currOffX, offY)
@@ -253,10 +251,10 @@ abstract class ComponentBuilder(
                         componentOffY + mod.marginTop
                     }
                     VerticalAlignment.CENTER -> {
-                        componentOffY + (height - modifier.paddingVertical - child.height) / 2
+                        componentOffY + (height - modifier.padding.vertical - child.height) / 2
                     }
                     VerticalAlignment.BOTTOM -> {
-                        componentOffY + height - modifier.paddingVertical - child.height
+                        componentOffY + height - modifier.padding.vertical - child.height
                     }
                 }
                 child.reRender(currOffX, offY)
@@ -293,7 +291,7 @@ abstract class ComponentBuilder(
                     }
                     VerticalAlignment.CENTER -> {
                         val step =
-                            (height - modifier.paddingVertical - topSize - bottomSize - centerSize) / centerCount
+                            (height - modifier.padding.vertical - topSize - bottomSize - centerSize) / centerCount
                         currOffY += step
                     }
                     VerticalAlignment.BOTTOM -> {
@@ -301,7 +299,7 @@ abstract class ComponentBuilder(
                             isPlacingEnd = true
 
                             val step =
-                                (height - modifier.paddingVertical - topSize - bottomSize - centerSize) / centerCount
+                                (height - modifier.padding.vertical - topSize - bottomSize - centerSize) / centerCount
                             currOffY += step
                         }
                     }

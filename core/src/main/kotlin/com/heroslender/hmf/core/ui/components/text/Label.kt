@@ -8,11 +8,7 @@ import com.heroslender.hmf.core.font.FontStyle
 import com.heroslender.hmf.core.ui.Composable
 import com.heroslender.hmf.core.ui.DrawFunc
 import com.heroslender.hmf.core.ui.DrawableComponent
-import com.heroslender.hmf.core.ui.modifier.Fill
-import com.heroslender.hmf.core.ui.modifier.FitContent
-import com.heroslender.hmf.core.ui.modifier.FixedSize
-import com.heroslender.hmf.core.ui.modifier.Modifier
-import com.heroslender.hmf.core.ui.modifier.modifiers.paddingHorizontal
+import com.heroslender.hmf.core.ui.modifier.*
 
 inline fun Composable.Label(
     text: String,
@@ -50,7 +46,7 @@ class LabelComponent(
         val textWidth = font.getWidth(text)
         when (modifier.width) {
             is FixedSize -> {
-                val horizontalPadding = modifier.paddingHorizontal
+                val horizontalPadding = modifier.padding.horizontal
                 val maxWidth = availableWidth
                 if (textWidth + horizontalPadding > maxWidth) {
                     var result = 0
@@ -84,8 +80,8 @@ class LabelComponent(
     override fun draw(setPixel: DrawFunc) {
         super.draw(setPixel)
 
-        var startX = modifier.paddingLeft
-        var startY = modifier.paddingTop
+        var startX = modifier.padding.left
+        var startY = modifier.padding.top
         val xStart = startX
         val color: IColor = this.color
 

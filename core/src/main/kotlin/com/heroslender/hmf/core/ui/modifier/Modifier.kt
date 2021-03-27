@@ -12,10 +12,7 @@ open class Modifier(
     val marginBottom: Int = 0,
     val marginLeft: Int = 0,
 
-    val paddingTop: Int = 0,
-    val paddingRight: Int = 0,
-    val paddingBottom: Int = 0,
-    val paddingLeft: Int = 0,
+    val padding: PaddingValues = PaddingValues(),
 
     val extra: ModifierExtra = ModifierExtra,
 ) {
@@ -33,10 +30,7 @@ open class Modifier(
         marginBottom: Int = this.marginBottom,
         marginLeft: Int = this.marginLeft,
 
-        paddingTop: Int = this.paddingTop,
-        paddingRight: Int = this.paddingRight,
-        paddingBottom: Int = this.paddingBottom,
-        paddingLeft: Int = this.paddingLeft,
+        padding: PaddingValues = this.padding,
 
         extra: ModifierExtra = this.extra,
     ): Modifier {
@@ -49,10 +43,7 @@ open class Modifier(
             marginRight = marginRight,
             marginBottom = marginBottom,
             marginLeft = marginLeft,
-            paddingTop = paddingTop,
-            paddingRight = paddingRight,
-            paddingBottom = paddingBottom,
-            paddingLeft = paddingLeft,
+            padding = padding,
             extra = extra
         )
     }

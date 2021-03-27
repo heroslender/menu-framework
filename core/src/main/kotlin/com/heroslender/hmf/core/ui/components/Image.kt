@@ -22,7 +22,7 @@ inline fun Composable.Image(
     cached: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
-    val image = renderContext.manager.getImage(asset, width, height, cached)?: return
+    val image = renderContext.manager.getImage(asset, width, height, cached) ?: return
 
     Image(
         image = image,
@@ -51,6 +51,6 @@ class ImageComponent(
     override val contentWidth: Int = image.width
 
     override fun draw(canvas: Canvas) {
-        image.draw(canvas, modifier.paddingLeft, modifier.paddingTop)
+        image.draw(canvas, modifier.padding.left, modifier.padding.top)
     }
 }

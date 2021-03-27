@@ -9,8 +9,6 @@ import com.heroslender.hmf.core.ui.DrawableComponent
 import com.heroslender.hmf.core.ui.modifier.*
 import com.heroslender.hmf.core.ui.modifier.modifiers.marginHorizontal
 import com.heroslender.hmf.core.ui.modifier.modifiers.marginVertical
-import com.heroslender.hmf.core.ui.modifier.modifiers.paddingHorizontal
-import com.heroslender.hmf.core.ui.modifier.modifiers.paddingVertical
 import kotlin.math.max
 
 /**
@@ -44,11 +42,11 @@ open class BoxComponent(
         get() = _children
 
     override val contentWidth: Int
-        get() = children.map { it.contentWidth + it.modifier.marginHorizontal + it.modifier.paddingHorizontal }
+        get() = children.map { it.contentWidth + it.modifier.marginHorizontal + it.modifier.padding.horizontal }
             .maxOrNull() ?: 0
 
     override val contentHeight: Int
-        get() = children.map { it.contentHeight + it.modifier.marginVertical + it.modifier.paddingVertical }
+        get() = children.map { it.contentHeight + it.modifier.marginVertical + it.modifier.padding.vertical }
             .maxOrNull() ?: 0
 
     override fun render(): Boolean {
@@ -74,10 +72,10 @@ open class BoxComponent(
     override fun reRender(offsetX: Int, offsetY: Int) {
         super.reRender(offsetX, offsetY)
 
-        computeChildrenSizes(_children, width - modifier.paddingHorizontal, height - modifier.paddingVertical)
+        computeChildrenSizes(_children, width - modifier.padding.horizontal, height - modifier.padding.vertical)
 
-        val currOffX = offsetX + modifier.paddingLeft
-        val currOffY = offsetY + modifier.paddingTop
+        val currOffX = offsetX + modifier.padding.left
+        val currOffY = offsetY + modifier.padding.top
 
         val childrenIterator = _children.iterator()
         for (child in childrenIterator) {
@@ -103,9 +101,9 @@ open class BoxComponent(
     ) {
         child.width = when (child.modifier.width) {
             is FixedSize -> child.modifier.width.value
-            is FitContent -> child.contentWidth + child.modifier.paddingHorizontal
+            is FitContent -> child.contentWidth + child.modifier.padding.horizontal
             is Fill -> {
-                val childFullWidth = child.contentWidth + child.modifier.paddingHorizontal
+                val childFullWidth = child.contentWidth + child.modifier.padding.horizontal
                 val fillWidth = freeWidth - child.modifier.marginHorizontal
 
                 max(childFullWidth, fillWidth)
@@ -114,9 +112,9 @@ open class BoxComponent(
 
         child.height = when (child.modifier.height) {
             is FixedSize -> child.modifier.height.value
-            is FitContent -> child.contentHeight + child.modifier.paddingVertical
+            is FitContent -> child.contentHeight + child.modifier.padding.vertical
             is Fill -> {
-                val childFullHeight = child.contentHeight + child.modifier.paddingVertical
+                val childFullHeight = child.contentHeight + child.modifier.padding.vertical
                 val fillHeight = freeHeight - child.modifier.marginVertical
 
                 max(childFullHeight, fillHeight)
@@ -138,10 +136,10 @@ open class BoxComponent(
                     componentOffX + mod.marginLeft
                 }
                 HorizontalAlignment.CENTER -> {
-                    componentOffX + (width - modifier.paddingHorizontal - child.width) / 2
+                    componentOffX + (width - modifier.padding.horizontal - child.width) / 2
                 }
                 HorizontalAlignment.END -> {
-                    componentOffX + width - modifier.paddingHorizontal - child.width
+                    componentOffX + width - modifier.padding.horizontal - child.width
                 }
             }
 
@@ -151,10 +149,10 @@ open class BoxComponent(
                     componentOffY + mod.marginTop
                 }
                 VerticalAlignment.CENTER -> {
-                    componentOffY + (height - modifier.paddingVertical - child.height) / 2
+                    componentOffY + (height - modifier.padding.vertical - child.height) / 2
                 }
                 VerticalAlignment.BOTTOM -> {
-                    componentOffY + height - modifier.paddingVertical - child.height
+                    componentOffY + height - modifier.padding.vertical - child.height
                 }
             }
 

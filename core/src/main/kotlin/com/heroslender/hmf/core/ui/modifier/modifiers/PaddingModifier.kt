@@ -1,19 +1,7 @@
 package com.heroslender.hmf.core.ui.modifier.modifiers
 
 import com.heroslender.hmf.core.ui.modifier.Modifier
-
-/**
- * Calculates the horizontal padding for a component.
- * `left + right`
- */
-val Modifier.paddingHorizontal: Int
-    get() = paddingLeft + paddingRight
-
-/**
- * Calculates the vertical padding for a component. `top + bottom`
- */
-val Modifier.paddingVertical: Int
-    get() = paddingTop + paddingBottom
+import com.heroslender.hmf.core.ui.modifier.paddingValuesOf
 
 /**
  * Changes the padding of a component on all sides.
@@ -27,8 +15,8 @@ fun Modifier.padding(padding: Int): Modifier = padding(padding, padding)
  * The [horizontal] padding will be applied to left and right.
  */
 fun Modifier.padding(
-    vertical: Int = paddingTop,
-    horizontal: Int = paddingBottom,
+    vertical: Int = padding.top,
+    horizontal: Int = padding.left,
 ): Modifier = padding(
     top = vertical,
     right = horizontal,
@@ -40,13 +28,10 @@ fun Modifier.padding(
  * Changes the padding of a component on the given sides.
  */
 fun Modifier.padding(
-    top: Int = paddingTop,
-    right: Int = paddingRight,
-    bottom: Int = paddingBottom,
-    left: Int = paddingLeft,
+    top: Int = padding.top,
+    right: Int = padding.right,
+    bottom: Int = padding.bottom,
+    left: Int = padding.left,
 ): Modifier = copy(
-    paddingTop = top,
-    paddingRight = right,
-    paddingBottom = bottom,
-    paddingLeft = left
+    padding = paddingValuesOf(top, right, bottom, left)
 )

@@ -3,10 +3,10 @@ package com.heroslender.hmf.core.ui
 import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.RenderContext
 import com.heroslender.hmf.core.ui.modifier.Modifier
+import com.heroslender.hmf.core.ui.modifier.horizontal
 import com.heroslender.hmf.core.ui.modifier.modifiers.marginHorizontal
 import com.heroslender.hmf.core.ui.modifier.modifiers.marginVertical
-import com.heroslender.hmf.core.ui.modifier.modifiers.paddingHorizontal
-import com.heroslender.hmf.core.ui.modifier.modifiers.paddingVertical
+import com.heroslender.hmf.core.ui.modifier.vertical
 
 /**
  * A component is a node in the component tree.
@@ -40,7 +40,7 @@ interface Component {
      * Be aware that this space is shared among siblings.
      */
     val availableWidth: Int
-        get() = parent!!.width - parent!!.modifier.paddingHorizontal - modifier.marginHorizontal
+        get() = parent!!.width - parent!!.modifier.padding.horizontal - modifier.marginHorizontal
 
     /**
      * The available height this component has to use, based on the parent.
@@ -48,7 +48,7 @@ interface Component {
      * Be aware that this space is shared among siblings.
      */
     val availableHeight: Int
-        get() = parent!!.height - parent!!.modifier.paddingVertical - modifier.marginVertical
+        get() = parent!!.height - parent!!.modifier.padding.vertical - modifier.marginVertical
 
     /**
      * Modifiers to be applied to this component.

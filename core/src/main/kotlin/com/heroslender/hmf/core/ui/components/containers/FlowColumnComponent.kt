@@ -1,15 +1,14 @@
-@file:Suppress("FunctionName")
+@file:Suppress("FunctionName", "unused")
 
 package com.heroslender.hmf.core.ui.components.containers
 
-import com.heroslender.hmf.core.RenderContext
 import com.heroslender.hmf.core.ui.Component
 import com.heroslender.hmf.core.ui.Composable
 import com.heroslender.hmf.core.ui.modifier.Modifier
+import com.heroslender.hmf.core.ui.modifier.horizontal
 import com.heroslender.hmf.core.ui.modifier.modifiers.marginHorizontal
 import com.heroslender.hmf.core.ui.modifier.modifiers.marginVertical
-import com.heroslender.hmf.core.ui.modifier.modifiers.paddingHorizontal
-import com.heroslender.hmf.core.ui.modifier.modifiers.paddingVertical
+import com.heroslender.hmf.core.ui.modifier.vertical
 
 /**
  * Instantiates a new [FlowColumnComponent] and adds it
@@ -45,8 +44,8 @@ class FlowColumnComponent(
             var width = 0
             var maxWidth = 0
             for (it in children) {
-                val childWidth = it.contentWidth + it.modifier.marginHorizontal + it.modifier.paddingHorizontal
-                val childHeight = it.contentHeight + it.modifier.marginVertical + it.modifier.paddingVertical
+                val childWidth = it.contentWidth + it.modifier.marginHorizontal + it.modifier.padding.horizontal
+                val childHeight = it.contentHeight + it.modifier.marginVertical + it.modifier.padding.vertical
                 if (height + childHeight > availableHeight) {
                     if (width + maxWidth > availableWidth) {
                         break
@@ -76,7 +75,7 @@ class FlowColumnComponent(
             var maxHeight = 0
             var height = 0
             children.forEach {
-                val childHeight = it.contentHeight + it.modifier.marginVertical + it.modifier.paddingVertical
+                val childHeight = it.contentHeight + it.modifier.marginVertical + it.modifier.padding.vertical
                 if (height + childHeight > availableHeight) {
                     if (height > maxHeight) {
                         maxHeight = height
@@ -97,8 +96,8 @@ class FlowColumnComponent(
         var maxWidth = 0
         val row = mutableListOf<Component>()
         for (it in children) {
-            val childWidth = it.contentWidth + it.modifier.paddingHorizontal + it.modifier.marginHorizontal
-            val childHeight = it.contentHeight + it.modifier.paddingVertical + it.modifier.marginVertical
+            val childWidth = it.contentWidth + it.modifier.padding.horizontal + it.modifier.marginHorizontal
+            val childHeight = it.contentHeight + it.modifier.padding.vertical + it.modifier.marginVertical
             if (height + childHeight > availableHeight) {
                 if (width + maxWidth > availableWidth) {
                     break
