@@ -6,8 +6,6 @@ import com.heroslender.hmf.core.ui.Component
 import com.heroslender.hmf.core.ui.Composable
 import com.heroslender.hmf.core.ui.modifier.Modifier
 import com.heroslender.hmf.core.ui.modifier.horizontal
-import com.heroslender.hmf.core.ui.modifier.modifiers.marginHorizontal
-import com.heroslender.hmf.core.ui.modifier.modifiers.marginVertical
 import com.heroslender.hmf.core.ui.modifier.vertical
 
 /**
@@ -41,7 +39,7 @@ class FlowRowComponent(
             var max = 0
             var width = 0
             children.forEach {
-                val childWidth = it.contentWidth + it.modifier.marginHorizontal + it.modifier.padding.horizontal
+                val childWidth = it.contentWidth + it.modifier.margin.horizontal + it.modifier.padding.horizontal
                 if (width + childWidth > available) {
                     if (width > max) {
                         max = width
@@ -63,8 +61,8 @@ class FlowRowComponent(
             var maxHeight = 0
             var width = 0
             for (it in children) {
-                val childWidth = it.contentWidth + it.modifier.marginHorizontal + it.modifier.padding.horizontal
-                val childHeight = it.contentHeight + it.modifier.marginVertical + it.modifier.padding.vertical
+                val childWidth = it.contentWidth + it.modifier.margin.horizontal + it.modifier.padding.horizontal
+                val childHeight = it.contentHeight + it.modifier.margin.vertical + it.modifier.padding.vertical
                 if (width + childWidth > available) {
                     if (height + maxHeight > availableHeight) {
                         break
@@ -94,8 +92,8 @@ class FlowRowComponent(
         var width = 0
         val row = mutableListOf<Component>()
         for (it in children) {
-            val childWidth = it.contentWidth + it.modifier.padding.horizontal + it.modifier.marginHorizontal
-            val childHeight = it.contentHeight + it.modifier.padding.vertical + it.modifier.marginVertical
+            val childWidth = it.contentWidth + it.modifier.padding.horizontal + it.modifier.margin.horizontal
+            val childHeight = it.contentHeight + it.modifier.padding.vertical + it.modifier.margin.vertical
             if (width + childWidth > availableWidth) {
                 if (height + maxHeight > availableHeight) {
                     break
@@ -134,8 +132,8 @@ class FlowRowComponent(
         var width = 0
         val row = mutableListOf<Component>()
         for (it in children) {
-            val childWidth = it.width + it.modifier.marginHorizontal
-            val childHeight = it.height + it.modifier.marginVertical
+            val childWidth = it.width + it.modifier.margin.horizontal
+            val childHeight = it.height + it.modifier.margin.vertical
             if (width + childWidth > availableWidth) {
                 if (height + maxHeight > availableHeight) {
                     break

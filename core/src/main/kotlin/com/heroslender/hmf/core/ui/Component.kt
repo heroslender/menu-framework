@@ -4,8 +4,6 @@ import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.RenderContext
 import com.heroslender.hmf.core.ui.modifier.Modifier
 import com.heroslender.hmf.core.ui.modifier.horizontal
-import com.heroslender.hmf.core.ui.modifier.modifiers.marginHorizontal
-import com.heroslender.hmf.core.ui.modifier.modifiers.marginVertical
 import com.heroslender.hmf.core.ui.modifier.vertical
 
 /**
@@ -40,7 +38,7 @@ interface Component {
      * Be aware that this space is shared among siblings.
      */
     val availableWidth: Int
-        get() = parent!!.width - parent!!.modifier.padding.horizontal - modifier.marginHorizontal
+        get() = parent!!.width - parent!!.modifier.padding.horizontal - modifier.margin.horizontal
 
     /**
      * The available height this component has to use, based on the parent.
@@ -48,7 +46,7 @@ interface Component {
      * Be aware that this space is shared among siblings.
      */
     val availableHeight: Int
-        get() = parent!!.height - parent!!.modifier.padding.vertical - modifier.marginVertical
+        get() = parent!!.height - parent!!.modifier.padding.vertical - modifier.margin.vertical
 
     /**
      * Modifiers to be applied to this component.
@@ -118,7 +116,7 @@ interface Component {
     fun draw(canvas: Canvas)
 
     /**
-     * Initialize the component position and [context], preparing
+     * Initialize the component position, preparing
      * it for rendering.
      */
     fun reRender(offsetX: Int, offsetY: Int)

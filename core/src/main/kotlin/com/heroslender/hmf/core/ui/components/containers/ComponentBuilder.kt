@@ -5,8 +5,6 @@ import com.heroslender.hmf.core.ui.Composable
 import com.heroslender.hmf.core.ui.DrawableComponent
 import com.heroslender.hmf.core.ui.Orientation
 import com.heroslender.hmf.core.ui.modifier.*
-import com.heroslender.hmf.core.ui.modifier.modifiers.marginHorizontal
-import com.heroslender.hmf.core.ui.modifier.modifiers.marginVertical
 import kotlin.math.max
 
 abstract class ComponentBuilder(
@@ -21,19 +19,19 @@ abstract class ComponentBuilder(
 
     override val contentWidth: Int
         get() = if (orientation == Orientation.HORIZONTAL) {
-            _children.map { it.contentWidth + it.modifier.marginHorizontal + it.modifier.padding.horizontal }.sum()
+            _children.map { it.contentWidth + it.modifier.margin.horizontal + it.modifier.padding.horizontal }.sum()
         } else {
-            _children.map { it.contentWidth + it.modifier.marginHorizontal + it.modifier.padding.horizontal }
+            _children.map { it.contentWidth + it.modifier.margin.horizontal + it.modifier.padding.horizontal }
                 .maxOrNull()
                 ?: 0
         }
 
     override val contentHeight: Int
         get() = if (orientation == Orientation.HORIZONTAL) {
-            _children.map { it.contentHeight + it.modifier.marginVertical + it.modifier.padding.vertical }.maxOrNull()
+            _children.map { it.contentHeight + it.modifier.margin.vertical + it.modifier.padding.vertical }.maxOrNull()
                 ?: 0
         } else {
-            _children.map { it.contentHeight + it.modifier.marginVertical + it.modifier.padding.vertical }.sum()
+            _children.map { it.contentHeight + it.modifier.margin.vertical + it.modifier.padding.vertical }.sum()
         }
 
     override fun render(): Boolean {
@@ -84,8 +82,8 @@ abstract class ComponentBuilder(
         var freeWidth = availableWidth - if (widthFillCount > 0 && orientation == Orientation.HORIZONTAL) {
             children.sumBy { child ->
                 when (child.modifier.width) {
-                    is FixedSize -> child.modifier.width.value + child.modifier.marginHorizontal
-                    is FitContent -> child.contentWidth + child.modifier.padding.horizontal + child.modifier.marginHorizontal
+                    is FixedSize -> child.modifier.width.value + child.modifier.margin.horizontal
+                    is FitContent -> child.contentWidth + child.modifier.padding.horizontal + child.modifier.margin.horizontal
                     else -> 0
                 }
             }
@@ -97,7 +95,7 @@ abstract class ComponentBuilder(
             for (child in children) {
                 if (child.modifier.width is Fill) {
                     val childFullWidth =
-                        child.contentWidth + child.modifier.padding.horizontal + child.modifier.marginHorizontal
+                        child.contentWidth + child.modifier.padding.horizontal + child.modifier.margin.horizontal
                     if (childFullWidth > fillSize) {
                         freeWidth -= childFullWidth
                         widthFillCount--
@@ -114,8 +112,8 @@ abstract class ComponentBuilder(
         var freeHeight = availableHeight - if (heightFillCount > 0 && orientation == Orientation.VERTICAL) {
             children.sumBy { child ->
                 when (child.modifier.height) {
-                    is FixedSize -> child.modifier.height.value + child.modifier.marginVertical
-                    is FitContent -> child.contentHeight + child.modifier.padding.vertical + child.modifier.marginVertical
+                    is FixedSize -> child.modifier.height.value + child.modifier.margin.vertical
+                    is FitContent -> child.contentHeight + child.modifier.padding.vertical + child.modifier.margin.vertical
                     else -> 0
                 }
             }
@@ -127,7 +125,7 @@ abstract class ComponentBuilder(
             for (child in children) {
                 if (child.modifier.height is Fill) {
                     val childFullHeight =
-                        child.contentHeight + child.modifier.padding.vertical + child.modifier.marginVertical
+                        child.contentHeight + child.modifier.padding.vertical + child.modifier.margin.vertical
                     if (childFullHeight > fillSize) {
                         freeHeight -= childFullHeight
                         heightFillCount--
@@ -162,7 +160,7 @@ abstract class ComponentBuilder(
                     freeWidth / widthFillCount
                 } else {
                     freeWidth
-                } - child.modifier.marginHorizontal
+                } - child.modifier.margin.horizontal
 
                 max(childFullWidth, fillWidth)
             }
@@ -177,7 +175,7 @@ abstract class ComponentBuilder(
                     freeHeight / heightFillCount
                 } else {
                     freeHeight
-                } - child.modifier.marginVertical
+                } - child.modifier.margin.vertical
 
                 max(childFullHeight, fillHeight)
             }
@@ -196,19 +194,19 @@ abstract class ComponentBuilder(
             var startSize = 0
             val centerCount = children.count { it.modifier.horizontalAlignment == HorizontalAlignment.CENTER } + 1
             val centerSize =
-                children.sumBy { if (it.modifier.horizontalAlignment == HorizontalAlignment.CENTER) it.width + it.modifier.marginHorizontal else 0 }
+                children.sumBy { if (it.modifier.horizontalAlignment == HorizontalAlignment.CENTER) it.width + it.modifier.margin.horizontal else 0 }
             val endSize =
-                children.sumBy { if (it.modifier.horizontalAlignment == HorizontalAlignment.END) it.width + it.modifier.marginHorizontal else 0 }
+                children.sumBy { if (it.modifier.horizontalAlignment == HorizontalAlignment.END) it.width + it.modifier.margin.horizontal else 0 }
             var isPlacingEnd = false
 
             for (child in children.sortedBy { it.modifier.horizontalAlignment }) {
                 val mod = child.modifier
-                currOffX += mod.marginLeft
+                currOffX += mod.margin.left
 
                 when (child.modifier.horizontalAlignment) {
                     HorizontalAlignment.START -> {
                         // won't change
-                        startSize = currOffX - componentOffX + child.width + mod.marginRight
+                        startSize = currOffX - componentOffX + child.width + mod.margin.right
                     }
                     HorizontalAlignment.CENTER -> {
                         val step =
@@ -229,7 +227,7 @@ abstract class ComponentBuilder(
                 val offY = when (child.modifier.verticalAlignment) {
                     VerticalAlignment.TOP -> {
                         // won't change
-                        componentOffY + mod.marginTop
+                        componentOffY + mod.margin.top
                     }
                     VerticalAlignment.CENTER -> {
                         componentOffY + (height - modifier.padding.vertical - child.height) / 2
@@ -239,16 +237,16 @@ abstract class ComponentBuilder(
                     }
                 }
                 child.reRender(currOffX, offY)
-                currOffX += child.width + mod.marginRight
+                currOffX += child.width + mod.margin.right
             }
         } else {
             for (child in children) {
                 val mod = child.modifier
-                currOffX += mod.marginLeft
+                currOffX += mod.margin.left
                 val offY = when (child.modifier.verticalAlignment) {
                     VerticalAlignment.TOP -> {
                         // won't change
-                        componentOffY + mod.marginTop
+                        componentOffY + mod.margin.top
                     }
                     VerticalAlignment.CENTER -> {
                         componentOffY + (height - modifier.padding.vertical - child.height) / 2
@@ -258,7 +256,7 @@ abstract class ComponentBuilder(
                     }
                 }
                 child.reRender(currOffX, offY)
-                currOffX += child.width + mod.marginRight
+                currOffX += child.width + mod.margin.right
             }
         }
     }
@@ -275,19 +273,19 @@ abstract class ComponentBuilder(
             var topSize = 0
             val centerCount = children.count { it.modifier.verticalAlignment == VerticalAlignment.CENTER } + 1
             val centerSize =
-                children.sumBy { if (it.modifier.verticalAlignment == VerticalAlignment.CENTER) it.height + it.modifier.marginVertical else 0 }
+                children.sumBy { if (it.modifier.verticalAlignment == VerticalAlignment.CENTER) it.height + it.modifier.margin.vertical else 0 }
             val bottomSize =
-                children.sumBy { if (it.modifier.verticalAlignment == VerticalAlignment.BOTTOM) it.height + it.modifier.marginVertical else 0 }
+                children.sumBy { if (it.modifier.verticalAlignment == VerticalAlignment.BOTTOM) it.height + it.modifier.margin.vertical else 0 }
             var isPlacingEnd = false
 
             for (child in children.sortedBy { it.modifier.verticalAlignment }) {
                 val mod = child.modifier
-                currOffY += mod.marginTop
+                currOffY += mod.margin.top
 
                 when (child.modifier.verticalAlignment) {
                     VerticalAlignment.TOP -> {
                         // won't change
-                        topSize = currOffY - componentOffY + child.height + mod.marginBottom
+                        topSize = currOffY - componentOffY + child.height + mod.margin.bottom
                     }
                     VerticalAlignment.CENTER -> {
                         val step =
@@ -308,37 +306,37 @@ abstract class ComponentBuilder(
                 val offX = when (child.modifier.horizontalAlignment) {
                     HorizontalAlignment.START -> {
                         // won't change
-                        componentOffX + mod.marginLeft
+                        componentOffX + mod.margin.left
                     }
                     HorizontalAlignment.CENTER -> {
-                        componentOffX + (width - modifier.marginHorizontal - child.width) / 2
+                        componentOffX + (width - modifier.margin.horizontal - child.width) / 2
                     }
                     HorizontalAlignment.END -> {
-                        componentOffX + width - modifier.marginHorizontal - child.width
+                        componentOffX + width - modifier.margin.horizontal - child.width
                     }
                 }
                 child.reRender(offX, currOffY)
-                currOffY += child.height + mod.marginBottom
+                currOffY += child.height + mod.margin.bottom
             }
         } else {
             for (child in children) {
                 val mod = child.modifier
-                currOffY += mod.marginTop
+                currOffY += mod.margin.top
                 val offX = when (child.modifier.horizontalAlignment) {
                     HorizontalAlignment.START -> {
                         // won't change
-                        componentOffX + mod.marginLeft
+                        componentOffX + mod.margin.left
                     }
                     HorizontalAlignment.CENTER -> {
-                        componentOffX + (width - modifier.marginHorizontal - child.width) / 2
+                        componentOffX + (width - modifier.margin.horizontal - child.width) / 2
                     }
                     HorizontalAlignment.END -> {
-                        componentOffX + width - modifier.marginHorizontal - child.width
+                        componentOffX + width - modifier.margin.horizontal - child.width
                     }
                 }
 
                 child.reRender(offX, currOffY)
-                currOffY += child.height + mod.marginBottom
+                currOffY += child.height + mod.margin.bottom
             }
         }
     }

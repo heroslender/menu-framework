@@ -7,8 +7,6 @@ import com.heroslender.hmf.core.ui.Component
 import com.heroslender.hmf.core.ui.Composable
 import com.heroslender.hmf.core.ui.DrawableComponent
 import com.heroslender.hmf.core.ui.modifier.*
-import com.heroslender.hmf.core.ui.modifier.modifiers.marginHorizontal
-import com.heroslender.hmf.core.ui.modifier.modifiers.marginVertical
 import kotlin.math.max
 
 /**
@@ -42,11 +40,11 @@ open class BoxComponent(
         get() = _children
 
     override val contentWidth: Int
-        get() = children.map { it.contentWidth + it.modifier.marginHorizontal + it.modifier.padding.horizontal }
+        get() = children.map { it.contentWidth + it.modifier.margin.horizontal + it.modifier.padding.horizontal }
             .maxOrNull() ?: 0
 
     override val contentHeight: Int
-        get() = children.map { it.contentHeight + it.modifier.marginVertical + it.modifier.padding.vertical }
+        get() = children.map { it.contentHeight + it.modifier.margin.vertical + it.modifier.padding.vertical }
             .maxOrNull() ?: 0
 
     override fun render(): Boolean {
@@ -104,7 +102,7 @@ open class BoxComponent(
             is FitContent -> child.contentWidth + child.modifier.padding.horizontal
             is Fill -> {
                 val childFullWidth = child.contentWidth + child.modifier.padding.horizontal
-                val fillWidth = freeWidth - child.modifier.marginHorizontal
+                val fillWidth = freeWidth - child.modifier.margin.horizontal
 
                 max(childFullWidth, fillWidth)
             }
@@ -115,7 +113,7 @@ open class BoxComponent(
             is FitContent -> child.contentHeight + child.modifier.padding.vertical
             is Fill -> {
                 val childFullHeight = child.contentHeight + child.modifier.padding.vertical
-                val fillHeight = freeHeight - child.modifier.marginVertical
+                val fillHeight = freeHeight - child.modifier.margin.vertical
 
                 max(childFullHeight, fillHeight)
             }
@@ -133,7 +131,7 @@ open class BoxComponent(
             val offX = when (child.modifier.horizontalAlignment) {
                 HorizontalAlignment.START -> {
                     // won't change
-                    componentOffX + mod.marginLeft
+                    componentOffX + mod.margin.left
                 }
                 HorizontalAlignment.CENTER -> {
                     componentOffX + (width - modifier.padding.horizontal - child.width) / 2
@@ -146,7 +144,7 @@ open class BoxComponent(
             val offY = when (child.modifier.verticalAlignment) {
                 VerticalAlignment.TOP -> {
                     // won't change
-                    componentOffY + mod.marginTop
+                    componentOffY + mod.margin.top
                 }
                 VerticalAlignment.CENTER -> {
                     componentOffY + (height - modifier.padding.vertical - child.height) / 2

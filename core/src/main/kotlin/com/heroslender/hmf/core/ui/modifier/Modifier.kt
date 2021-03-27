@@ -7,11 +7,7 @@ open class Modifier(
     val verticalAlignment: VerticalAlignment = VerticalAlignment.TOP,
     val horizontalAlignment: HorizontalAlignment = HorizontalAlignment.START,
 
-    val marginTop: Int = 0,
-    val marginRight: Int = 0,
-    val marginBottom: Int = 0,
-    val marginLeft: Int = 0,
-
+    val margin: MarginValues = MarginValues(),
     val padding: PaddingValues = PaddingValues(),
 
     val extra: ModifierExtra = ModifierExtra,
@@ -21,17 +17,10 @@ open class Modifier(
     fun copy(
         height: Size = this.height,
         width: Size = this.width,
-
         verticalAlignment: VerticalAlignment = this.verticalAlignment,
         horizontalAlignment: HorizontalAlignment = this.horizontalAlignment,
-
-        marginTop: Int = this.marginTop,
-        marginRight: Int = this.marginRight,
-        marginBottom: Int = this.marginBottom,
-        marginLeft: Int = this.marginLeft,
-
+        margin: MarginValues = this.margin,
         padding: PaddingValues = this.padding,
-
         extra: ModifierExtra = this.extra,
     ): Modifier {
         return Modifier(
@@ -39,10 +28,7 @@ open class Modifier(
             width = width,
             verticalAlignment = verticalAlignment,
             horizontalAlignment = horizontalAlignment,
-            marginTop = marginTop,
-            marginRight = marginRight,
-            marginBottom = marginBottom,
-            marginLeft = marginLeft,
+            margin = margin,
             padding = padding,
             extra = extra
         )
