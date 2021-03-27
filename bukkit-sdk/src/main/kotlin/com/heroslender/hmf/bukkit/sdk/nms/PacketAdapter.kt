@@ -1,8 +1,9 @@
-package com.heroslender.hmf.bukkit.nms
+package com.heroslender.hmf.bukkit.sdk.nms
 
-import com.heroslender.hmf.bukkit.Direction
-import com.heroslender.hmf.bukkit.map.MapIcon
-import com.heroslender.hmf.bukkit.nms.version.ServerVersion
+import com.heroslender.hmf.bukkit.sdk.Direction
+import com.heroslender.hmf.bukkit.sdk.map.MapIcon
+import com.heroslender.hmf.bukkit.sdk.nms.version.ServerVersion
+import com.heroslender.hmf.bukkit.sdk.nms.v1_12.PacketAdapterImpl
 import org.bukkit.entity.Player
 
 interface PacketAdapter {
@@ -36,8 +37,8 @@ interface PacketAdapter {
     companion object {
         @JvmStatic
         fun current(): PacketAdapter = when (ServerVersion.CURRENT) {
-            ServerVersion.V1_8_R3 -> com.heroslender.hmf.bukkit.nms.v1_8.PacketAdapterImpl()
-            ServerVersion.V1_12_R1 -> com.heroslender.hmf.bukkit.nms.v1_12.PacketAdapterImpl()
+            ServerVersion.V1_8_R3 -> com.heroslender.hmf.bukkit.sdk.nms.v1_8.PacketAdapterImpl()
+            ServerVersion.V1_12_R1 -> PacketAdapterImpl()
         }
     }
 }

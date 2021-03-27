@@ -1,6 +1,6 @@
 package com.heroslender.hmf.bukkit
 
-import com.heroslender.hmf.bukkit.map.MapIcon
+import com.heroslender.hmf.bukkit.sdk.map.MapIcon
 
 data class MenuOptions(
     val cursor: CursorOptions = CursorOptions(),

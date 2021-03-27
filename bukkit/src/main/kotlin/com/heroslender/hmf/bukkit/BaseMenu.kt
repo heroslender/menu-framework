@@ -1,7 +1,8 @@
 package com.heroslender.hmf.bukkit
 
 import com.heroslender.hmf.bukkit.map.MapCanvas
-import com.heroslender.hmf.bukkit.map.MapIcon
+import com.heroslender.hmf.bukkit.sdk.Direction
+import com.heroslender.hmf.bukkit.sdk.map.MapIcon
 import com.heroslender.hmf.bukkit.utils.BoundingBox
 import com.heroslender.hmf.bukkit.utils.clamp
 import com.heroslender.hmf.bukkit.utils.clampByte

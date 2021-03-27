@@ -1,7 +1,8 @@
 package com.heroslender.hmf.bukkit
 
-import com.heroslender.hmf.bukkit.map.MapIcon
-import com.heroslender.hmf.bukkit.nms.PacketAdapter
+import com.heroslender.hmf.bukkit.sdk.Direction
+import com.heroslender.hmf.bukkit.sdk.map.MapIcon
+import com.heroslender.hmf.bukkit.sdk.nms.PacketAdapter
 import org.bukkit.entity.Player
 
 /**

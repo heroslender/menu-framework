@@ -1,5 +1,6 @@
 package com.heroslender.hmf.bukkit.nms.version
 
+import com.heroslender.hmf.bukkit.sdk.nms.version.NMSVersion
 import kotlin.Throws
 import java.lang.Exception
 import org.junit.jupiter.api.Assertions.assertEquals

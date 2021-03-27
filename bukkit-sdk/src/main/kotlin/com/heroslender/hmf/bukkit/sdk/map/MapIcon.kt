@@ -1,4 +1,4 @@
-package com.heroslender.hmf.bukkit.map
+package com.heroslender.hmf.bukkit.sdk.map
 
 @Suppress("unused")
 data class MapIcon(

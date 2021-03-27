@@ -1,4 +1,4 @@
-package com.heroslender.hmf.bukkit.nms.version
+package com.heroslender.hmf.bukkit.sdk.nms.version
 
 import org.bukkit.Bukkit
 import java.util.*

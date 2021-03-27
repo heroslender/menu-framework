@@ -1,4 +1,4 @@
-package com.heroslender.hmf.bukkit.utils
+package com.heroslender.hmf.bukkit.sdk
 
 import org.bukkit.Location
 

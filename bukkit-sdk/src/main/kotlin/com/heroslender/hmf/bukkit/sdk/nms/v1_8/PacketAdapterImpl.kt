@@ -1,8 +1,8 @@
-package com.heroslender.hmf.bukkit.nms.v1_8
+package com.heroslender.hmf.bukkit.sdk.nms.v1_8
 
-import com.heroslender.hmf.bukkit.Direction
-import com.heroslender.hmf.bukkit.map.MapIcon
-import com.heroslender.hmf.bukkit.nms.PacketAdapter
+import com.heroslender.hmf.bukkit.sdk.Direction
+import com.heroslender.hmf.bukkit.sdk.map.MapIcon
+import com.heroslender.hmf.bukkit.sdk.nms.PacketAdapter
 import net.minecraft.server.v1_8_R3.DataWatcher
 import net.minecraft.server.v1_8_R3.Item
 import net.minecraft.server.v1_8_R3.ItemStack

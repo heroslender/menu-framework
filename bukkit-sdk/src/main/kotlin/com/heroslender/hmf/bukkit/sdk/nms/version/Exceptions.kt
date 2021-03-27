@@ -1,4 +1,4 @@
-package com.heroslender.hmf.bukkit.nms.version
+package com.heroslender.hmf.bukkit.sdk.nms.version
 
 object IllegalServerException : IllegalStateException("Is this not CraftBukkit?")
 
