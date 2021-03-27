@@ -86,76 +86,54 @@ class BoundingBox(
         val divZ = 1.0 / dirZ
         var tMin: Double
         var tMax: Double
-        var hitBlockFaceMin: BlockFace?
-        var hitBlockFaceMax: BlockFace?
 
         // intersections with x planes:
         if (dirX >= 0.0) {
             tMin = (this.minX - startX) * divX
             tMax = (this.maxX - startX) * divX
-            hitBlockFaceMin = BlockFace.WEST
-            hitBlockFaceMax = BlockFace.EAST
         } else {
             tMin = (this.maxX - startX) * divX
             tMax = (this.minX - startX) * divX
-            hitBlockFaceMin = BlockFace.EAST
-            hitBlockFaceMax = BlockFace.WEST
         }
 
         // intersections with y planes:
         val tyMin: Double
         val tyMax: Double
-        val hitBlockFaceYMin: BlockFace
-        val hitBlockFaceYMax: BlockFace
         if (dirY >= 0.0) {
             tyMin = (this.minY - startY) * divY
             tyMax = (this.maxY - startY) * divY
-            hitBlockFaceYMin = BlockFace.DOWN
-            hitBlockFaceYMax = BlockFace.UP
         } else {
             tyMin = (this.maxY - startY) * divY
             tyMax = (this.minY - startY) * divY
-            hitBlockFaceYMin = BlockFace.UP
-            hitBlockFaceYMax = BlockFace.DOWN
         }
         if (tMin > tyMax || tMax < tyMin) {
             return null
         }
         if (tyMin > tMin) {
             tMin = tyMin
-            hitBlockFaceMin = hitBlockFaceYMin
         }
         if (tyMax < tMax) {
             tMax = tyMax
-            hitBlockFaceMax = hitBlockFaceYMax
         }
 
         // intersections with z planes:
         val tzMin: Double
         val tzMax: Double
-        val hitBlockFaceZMin: BlockFace
-        val hitBlockFaceZMax: BlockFace
         if (dirZ >= 0.0) {
             tzMin = (this.minZ - startZ) * divZ
             tzMax = (this.maxZ - startZ) * divZ
-            hitBlockFaceZMin = BlockFace.NORTH
-            hitBlockFaceZMax = BlockFace.SOUTH
         } else {
             tzMin = (this.maxZ - startZ) * divZ
             tzMax = (this.minZ - startZ) * divZ
-            hitBlockFaceZMin = BlockFace.SOUTH
-            hitBlockFaceZMax = BlockFace.NORTH
         }
         if (tMin > tzMax || tMax < tzMin) {
             return null
         }
         if (tzMin > tMin) {
             tMin = tzMin
-            hitBlockFaceMin = hitBlockFaceZMin
         }
         if (tzMax < tMax) {
             tMax = tzMax
-            hitBlockFaceMax = hitBlockFaceZMax
         }
 
         // intersections are behind the start:
@@ -166,17 +144,7 @@ class BoundingBox(
         }
 
         // find the closest intersection:
-        val t: Double
-        val hitBlockFace: BlockFace
-        if (tMin < 0.0) {
-            t = tMax
-            hitBlockFace = hitBlockFaceMax
-        } else {
-            t = tMin
-            hitBlockFace = hitBlockFaceMin
-        }
-        // reusing the newly created direction vector for the hit position:
-        val hitPosition = dir.multiply(t).add(start)
-        return hitPosition
+        val t: Double = if (tMin < 0.0) tMax else tMin
+        return dir.multiply(t).add(start)
     }
 }
