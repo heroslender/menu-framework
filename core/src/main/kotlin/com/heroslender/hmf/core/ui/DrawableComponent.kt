@@ -18,8 +18,6 @@ abstract class DrawableComponent(
 
     override var isDirty: Boolean = true
 
-    override var hasState: Boolean = false
-
     // Keep track of the previous canvas, so that when the state updates
     // this component won't be drawn over the previous
     private var prevCanvas: Canvas? = null
@@ -37,6 +35,10 @@ abstract class DrawableComponent(
 
     override fun render(): Boolean {
         if (!isDirty) {
+            prevCanvas?.also {
+                renderContext.canvas.draw(it, positionX, positionY)
+            }
+
             return false
         }
 
@@ -45,13 +47,8 @@ abstract class DrawableComponent(
         val positionX = positionX
         val positionY = positionY
 
-        if (hasState && prevCanvas == null) {
-            prevCanvas = context.canvas.subCanvas(this.width, this.height, positionX, positionY)
-        }
-        ensureCachedCanvasSize()
-
         // Temporary canvas to handle transparent pixels
-        val tempCanvas: Canvas = this.prevCanvas?.clone() ?: context.canvas.newCanvas(this.width, this.height)
+        val tempCanvas: Canvas = getPrevCanvas()
 
         modifier.extra.foldIn(Unit) { acc, elem ->
             if (elem is Drawer) {
@@ -73,6 +70,18 @@ abstract class DrawableComponent(
     override fun reRender(offsetX: Int, offsetY: Int) {
         this.positionX = offsetX
         this.positionY = offsetY
+    }
+
+    private fun getPrevCanvas(): Canvas {
+        var prev = prevCanvas
+        if (prev == null) {
+            prev = renderContext.canvas.newCanvas(this.width, this.height)
+            this.prevCanvas = prev
+        }
+
+        ensureCachedCanvasSize()
+
+        return prev
     }
 
     private fun ensureCachedCanvasSize() {

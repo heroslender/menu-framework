@@ -102,11 +102,6 @@ interface Component {
     }
 
     /**
-     * Whether this component has state bounded to it
-     */
-    var hasState: Boolean
-
-    /**
      * Function called to draw the component.
      *
      * Drawing should be done using the [setPixel] function.

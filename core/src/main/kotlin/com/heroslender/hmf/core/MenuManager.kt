@@ -57,11 +57,6 @@ interface MenuManager<O, M : Menu> {
             component.compose()
         }
 
-        rootComponent.foldIn(Unit) { _, component ->
-            // Force everything to re-render, fixes some issues
-            // I need to find a better way to fix this
-            component.flagDirty()
-        }
         rootComponent.reRender(0, 0)
 
         val rendered = rootComponent.render()

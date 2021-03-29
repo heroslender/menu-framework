@@ -8,7 +8,6 @@ typealias DrawFunc = (x: Int, y: Int, color: IColor) -> Unit
 
 infix fun <T> Composable.withState(state: State<T>): T {
     if (state is MutableStateImpl) {
-        this.hasState = true
         state.bind(this)
     }
 
