@@ -33,47 +33,63 @@ abstract class BaseMenu(
             .apply { pitch = 0F }
             .let { it.add(it.direction.multiply(2)) }
 
-        val right = direction.rotateLeft()
+        val left = direction.rotateLeft()
         val startOffset = -(width / 2 - 1).toDouble()
-        startScreen.add(startOffset * right.x, 2.0, startOffset * right.z)
+        startScreen.add(startOffset * left.x, 2.0, startOffset * left.z)
 
         this.startX = startScreen.blockX
         this.startY = startScreen.blockY
         this.startZ = startScreen.blockZ
 
-        val frameDirection = direction//.opposite()
-        val left = frameDirection.rotateLeft()
-        var centerX = (startX + .5)
-        centerX -= frameDirection.x * 0.46875
-        centerX += left.x * .5
-        var centerZ = (startZ + .5)
-        centerZ -= frameDirection.z * 0.46875
-        centerZ += left.z * .5
-        val offX = if (frameDirection.x != 0) .03125 else left.x.toDouble()
-        val offZ = if (frameDirection.z != 0) .03125 else left.z.toDouble()
-
-        val bbStartX = centerX - offX
-        val bbStartZ = centerZ - offZ
-
-        val xBound = if (frameDirection.x == 0) {
-            bbStartX + width * right.x
-        } else {
-            // Screen thickness
-            bbStartX + .0625
+        val bbStartX: Double
+        val bbEndX: Double
+        when (direction.x) {
+            -1 -> {
+                bbStartX = startX + .9375
+                bbEndX = bbStartX
+            }
+            1 -> {
+                bbStartX = startX + .0625
+                bbEndX = bbStartX
+            }
+            0 -> { // Equals to 0
+                bbStartX = if (left.x == -1) (startX + 1).toDouble() else startX.toDouble()
+                bbEndX = bbStartX + width * left.x
+            }
+            else -> {
+                bbStartX = startX.toDouble()
+                bbEndX = bbStartX
+            }
         }
 
-        val zBound = if (frameDirection.z == 0) {
-            bbStartZ + width * right.z
-        } else {
-            bbStartZ + .0625
+        val bbStartZ: Double
+        val bbEndZ: Double
+        when (direction.z) {
+            -1 -> {
+                bbStartZ = startZ + .9375
+                bbEndZ = bbStartZ
+            }
+            1 -> {
+                bbStartZ = startZ + .0625
+                bbEndZ = bbStartZ
+            }
+            0 -> {
+                bbStartZ = if (left.z == -1) (startZ + 1).toDouble() else startZ.toDouble()
+                bbEndZ = bbStartZ + width * left.z
+            }
+            else -> {
+                bbStartZ = startZ.toDouble()
+                bbEndZ = bbStartZ
+            }
         }
+
         boundingBox = BoundingBox.of(
             bbStartX,
             startY - (height - 1.0),
             bbStartZ,
-            xBound,
+            bbEndX,
             startY + 1.0,
-            zBound,
+            bbEndZ,
         )
     }
 
