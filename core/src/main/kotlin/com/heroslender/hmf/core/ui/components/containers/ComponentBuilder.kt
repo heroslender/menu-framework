@@ -35,9 +35,7 @@ abstract class ComponentBuilder(
         }
 
     override fun render(): Boolean {
-        super.render()
-
-        var rendered = false
+        var rendered = super.render()
         for (child in _children) {
             rendered = rendered or child.render()
         }

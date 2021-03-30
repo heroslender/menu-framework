@@ -48,9 +48,7 @@ open class BoxComponent(
             .maxOrNull() ?: 0
 
     override fun render(): Boolean {
-        super.render()
-
-        var rendered = false
+        var rendered = super.render()
         for (child in children) {
             rendered = rendered or child.render()
         }
