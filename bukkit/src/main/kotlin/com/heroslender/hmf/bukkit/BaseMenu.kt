@@ -1,11 +1,11 @@
 package com.heroslender.hmf.bukkit
 
 import com.heroslender.hmf.bukkit.map.MapCanvas
+import com.heroslender.hmf.bukkit.screen.MenuScreen
+import com.heroslender.hmf.bukkit.screen.privateMenuScreenOf
 import com.heroslender.hmf.bukkit.sdk.Direction
-import com.heroslender.hmf.bukkit.sdk.map.MapIcon
 import com.heroslender.hmf.bukkit.utils.BoundingBox
-import com.heroslender.hmf.bukkit.utils.clamp
-import com.heroslender.hmf.bukkit.utils.clampByte
+import com.heroslender.hmf.bukkit.utils.boundingBoxOf
 import com.heroslender.hmf.bukkit.utils.ignore
 import com.heroslender.hmf.core.ui.modifier.modifiers.ClickEvent
 import org.bukkit.Location
@@ -25,8 +25,12 @@ abstract class BaseMenu(
     var startY: Int = 0
     var startZ: Int = 0
 
-    private var chunks: Array<MenuChunk> = emptyArray()
+    private var screen: MenuScreen? = null
     final override var boundingBox: BoundingBox = BoundingBox.EMPTY
+
+    fun hasEntityId(id: Int): Boolean {
+        return screen?.chunks?.any { it.id == id } ?: false
+    }
 
     init {
         val startScreen: Location = owner.location.clone()
@@ -41,130 +45,43 @@ abstract class BaseMenu(
         this.startY = startScreen.blockY
         this.startZ = startScreen.blockZ
 
-        val bbStartX: Double
-        val bbEndX: Double
-        when (direction.x) {
-            -1 -> {
-                bbStartX = startX + .9375
-                bbEndX = bbStartX
-            }
-            1 -> {
-                bbStartX = startX + .0625
-                bbEndX = bbStartX
-            }
-            0 -> { // Equals to 0
-                bbStartX = if (left.x == -1) (startX + 1).toDouble() else startX.toDouble()
-                bbEndX = bbStartX + width * left.x
-            }
-            else -> {
-                bbStartX = startX.toDouble()
-                bbEndX = bbStartX
-            }
-        }
-
-        val bbStartZ: Double
-        val bbEndZ: Double
-        when (direction.z) {
-            -1 -> {
-                bbStartZ = startZ + .9375
-                bbEndZ = bbStartZ
-            }
-            1 -> {
-                bbStartZ = startZ + .0625
-                bbEndZ = bbStartZ
-            }
-            0 -> {
-                bbStartZ = if (left.z == -1) (startZ + 1).toDouble() else startZ.toDouble()
-                bbEndZ = bbStartZ + width * left.z
-            }
-            else -> {
-                bbStartZ = startZ.toDouble()
-                bbEndZ = bbStartZ
-            }
-        }
-
-        boundingBox = BoundingBox.of(
-            bbStartX,
-            startY - (height - 1.0),
-            bbStartZ,
-            bbEndX,
-            startY + 1.0,
-            bbEndZ,
-        )
+        this.boundingBox = calculateBoundingBox()
     }
 
     fun send() {
-        manager.add(this)
+        this.screen = manager.withEntityIdFactory { nextEntityId ->
+            manager.add(this)
 
-        chunks = Array(width * height) { index ->
-            // TODO Fix map ids
-            MenuChunk(
-                owner = owner,
-                id = 9999 + index
+            privateMenuScreenOf(
+                owner,
+                opts,
+                width,
+                height,
+                startX,
+                startY,
+                startZ,
+                direction,
+                nextEntityId
             )
         }
 
-        val pd = direction.rotateLeft()
-        chunks.forEachIndexed { index, chunk ->
-            val x = index % width
-            val y = index / width
-
-            chunk.create(chunk.id, startX + x * pd.x, startY + -y, startZ + x * pd.z, direction)
-        }
+        screen?.spawn()
 
         context.onUpdate {
-            val canvas = context.canvas
-
-            chunks.forEachIndexed { index, chunk ->
-                val startX = index % width * 128
-                val startY = index / width * 128
-
-                for (x in 0..127) {
-                    for (y in 0..127) {
-                        chunk.buffer[x + y * 128] = canvas[x + startX, y + startY]
-                    }
-                }
-
-                chunk.sendUpdate()
-            }
+            screen?.update(context.canvas)
         }
 
         render()
     }
 
     fun destroy() {
-        for (chunk in chunks) {
-            chunk.destroy()
-        }
+        screen?.despawn()
 
         manager.remove(owner)
     }
 
-    var prevCursorMapId = -1
     override fun tickCursor() = raytrace { x, y ->
-        val index = clamp(x.toInt(), 0, width - 1) + clamp(y.toInt(), 0, height - 1) * width
-        if (index >= chunks.size) {
-            // Outside the menu? This should not happen
-            return@raytrace
-        }
-
-        val chunk = chunks[index]
-        val mapX = ((x % 1) * 256).toInt() - 118
-        val mapY = ((y % 1) * 256).toInt() - 118
-
-        chunk.sendCursorUpdate(MapIcon(
-            clampByte(mapX),
-            clampByte(mapY),
-            opts.cursor.iconRotation,
-            opts.cursor.iconType,
-        ))
-
-        // Remove the cursor from previous map
-        if (prevCursorMapId >= 0 && prevCursorMapId != index) {
-            chunks[prevCursorMapId].sendCursorUpdate()
-        }
-
-        prevCursorMapId = index
+        screen?.updateCursor((x * 128).toInt(), (y * 128).toInt())
     }.ignore()
 
     override fun onInteract(action: Action): Boolean = raytrace { x, y ->
@@ -198,5 +115,60 @@ abstract class BaseMenu(
 
         onIntersect(if (x < 0) x + width else x, y)
         return true
+    }
+
+    private fun calculateBoundingBox(): BoundingBox {
+        val bbStartX: Double
+        val bbEndX: Double
+        when (direction.x) {
+            -1 -> {
+                bbStartX = startX + .9375
+                bbEndX = bbStartX
+            }
+            1 -> {
+                bbStartX = startX + .0625
+                bbEndX = bbStartX
+            }
+            0 -> { // Equals to 0
+                val left = direction.rotateLeft()
+                bbStartX = if (left.x == -1) (startX + 1).toDouble() else startX.toDouble()
+                bbEndX = bbStartX + width * left.x
+            }
+            else -> {
+                bbStartX = startX.toDouble()
+                bbEndX = bbStartX
+            }
+        }
+
+        val bbStartZ: Double
+        val bbEndZ: Double
+        when (direction.z) {
+            -1 -> {
+                bbStartZ = startZ + .9375
+                bbEndZ = bbStartZ
+            }
+            1 -> {
+                bbStartZ = startZ + .0625
+                bbEndZ = bbStartZ
+            }
+            0 -> {
+                val left = direction.rotateLeft()
+                bbStartZ = if (left.z == -1) (startZ + 1).toDouble() else startZ.toDouble()
+                bbEndZ = bbStartZ + width * left.z
+            }
+            else -> {
+                bbStartZ = startZ.toDouble()
+                bbEndZ = bbStartZ
+            }
+        }
+
+        return boundingBoxOf(
+            bbStartX,
+            startY - (height - 1.0),
+            bbStartZ,
+            bbEndX,
+            startY + 1.0,
+            bbEndZ,
+        )
     }
 }

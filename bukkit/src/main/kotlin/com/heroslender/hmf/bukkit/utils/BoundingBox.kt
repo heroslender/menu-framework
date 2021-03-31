@@ -2,10 +2,32 @@ package com.heroslender.hmf.bukkit.utils
 
 import org.bukkit.Location
 import org.bukkit.World
-import org.bukkit.block.BlockFace
 import org.bukkit.util.Vector
 import kotlin.math.max
 import kotlin.math.min
+
+fun boundingBoxOf(corner1: Location, corner2: Location): BoundingBox =
+    BoundingBox(
+        min(corner1.x, corner2.x),
+        min(corner1.y, corner2.y),
+        min(corner1.z, corner2.z),
+        max(corner1.x, corner2.x) + 1,
+        max(corner1.y, corner2.y) + 1,
+        max(corner1.z, corner2.z) + .05,
+    )
+
+
+
+fun boundingBoxOf(minX: Double, minY: Double, minZ: Double, maxX: Double, maxY: Double, maxZ: Double): BoundingBox {
+    return BoundingBox(
+        min(minX, maxX),
+        min(minY, maxY),
+        min(minZ, maxZ),
+        max(minX, maxX),
+        max(minY, maxY),
+        max(minZ, maxZ),
+    )
+}
 
 class BoundingBox(
     val minX: Double = 0.0,
@@ -18,28 +40,6 @@ class BoundingBox(
 
     companion object {
         val EMPTY: BoundingBox = BoundingBox(.0, .0, .0, .0, .0, .0)
-
-        fun ofBlocks(corner1: Location, corner2: Location): BoundingBox {
-            return BoundingBox(
-                min(corner1.x, corner2.x),
-                min(corner1.y, corner2.y),
-                min(corner1.z, corner2.z),
-                max(corner1.x, corner2.x) + 1,
-                max(corner1.y, corner2.y) + 1,
-                max(corner1.z, corner2.z) + .05,
-            )
-        }
-
-        fun of(minX: Double, minY: Double, minZ: Double, maxX: Double, maxY: Double, maxZ: Double): BoundingBox {
-            return BoundingBox(
-                min(minX, maxX),
-                min(minY, maxY),
-                min(minZ, maxZ),
-                max(minX, maxX),
-                max(minY, maxY),
-                max(minZ, maxZ),
-            )
-        }
     }
 
     fun toMinLocation(world: World?): Location {

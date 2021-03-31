@@ -16,7 +16,9 @@ class BukkitMenuManager(
     val opts: Options = Options(),
     private val imageManager: ImageManager = ImageManager(),
 ) : MenuManager<Player, BaseMenu> {
-    private val menus: MutableList<BaseMenu> = mutableListOf()
+    private val _menus: MutableList<BaseMenu> = mutableListOf()
+    val menus: List<BaseMenu>
+        get() = _menus
 
     private var cursorTaskId: Int = 0
     private var renderTaskId: Int = 0
@@ -42,18 +44,44 @@ class BukkitMenuManager(
         launchRenderTask()
     }
 
+    val entityIdMutex: Any = Any()
+
+    /**
+     * Returns the next available entity id to be used
+     * by maps & item frames.
+     */
+    fun nextEntityId(): Int = withEntityIdFactory { next -> next() }
+
+    /**
+     * Executes [factory] while holding a lock on the [entityIdMutex].
+     */
+    inline fun <R> withEntityIdFactory(factory: (nextEntityId: () -> Int) -> R): R = synchronized(entityIdMutex) {
+        val usedIds: MutableList<Int> = mutableListOf()
+
+        factory {
+            var id = opts.firstEntityId
+
+            while (usedIds.contains(id) || menus.any { it.hasEntityId(id) }) {
+                id++
+            }
+
+            usedIds += id
+            return@factory id
+        }
+    }
+
     override fun get(owner: Player): BaseMenu? {
         return menus.firstOrNull { it.owner === owner }
     }
 
     override fun remove(owner: Player): BaseMenu? {
-        return get(owner)?.also { menus.remove(it) }
+        return get(owner)?.also { _menus.remove(it) }
     }
 
     override fun add(menu: BaseMenu) {
         remove(menu.owner)?.destroy()
 
-        menus.add(menu)
+        _menus.add(menu)
     }
 
     override fun getImage(url: String, width: Int, height: Int, cached: Boolean): Image? =
@@ -76,6 +104,7 @@ class BukkitMenuManager(
     }
 
     data class Options(
+        val firstEntityId: Int = 9999,
         val listenClicks: Boolean = true,
         val cursorUpdateDelay: Long = 2,
         val maxInteractDistance: Double = 5.0,

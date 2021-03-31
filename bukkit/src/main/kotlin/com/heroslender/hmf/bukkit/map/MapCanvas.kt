@@ -7,7 +7,7 @@ import kotlin.math.min
 open class MapCanvas(
     final override val width: Int,
     final override val height: Int,
-    protected val buffer: ByteArray = ByteArray(width * height),
+    val buffer: ByteArray = ByteArray(width * height),
 ) : Canvas {
     constructor(other: MapCanvas) : this(other.width, other.height, other.buffer.clone())
 
