@@ -17,9 +17,4 @@ class LayoutModifierWrapper(
 
         return this
     }
-
-    override fun placeAt(x: Int, y: Int) {
-        this.x = x
-        this.y = y
-    }
 }

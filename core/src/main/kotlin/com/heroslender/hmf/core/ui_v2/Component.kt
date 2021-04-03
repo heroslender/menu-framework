@@ -1,5 +1,6 @@
 package com.heroslender.hmf.core.ui_v2
 
+import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.RenderContext
 import com.heroslender.hmf.core.ui_v2.modifier.Modifier
 
@@ -46,15 +47,23 @@ interface Component : Measurable {
     var positionY: Int
 
     /**
-     * Initialize the component position, preparing
-     * it for rendering.
+     * Whether this component needs to be redrawn.
      */
-    fun reRender(offsetX: Int, offsetY: Int)
+    var isDirty: Boolean
 
     /**
-     * Render the component to the canvas if needed
+     * Flag the component as dirty, this will mark it to
+     * be redrawn during the next cycle.
      */
-    fun render(): Boolean
+    fun flagDirty() {
+        isDirty = true
+    }
+
+    var measurableGroup: MeasurableGroup
+
+    fun onNodePlaced()
+
+    fun draw(canvas: Canvas): Boolean
 
     fun <R> foldIn(acc: R, op: (R, Component) -> R): R = op(acc, this)
 

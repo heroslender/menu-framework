@@ -5,10 +5,8 @@ package com.heroslender.hmf.core.ui_v2
  */
 interface Composable : Component {
 
-    /**
-     * Used to measure this component based on its children.
-     */
-    var measurableGroup: MeasurableGroup
+    val childOffsetX: Int
+    val childOffsetY: Int
 
     /**
      * List of children this composable holds.

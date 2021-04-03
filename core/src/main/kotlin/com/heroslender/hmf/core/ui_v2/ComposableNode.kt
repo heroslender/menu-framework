@@ -1,5 +1,6 @@
 package com.heroslender.hmf.core.ui_v2
 
+import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.RenderContext
 import com.heroslender.hmf.core.ui_v2.modifier.Modifier
 import com.heroslender.hmf.core.ui_v2.modifier.node.ComponentWrapper
@@ -12,7 +13,10 @@ class ComposableNode(
     private val content: Composable.() -> Unit,
 ) : AbstractNode(parent, modifier, renderContext), Composable {
 
-    override var measurableGroup: MeasurableGroup = MeasurableGroup
+    override var childOffsetX: Int = 0
+        private set
+    override var childOffsetY: Int = 0
+        private set
 
     private val _children: MutableList<Component> = mutableListOf()
     override val children: List<Component>
@@ -25,6 +29,15 @@ class ComposableNode(
         _children.add(child)
     }
 
+    override fun draw(canvas: Canvas): Boolean {
+        var result: Boolean = super.draw(canvas)
+        for (child in children) {
+            result = result or child.draw(canvas)
+        }
+
+        return result
+    }
+
     override fun compose() {
         _children.clear()
 
@@ -34,13 +47,26 @@ class ComposableNode(
             .forEach(Composable::compose)
     }
 
-    override fun render(): Boolean {
+    /**
+     * Calculate the offset added to children, this
+     * could be padding for example.
+     */
+    private inline fun childOffset(metric: Int, op: (wrapper: ComponentWrapper) -> Int): Int {
+        var m = metric
+        var wrapper: ComponentWrapper? = outerWrapper
+        while (wrapper != null) {
+            m += op(wrapper)
 
-        return true
+            wrapper = wrapper.wrapped
+        }
+
+        return m
     }
 
-    override fun reRender(offsetX: Int, offsetY: Int) {
-        this.positionX = offsetX
-        this.positionY = offsetY
+    override fun onNodePlaced() {
+        childOffsetX = childOffset(0) { it.x }
+        childOffsetY = childOffset(0) { it.y }
+
+        super.onNodePlaced()
     }
 }

@@ -12,14 +12,4 @@ class ComponentNode(
 ) : AbstractNode(parent, modifier, renderContext) {
     override val innerWrapper: ComponentWrapper = InnerComponentWrapper(this)
     override val outerWrapper: ComponentWrapper = defaultOuter(modifier, innerWrapper)
-
-    override fun render(): Boolean {
-
-        return true
-    }
-
-    override fun reRender(offsetX: Int, offsetY: Int) {
-        this.positionX = offsetX
-        this.positionY = offsetY
-    }
 }
