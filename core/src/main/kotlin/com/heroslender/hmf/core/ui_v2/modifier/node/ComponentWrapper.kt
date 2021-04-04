@@ -8,6 +8,10 @@ import com.heroslender.hmf.core.ui_v2.modifier.AbstractPlaceable
 
 abstract class ComponentWrapper(open val component: Component) : AbstractPlaceable(), Measurable {
     open val wrapped: ComponentWrapper? = null
+
+    /**
+     * Whether this is the outer component in the chain.
+     */
     var isOuter: Boolean = false
 
     private var _measureResult: MeasureScope.MeasureResult? = null

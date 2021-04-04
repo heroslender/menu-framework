@@ -11,6 +11,9 @@ abstract class ModifierElementWrapper<T : Modifier.Element>(
     val modifier: T,
 ) : ComponentWrapper(wrapped.component) {
 
+    override val data: Any?
+        get() = wrapped.data
+
     override fun placeAt(x: Int, y: Int) {
         this.x = x
         this.y = y

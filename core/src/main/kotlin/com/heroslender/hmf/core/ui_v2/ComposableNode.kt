@@ -53,7 +53,7 @@ class ComposableNode(
      */
     private inline fun childOffset(metric: Int, op: (wrapper: ComponentWrapper) -> Int): Int {
         var m = metric
-        var wrapper: ComponentWrapper? = outerWrapper
+        var wrapper: ComponentWrapper? = outerWrapper.wrapped
         while (wrapper != null) {
             m += op(wrapper)
 

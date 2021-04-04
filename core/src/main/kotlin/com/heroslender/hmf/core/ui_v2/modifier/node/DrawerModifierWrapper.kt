@@ -1,7 +1,7 @@
 package com.heroslender.hmf.core.ui_v2.modifier.node
 
 import com.heroslender.hmf.core.Canvas
-import com.heroslender.hmf.core.ui_v2.DrawerModifier
+import com.heroslender.hmf.core.ui_v2.modifier.DrawerModifier
 
 class DrawerModifierWrapper(
     wrapped: ComponentWrapper,

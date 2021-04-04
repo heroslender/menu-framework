@@ -9,6 +9,9 @@ import com.heroslender.hmf.core.ui_v2.modifier.Placeable
 
 class InnerComponentWrapper(component: Component) : ComponentWrapper(component) {
 
+    override val data: Any?
+        get() = null
+
     override fun measure(constraints: Constraints): Placeable {
         val children = if (component is Composable) component.children else emptyList()
 

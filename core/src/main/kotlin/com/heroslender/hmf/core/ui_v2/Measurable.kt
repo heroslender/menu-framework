@@ -1,16 +1,33 @@
 package com.heroslender.hmf.core.ui_v2
 
 import com.heroslender.hmf.core.ui_v2.modifier.Constraints
-import com.heroslender.hmf.core.ui_v2.modifier.Modifier
 import com.heroslender.hmf.core.ui_v2.modifier.Placeable
-import kotlin.math.max
 
-interface LayoutModifier : Modifier.Element {
+interface Measurable {
 
-    fun MeasureScope.measure(
-        measurable: Measurable,
-        constraints: Constraints,
-    ): MeasureScope.MeasureResult
+    val data: Any?
+
+    fun measure(constraints: Constraints): Placeable
+}
+
+interface MeasureScope {
+    interface MeasureResult {
+        val width: Int
+        val height: Int
+
+        fun placeChildren()
+    }
+
+    fun result(width: Int, height: Int, placeChild: () -> Unit) = object : MeasureResult {
+        override val width: Int = width
+        override val height: Int = height
+
+        override fun placeChildren() {
+            placeChild()
+        }
+    }
+
+    companion object : MeasureScope
 }
 
 interface MeasurableGroup {
@@ -46,28 +63,3 @@ interface MeasurableGroup {
         }
     }
 }
-
-interface Measurable {
-    fun measure(constraints: Constraints): Placeable
-}
-
-interface MeasureScope {
-    interface MeasureResult {
-        val width: Int
-        val height: Int
-
-        fun placeChildren()
-    }
-
-    fun result(width: Int, height: Int, placeChild: () -> Unit) = object : MeasureResult {
-        override val width: Int = width
-        override val height: Int = height
-
-        override fun placeChildren() {
-            placeChild()
-        }
-    }
-
-    companion object : MeasureScope
-}
-

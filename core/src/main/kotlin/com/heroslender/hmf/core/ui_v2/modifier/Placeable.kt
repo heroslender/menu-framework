@@ -5,6 +5,12 @@ interface Placeable {
 
     val height: Int
 
+    /**
+     * Whether this component should be rendered or not.
+     * This value is changed to false if the component is outside the canvas.
+     */
+    var isVisible: Boolean
+
     fun placeAt(x: Int, y: Int)
 }
 
@@ -17,6 +23,8 @@ abstract class AbstractPlaceable() : Placeable {
         set(value) {
             field = value.coerceIn(constraints.minHeight, constraints.maxHeight)
         }
+
+    override var isVisible: Boolean = true
 
     var constraints: Constraints = Constraints()
 }
