@@ -44,14 +44,14 @@ abstract class AbstractNode(
         return (modifier.foldOut(inner) { mod, prevWrapper ->
             var wrapper = prevWrapper
 
-            if (mod is DrawerModifier) {
-                wrapper = DrawerModifierWrapper(wrapper, mod)
-            }
             if (mod is MeasurableDataModifier) {
                 wrapper = MeasurableDataModifierWrapper(wrapper, mod)
             }
             if (mod is LayoutModifier) {
                 wrapper = LayoutModifierWrapper(wrapper, mod)
+            }
+            if (mod is DrawerModifier) {
+                wrapper = DrawerModifierWrapper(wrapper, mod)
             }
 
             return@foldOut wrapper

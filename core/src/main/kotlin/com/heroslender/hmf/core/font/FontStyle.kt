@@ -7,8 +7,8 @@ import com.heroslender.hmf.core.IColor
 open class FontStyle(
     val font: Font,
     val color: IColor,
-    val shadowColor: IColor,
-    val borderColor: IColor,
+    val shadowColor: IColor = IColor.TRANSPARENT,
+    val borderColor: IColor = IColor.TRANSPARENT,
 ) {
 
     fun copy(
