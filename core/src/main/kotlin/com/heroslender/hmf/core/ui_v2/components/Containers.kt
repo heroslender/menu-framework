@@ -77,10 +77,7 @@ internal class FillModifier(
             maxHeight = constraints.maxHeight
         }
 
-        val placeable = measurable.measure(Constraints(minWidth,
-            maxWidth,
-            minHeight,
-            maxHeight).also { println("$constraints > $it") })
+        val placeable = measurable.measure(Constraints(minWidth, maxWidth, minHeight, maxHeight))
 
         return result(placeable.width, placeable.height) {
             placeable.placeAt(0, 0)
