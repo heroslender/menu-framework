@@ -41,7 +41,7 @@ interface MeasurableGroup {
             measurables: List<Measurable>,
             constraints: Constraints,
         ): MeasureScope.MeasureResult = when {
-            measurables.isEmpty() -> result(0, 0) {}
+            measurables.isEmpty() -> result(constraints.minWidth, constraints.minHeight) {}
             measurables.size == 1 -> {
                 val placeable = measurables[0].measure(constraints)
                 result(placeable.width, placeable.height) {

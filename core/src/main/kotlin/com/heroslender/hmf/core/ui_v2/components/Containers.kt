@@ -2,10 +2,7 @@ package com.heroslender.hmf.core.ui_v2.components
 
 import com.heroslender.hmf.core.ui.Orientation
 import com.heroslender.hmf.core.ui_v2.*
-import com.heroslender.hmf.core.ui_v2.modifier.Constraints
-import com.heroslender.hmf.core.ui_v2.modifier.MeasurableDataModifier
-import com.heroslender.hmf.core.ui_v2.modifier.Modifier
-import com.heroslender.hmf.core.ui_v2.modifier.Placeable
+import com.heroslender.hmf.core.ui_v2.modifier.*
 import kotlin.math.max
 import kotlin.math.sign
 
@@ -37,6 +34,58 @@ fun Composable.Box(
 ) {
     val node = ComposableNode(this, modifier, renderContext, content)
     addChild(node)
+}
+
+enum class Direction {
+    HORIZONTAL,
+    VERTICAL,
+    BOTH,
+}
+
+fun Modifier.fillWidth(fraction: Float = 1F): Modifier = this then FillModifier(Direction.HORIZONTAL, fraction)
+fun Modifier.fillHeight(fraction: Float = 1F): Modifier = this then FillModifier(Direction.VERTICAL, fraction)
+fun Modifier.fillSize(fraction: Float = 1F): Modifier = this then FillModifier(Direction.BOTH, fraction)
+
+internal class FillModifier(
+    val direction: Direction,
+    val fraction: Float,
+) : LayoutModifier {
+    override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureScope.MeasureResult {
+        val minWidth: Int
+        val maxWidth: Int
+        if (direction != Direction.VERTICAL) {
+            val width = constraints.constrainWidth(
+                (constraints.maxWidth * fraction).toInt()
+            )
+            minWidth = width
+            maxWidth = width
+        } else {
+            minWidth = constraints.minWidth
+            maxWidth = constraints.maxWidth
+        }
+
+        val minHeight: Int
+        val maxHeight: Int
+        if (direction != Direction.HORIZONTAL) {
+            val height = constraints.constrainHeight(
+                (constraints.maxHeight * fraction).toInt()
+            )
+            minHeight = height
+            maxHeight = height
+        } else {
+            minHeight = constraints.minHeight
+            maxHeight = constraints.maxHeight
+        }
+
+        val placeable = measurable.measure(Constraints(minWidth,
+            maxWidth,
+            minHeight,
+            maxHeight).also { println("$constraints > $it") })
+
+        return result(placeable.width, placeable.height) {
+            placeable.placeAt(0, 0)
+        }
+    }
 }
 
 fun Modifier.weight(weight: Int) = this then ContainerWeightModifier(weight)
@@ -87,6 +136,9 @@ fun Placeable.mainAxisSize(orientation: Orientation): Int =
 fun Placeable.crossAxisSize(orientation: Orientation): Int =
     if (orientation == Orientation.HORIZONTAL) height else width
 
+val Placeable.hasBoundingBox: Boolean
+    get() = width > 0 && height > 0
+
 private fun orientedCopmonentMeasurableGroup(
     orientation: Orientation,
 ): MeasurableGroup = object : MeasurableGroup {
@@ -94,16 +146,15 @@ private fun orientedCopmonentMeasurableGroup(
         measurables: List<Measurable>,
         constraints: Constraints,
     ): MeasureScope.MeasureResult = when {
-        measurables.isEmpty() -> result(0, 0) {}
+        measurables.isEmpty() -> result(constraints.minWidth, constraints.minHeight) {}
         measurables.size == 1 -> {
-            val placeable = measurables[0].measure(constraints)
+            val placeable = measurables[0].measure(constraints.copy(minWidth = 0, minHeight = 0))
             result(placeable.width, placeable.height) {
                 placeable.placeAt(0, 0)
             }
         }
         else -> {
             val axisConstraints = constraints.toAxisConstraints(orientation)
-
             val placeables = arrayOfNulls<Placeable>(measurables.size)
             val datas = Array(measurables.size) { i -> measurables[i].containerData }
 
@@ -150,7 +201,7 @@ private fun orientedCopmonentMeasurableGroup(
                     val measurable = measurables[i]
                     val data = datas[i]
                     val weight = data?.weight ?: 0
-                    require(weight > 0) { "Non weighted components should have beed measured already" }
+                    require(weight > 0) { "Non weighted components should have been measured already" }
 
                     val remainderSign = remainder.sign
                     remainder -= remainderSign
@@ -160,7 +211,6 @@ private fun orientedCopmonentMeasurableGroup(
                             mainAxisMin = childSize,
                             mainAxisMax = childSize,
                             crossAxisMin = 0,
-                            crossAxisMax = crossAxisSize,
                         ).toConstraints(orientation)
                     )
                     usedSize += placeable.mainAxisSize(orientation)
@@ -175,7 +225,7 @@ private fun orientedCopmonentMeasurableGroup(
             var y = 0
             result(constraints.constrainWidth(width), constraints.constrainHeight(height)) {
                 for (placeable in placeables) {
-                    if (placeable == null) continue
+                    if (placeable == null || !placeable.hasBoundingBox) continue
 
                     placeable.placeAt(x, y)
                     if (x > constraints.maxWidth || y > constraints.maxHeight) {
