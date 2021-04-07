@@ -68,4 +68,17 @@ interface Component : Measurable {
     fun <R> foldIn(acc: R, op: (R, Component) -> R): R = op(acc, this)
 
     fun <R> foldOut(acc: R, op: (R, Component) -> R): R = op(acc, this)
+
+    val deepLevel: Int
+        get() {
+            var i = 0
+            var c = parent
+            while (c != null) {
+                i++
+
+                c = c.parent
+            }
+
+            return i
+        }
 }
