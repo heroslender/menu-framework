@@ -13,6 +13,8 @@ abstract class AbstractNode(
     override val modifier: Modifier = Modifier,
     override val renderContext: RenderContext = parent!!.renderContext,
 ) : Component {
+
+    override val name: String = Throwable().stackTrace[2].methodName
     override var positionX: Int = 0
     override var positionY: Int = 0
 

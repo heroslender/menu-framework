@@ -26,7 +26,7 @@ interface Menu {
 
         root.outerWrapper.placeAt(0, 0)
         root.foldIn(Unit) { _, c ->
-            println("${"  ".repeat(c.deepLevel)}> ${c.javaClass.simpleName} -> ${c.width}x${c.height} at ${c.positionX} ${c.positionY}")
+            println("${"  ".repeat(c.deepLevel)}> ${c.name} -> ${c.width}x${c.height} at ${c.positionX} ${c.positionY}")
         }
         root.draw(context.canvas)
 

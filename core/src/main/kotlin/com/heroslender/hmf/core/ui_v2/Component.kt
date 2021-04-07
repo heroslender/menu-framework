@@ -8,6 +8,9 @@ import com.heroslender.hmf.core.ui_v2.modifier.Modifier
  * A component is a node in the component tree.
  */
 interface Component : Measurable {
+
+    val name: String
+
     /**
      * Component width, including padding and excluding its margin.
      */
