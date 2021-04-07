@@ -136,12 +136,6 @@ private fun orientedCopmonentMeasurableGroup(
         constraints: Constraints,
     ): MeasureScope.MeasureResult = when {
         measurables.isEmpty() -> result(constraints.minWidth, constraints.minHeight) {}
-        measurables.size == 1 -> {
-            val placeable = measurables[0].measure(constraints.copy(minWidth = 0, minHeight = 0))
-            result(placeable.width, placeable.height) {
-                placeable.placeAt(0, 0)
-            }
-        }
         else -> {
             val axisConstraints = constraints.toAxisConstraints(orientation)
             val placeables = arrayOfNulls<Placeable>(measurables.size)
