@@ -1,7 +1,10 @@
 package com.heroslender.hmf.core.ui_v2.components
 
 import com.heroslender.hmf.core.ui.Orientation
-import com.heroslender.hmf.core.ui_v2.*
+import com.heroslender.hmf.core.ui_v2.Composable
+import com.heroslender.hmf.core.ui_v2.Measurable
+import com.heroslender.hmf.core.ui_v2.MeasurableGroup
+import com.heroslender.hmf.core.ui_v2.MeasureScope
 import com.heroslender.hmf.core.ui_v2.modifier.*
 import kotlin.math.max
 import kotlin.math.sign
@@ -9,32 +12,21 @@ import kotlin.math.sign
 fun Composable.Row(
     modifier: Modifier,
     content: Composable.() -> Unit,
-) {
-    val node = ComposableNode(this, modifier, renderContext, content).apply {
-        measurableGroup = orientedCopmonentMeasurableGroup(Orientation.HORIZONTAL)
-    }
-
-    addChild(node)
+) = appendComposable(modifier, content) {
+    measurableGroup = orientedCopmonentMeasurableGroup(Orientation.HORIZONTAL)
 }
 
 fun Composable.Column(
     modifier: Modifier,
     content: Composable.() -> Unit,
-) {
-    val node = ComposableNode(this, modifier, renderContext, content).apply {
-        measurableGroup = orientedCopmonentMeasurableGroup(Orientation.VERTICAL)
-    }
-
-    addChild(node)
+) = appendComposable(modifier, content) {
+    measurableGroup = orientedCopmonentMeasurableGroup(Orientation.VERTICAL)
 }
 
 fun Composable.Box(
     modifier: Modifier,
     content: Composable.() -> Unit,
-) {
-    val node = ComposableNode(this, modifier, renderContext, content)
-    addChild(node)
-}
+) = appendComposable(modifier, content)
 
 enum class Direction {
     HORIZONTAL,

@@ -69,6 +69,10 @@ interface Component : Measurable {
 
     fun <R> foldOut(acc: R, op: (R, Component) -> R): R = op(acc, this)
 
+    /**
+     * Used for debugging.
+     * Returns how deep this component is in the tree
+     */
     val deepLevel: Int
         get() {
             var i = 0

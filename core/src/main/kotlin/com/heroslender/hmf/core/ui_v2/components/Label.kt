@@ -4,7 +4,6 @@ import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.IColor
 import com.heroslender.hmf.core.font.Font
 import com.heroslender.hmf.core.font.FontStyle
-import com.heroslender.hmf.core.ui_v2.ComponentNode
 import com.heroslender.hmf.core.ui_v2.Composable
 import com.heroslender.hmf.core.ui_v2.modifier.DrawerModifier
 import com.heroslender.hmf.core.ui_v2.modifier.Modifier
@@ -20,8 +19,7 @@ fun Composable.Label(
     val height = style.font.height
     val mod = modifier.fixedSize(width, height).then(TextDrawer(text, style))
 
-    val node = ComponentNode(this, mod, renderContext)
-    addChild(node)
+    appendComponent(mod)
 }
 
 internal class TextDrawer(
