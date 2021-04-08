@@ -3,50 +3,24 @@ package com.heroslender.hmf.core.ui
 import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.RenderContext
 import com.heroslender.hmf.core.ui.modifier.Modifier
-import com.heroslender.hmf.core.ui.modifier.horizontal
-import com.heroslender.hmf.core.ui.modifier.vertical
+import com.heroslender.hmf.core.ui.modifier.modifiers.ClickEvent
 
 /**
  * A component is a node in the component tree.
  */
-interface Component {
+interface Component : Measurable {
+
+    val name: String
+
     /**
      * Component width, including padding and excluding its margin.
      */
-    var width: Int
+    val width: Int
 
     /**
      * Component height, including padding and excluding its margin.
      */
-    var height: Int
-
-    /**
-     * Actual content width, this may not be related to [width].
-     */
-    val contentWidth: Int
-        get() = 0
-
-    /**
-     * Actual content height, this may not be related to [height].
-     */
-    val contentHeight: Int
-        get() = 0
-
-    /**
-     * The available width this component has to use, based on the parent.
-     *
-     * Be aware that this space is shared among siblings.
-     */
-    val availableWidth: Int
-        get() = parent!!.width - parent!!.modifier.padding.horizontal - modifier.margin.horizontal
-
-    /**
-     * The available height this component has to use, based on the parent.
-     *
-     * Be aware that this space is shared among siblings.
-     */
-    val availableHeight: Int
-        get() = parent!!.height - parent!!.modifier.padding.vertical - modifier.margin.vertical
+    val height: Int
 
     /**
      * Modifiers to be applied to this component.
@@ -77,18 +51,6 @@ interface Component {
     var positionY: Int
 
     /**
-     * Whether this component has been disposed or not.
-     */
-    var isDisposed: Boolean
-
-    /**
-     * Discard this component.
-     */
-    fun dispose() {
-        isDisposed = true
-    }
-
-    /**
      * Whether this component needs to be redrawn.
      */
     var isDirty: Boolean
@@ -101,27 +63,34 @@ interface Component {
         isDirty = true
     }
 
-    /**
-     * Function called to draw the component.
-     *
-     * Drawing should be done using the [setPixel] function.
-     */
-    fun draw(setPixel: DrawFunc)
+    fun checkIntersects(x: Int, y: Int): Boolean
 
-    fun draw(canvas: Canvas)
+    fun tryClick(x: Int, y: Int, type: ClickEvent.Type): Boolean
 
-    /**
-     * Initialize the component position, preparing
-     * it for rendering.
-     */
-    fun reRender(offsetX: Int, offsetY: Int)
+    var measurableGroup: MeasurableGroup
 
-    /**
-     * Render the component to the canvas if needed
-     */
-    fun render(): Boolean
+    fun onNodePlaced()
+
+    fun draw(canvas: Canvas): Boolean
 
     fun <R> foldIn(acc: R, op: (R, Component) -> R): R = op(acc, this)
 
     fun <R> foldOut(acc: R, op: (R, Component) -> R): R = op(acc, this)
+
+    /**
+     * Used for debugging.
+     * Returns how deep this component is in the tree
+     */
+    val deepLevel: Int
+        get() {
+            var i = 0
+            var c = parent
+            while (c != null) {
+                i++
+
+                c = c.parent
+            }
+
+            return i
+        }
 }

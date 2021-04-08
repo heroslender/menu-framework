@@ -1,8 +1,9 @@
 package com.heroslender.hmf.core
 
 import com.heroslender.hmf.core.ui.Composable
-import com.heroslender.hmf.core.ui.components.Image
-import com.heroslender.hmf.core.ui.components.RootComponent
+import com.heroslender.hmf.core.ui.ComposableNode
+import com.heroslender.hmf.core.ui.modifier.Constraints
+import com.heroslender.hmf.core.ui_old.components.Image
 
 interface MenuManager<O, M : Menu> {
     /**
@@ -39,7 +40,7 @@ interface MenuManager<O, M : Menu> {
      */
     fun render(menu: Menu): Boolean {
         val context = menu.context
-        val rootComponent: RootComponent = context.root ?: return false
+        val rootComponent: Composable = context.root ?: return false
 
         val dirtyComponents = rootComponent.foldIn(mutableListOf<Composable>()) { list, component ->
             if (component.isDirty && component is Composable) {
@@ -57,9 +58,10 @@ interface MenuManager<O, M : Menu> {
             component.compose()
         }
 
-        rootComponent.reRender(0, 0)
+        rootComponent.measure(Constraints())
 
-        val rendered = rootComponent.render()
+        (rootComponent as ComposableNode).outerWrapper.placeAt(0, 0)
+        val rendered = rootComponent.draw(context.canvas)
         if (rendered) {
             context.update()
             return true

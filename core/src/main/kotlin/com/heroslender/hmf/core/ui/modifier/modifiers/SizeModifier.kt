@@ -1,24 +1,53 @@
 package com.heroslender.hmf.core.ui.modifier.modifiers
 
-import com.heroslender.hmf.core.ui.modifier.Fill
-import com.heroslender.hmf.core.ui.modifier.FitContent
-import com.heroslender.hmf.core.ui.modifier.FixedSize
+import com.heroslender.hmf.core.ui.Measurable
+import com.heroslender.hmf.core.ui.MeasureScope
+import com.heroslender.hmf.core.ui.modifier.Constraints
+import com.heroslender.hmf.core.ui.modifier.type.LayoutModifier
 import com.heroslender.hmf.core.ui.modifier.Modifier
 
-fun Modifier.fill() = this.copy(width = Fill, height = Fill)
+internal class SizeModifier(
+    private val minWidth: Int = 0,
+    private val maxWidth: Int = Constraints.Infinity,
+    private val minHeight: Int = 0,
+    private val maxHeight: Int = Constraints.Infinity,
+    private val ignoreConstraints: Boolean = false,
+) : LayoutModifier {
+    override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureScope.MeasureResult {
+        val newConstraints = if (ignoreConstraints) {
+            Constraints(minWidth, maxWidth, minHeight, maxHeight)
+        } else {
+            Constraints(
+                constraints.constrainWidth(minWidth),
+                constraints.constrainWidth(maxWidth),
+                constraints.constrainHeight(minHeight),
+                constraints.constrainHeight(maxHeight),
+            )
+        }
 
-fun Modifier.fillWidth() = this.copy(width = Fill)
+        val placeable = measurable.measure(newConstraints)
 
-fun Modifier.fillHeight() = this.copy(height = Fill)
+        return result(placeable.width, placeable.height) {
+            placeable.placeAt(0, 0)
+        }
+    }
+}
 
-fun Modifier.fit() = this.copy(width = FitContent, height = FitContent)
+fun Modifier.fixedSize(width: Int, height: Int): Modifier =
+    this then SizeModifier(
+        width,
+        width,
+        height,
+        height,
+        ignoreConstraints = false,
+    )
 
-fun Modifier.fitWidth() = this.copy(width = FitContent)
 
-fun Modifier.fitHeight() = this.copy(height = FitContent)
-
-fun Modifier.fixedSize(width: Int, height: Int = width) = this.copy(width = FixedSize(width), height = FixedSize(height))
-
-fun Modifier.fixedWidth(width: Int) = this.copy(width = FixedSize(width))
-
-fun Modifier.fixedHeight(height: Int) = this.copy(height = FixedSize(height))
+fun Modifier.maxSize(width: Int, height: Int): Modifier =
+    this then SizeModifier(
+        0,
+        width,
+        0,
+        height,
+        ignoreConstraints = false
+    )

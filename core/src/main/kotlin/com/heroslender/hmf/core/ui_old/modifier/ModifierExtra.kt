@@ -1,8 +1,35 @@
 @file:Suppress("NOTHING_TO_INLINE")
 
-package com.heroslender.hmf.core.ui.modifier
+package com.heroslender.hmf.core.ui_old.modifier
 
-interface Modifier {
+
+/**
+ * Concatenates this modifiers extras with another.
+ *
+ * Returns a [Modifier] representing this modifier followed by [other] in sequence.
+ */
+inline infix fun Modifier.then(other: ModifierExtra): Modifier {
+    if (other != ModifierExtra) {
+        return copy(extra = this.extra then other)
+    }
+
+    return this
+}
+
+/**
+ * Concatenates this modifiers extras with another.
+ *
+ * Returns a [Modifier] representing this modifier followed by [other] in sequence.
+ */
+inline infix fun <reified T: ModifierExtra> Modifier.thenDefault(other: T): Modifier {
+    if (other != ModifierExtra && !this.extra.any { it is T }) {
+        return copy(extra = this.extra then other)
+    }
+
+    return this
+}
+
+interface ModifierExtra {
 
     /**
      * Accumulates a value starting with [initial] and applying [operation] to the current value
@@ -30,16 +57,16 @@ interface Modifier {
     /**
      * Concatenates this extra with another.
      *
-     * Returns a [Modifier] representing this followed by [other] in sequence.
+     * Returns a [ModifierExtra] representing this followed by [other] in sequence.
      */
-    infix fun then(other: Modifier): Modifier =
-        if (other === Modifier) this else CombinedModifier(this, other)
+    infix fun then(other: ModifierExtra): ModifierExtra =
+        if (other === ModifierExtra) this else CombinedModifier(this, other)
 
 
     /**
-     * A single element contained within a [Modifier] chain.
+     * A single element contained within a [ModifierExtra] chain.
      */
-    interface Element : Modifier {
+    interface Element : ModifierExtra {
         override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R =
             operation(initial, this)
 
@@ -51,34 +78,34 @@ interface Modifier {
         override fun all(predicate: (Element) -> Boolean): Boolean = predicate(this)
     }
 
-    companion object : Modifier {
+    companion object : ModifierExtra {
         override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R = initial
         override fun <R> foldOut(initial: R, operation: (Element, R) -> R): R = initial
         override fun any(predicate: (Element) -> Boolean): Boolean = false
         override fun all(predicate: (Element) -> Boolean): Boolean = true
-        override infix fun then(other: Modifier): Modifier = other
+        override infix fun then(other: ModifierExtra): ModifierExtra = other
         override fun toString() = "Modifier"
     }
 }
 
 /**
- * A node in a [Modifier] chain. A CombinedModifier always contains at least two elements;
+ * A node in a [ModifierExtra] chain. A CombinedModifier always contains at least two elements;
  * a Modifier [outer] that wraps around the Modifier [inner].
  */
 class CombinedModifier(
-    private val outer: Modifier,
-    private val inner: Modifier
-) : Modifier {
-    override fun <R> foldIn(initial: R, operation: (R, Modifier.Element) -> R): R =
+    private val outer: ModifierExtra,
+    private val inner: ModifierExtra
+) : ModifierExtra {
+    override fun <R> foldIn(initial: R, operation: (R, ModifierExtra.Element) -> R): R =
         inner.foldIn(outer.foldIn(initial, operation), operation)
 
-    override fun <R> foldOut(initial: R, operation: (Modifier.Element, R) -> R): R =
+    override fun <R> foldOut(initial: R, operation: (ModifierExtra.Element, R) -> R): R =
         outer.foldOut(inner.foldOut(initial, operation), operation)
 
-    override fun any(predicate: (Modifier.Element) -> Boolean): Boolean =
+    override fun any(predicate: (ModifierExtra.Element) -> Boolean): Boolean =
         outer.any(predicate) || inner.any(predicate)
 
-    override fun all(predicate: (Modifier.Element) -> Boolean): Boolean =
+    override fun all(predicate: (ModifierExtra.Element) -> Boolean): Boolean =
         outer.all(predicate) && inner.all(predicate)
 
     override fun equals(other: Any?): Boolean =

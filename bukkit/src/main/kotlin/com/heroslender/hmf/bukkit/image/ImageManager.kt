@@ -1,6 +1,6 @@
 package com.heroslender.hmf.bukkit.image
 
-import com.heroslender.hmf.core.ui.components.Image
+import com.heroslender.hmf.core.ui_old.components.Image
 import com.heroslender.hmf.core.utils.getResource
 import java.awt.image.BufferedImage
 import java.io.InputStream

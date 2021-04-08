@@ -1,119 +1,8 @@
-package com.heroslender.hmf.core.ui.modifier.modifiers
+package com.heroslender.hmf.core.ui_old.modifier.drawer
 
-import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.IColor
-import com.heroslender.hmf.core.ui.Measurable
-import com.heroslender.hmf.core.ui.MeasureScope
-import com.heroslender.hmf.core.ui.modifier.*
-import com.heroslender.hmf.core.ui.modifier.type.DrawerModifier
-import com.heroslender.hmf.core.ui.modifier.type.LayoutModifier
-
-
-fun Modifier.border(
-    color: IColor,
-    thickness: Int = 1,
-    radius: Int = 0,
-): Modifier = border(
-    thickness = thickness,
-    color = color,
-    topLeft = radius,
-    topRight = radius,
-    bottomRight = radius,
-    bottomLeft = radius,
-)
-
-fun Modifier.border(
-    color: IColor,
-    thickness: Int = 1,
-    topLeft: Int = 0,
-    topRight: Int = 0,
-    bottomRight: Int = 0,
-    bottomLeft: Int = 0,
-): Modifier = border(
-    thickness = thickness,
-    color = color,
-    topLeft = BorderRadiusDrawer.of(topLeft).topLeft,
-    topRight = BorderRadiusDrawer.of(topRight).topRight,
-    bottomRight = BorderRadiusDrawer.of(bottomRight).bottomRight,
-    bottomLeft = BorderRadiusDrawer.of(bottomLeft).bottomLeft,
-)
-
-fun Modifier.border(
-    color: IColor,
-    thickness: Int,
-    topLeft: BorderRadius,
-    topRight: BorderRadius,
-    bottomRight: BorderRadius,
-    bottomLeft: BorderRadius,
-): Modifier {
-    if (color == IColor.TRANSPARENT ||
-            thickness == 0
-//        (topLeft.radius == 0 && topRight.radius == 0 && bottomLeft.radius == 0 && bottomRight.radius == 0)
-    ) {
-        return this
-    }
-
-    return this then borderDrawer(
-        thickness = thickness,
-        color = color,
-        topLeft = topLeft,
-        topRight = topRight,
-        bottomRight = bottomRight,
-        bottomLeft = bottomLeft,
-        inner = this.any { it is BorderDrawer }
-    )
-}
-
-fun borderDrawer(
-    thickness: Int,
-    color: IColor,
-    radius: Int = 0,
-    inner: Boolean = false,
-): BorderDrawer = borderDrawer(
-    thickness = thickness,
-    color = color,
-    topLeft = radius,
-    topRight = radius,
-    bottomRight = radius,
-    bottomLeft = radius,
-    inner = inner
-)
-
-fun borderDrawer(
-    thickness: Int,
-    color: IColor,
-    topLeft: Int = 0,
-    topRight: Int = 0,
-    bottomRight: Int = 0,
-    bottomLeft: Int = 0,
-    inner: Boolean = false,
-): BorderDrawer = borderDrawer(
-    thickness = thickness,
-    color = color,
-    topLeft = BorderRadiusDrawer.of(topLeft).topLeft,
-    topRight = BorderRadiusDrawer.of(topRight).topRight,
-    bottomRight = BorderRadiusDrawer.of(bottomRight).bottomRight,
-    bottomLeft = BorderRadiusDrawer.of(bottomLeft).bottomLeft,
-    inner = inner
-)
-
-fun borderDrawer(
-    thickness: Int,
-    color: IColor,
-    topLeft: BorderRadius,
-    topRight: BorderRadius,
-    bottomRight: BorderRadius,
-    bottomLeft: BorderRadius,
-    inner: Boolean = false,
-): BorderDrawer = BorderDrawer(
-    thickness = thickness,
-    color = color,
-    topLeft = topLeft,
-    topRight = topRight,
-    bottomRight = bottomRight,
-    bottomLeft = bottomLeft,
-    inner = inner
-)
+import com.heroslender.hmf.core.ui_old.Component
+import com.heroslender.hmf.core.ui_old.DrawFunc
 
 class BorderDrawer(
     val thickness: Int,
@@ -123,7 +12,7 @@ class BorderDrawer(
     val bottomRight: BorderRadius,
     val bottomLeft: BorderRadius,
     val inner: Boolean,
-) : DrawerModifier, LayoutModifier {
+) : Drawer {
     companion object {
         val None: BorderDrawer = BorderDrawer(
             0,
@@ -136,22 +25,10 @@ class BorderDrawer(
         )
     }
 
-    override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureScope.MeasureResult {
-        val offset = thickness * 2
-        val placeable = measurable.measure(constraints.offset(-offset, -offset))
-
-        val width = constraints.constrainWidth(placeable.width + offset)
-        val height = constraints.constrainHeight(placeable.height + offset)
-        return result(width, height) {
-            placeable.placeAt(thickness, thickness)
-        }
-    }
-
-    override fun Placeable.onDraw(canvas: Canvas) {
+    override fun Component.onDraw(setPixel: DrawFunc) {
         if (this@BorderDrawer === None) {
             return
         }
-        println("Drawing border")
 
         val width = this.width
         val height = this.height
@@ -163,10 +40,10 @@ class BorderDrawer(
                 drawn = false
                 for (y in depth until topLeft.radius) {
                     if (topLeft.isBorder(x - depth, y - depth)) {
-                        canvas.setPixel(x, y, color)
+                        setPixel(x, y, color)
                         drawn = true
                     } else if (!inner && depth == 0 && !drawn) {
-                        canvas.setPixel(x, y, IColor.TRANSPARENT)
+                        setPixel(x, y, IColor.TRANSPARENT)
                     }
                 }
             }
@@ -175,7 +52,7 @@ class BorderDrawer(
             var rightStart = rightEnd - topRight.radius
 
             for (x in topLeft.radius + depth until rightStart) {
-                canvas.setPixel(x, depth, color)
+                setPixel(x, depth, color)
             }
 
             // Draw top-right corner
@@ -183,10 +60,10 @@ class BorderDrawer(
                 drawn = false
                 for (y in depth until topRight.radius + depth) {
                     if (topRight.isBorder(x - rightStart, y - depth)) {
-                        canvas.setPixel(x, y, color)
+                        setPixel(x, y, color)
                         drawn = true
                     } else if (!inner && depth == 0 && !drawn) {
-                        canvas.setPixel(x, y, IColor.TRANSPARENT)
+                        setPixel(x, y, IColor.TRANSPARENT)
                     }
                 }
             }
@@ -195,7 +72,7 @@ class BorderDrawer(
             var bottomStart = bottomEnd - bottomLeft.radius
 
             for (y in topLeft.radius + depth until bottomStart) {
-                canvas.setPixel(depth, y, color)
+                setPixel(depth, y, color)
             }
 
             // Draw bottom-left corner
@@ -203,10 +80,10 @@ class BorderDrawer(
                 drawn = false
                 for (y in bottomEnd - 1 downTo bottomStart) {
                     if (bottomLeft.isBorder(x - depth, y - bottomStart)) {
-                        canvas.setPixel(x, y, color)
+                        setPixel(x, y, color)
                         drawn = true
                     } else if (!inner && depth == 0 && !drawn) {
-                        canvas.setPixel(x, y, IColor.TRANSPARENT)
+                        setPixel(x, y, IColor.TRANSPARENT)
                     }
                 }
             }
@@ -215,7 +92,7 @@ class BorderDrawer(
             bottomStart = bottomEnd - bottomRight.radius
 
             for (x in bottomLeft.radius + depth until rightStart) {
-                canvas.setPixel(x, height - depth - 1, color)
+                setPixel(x, height - depth - 1, color)
             }
 
             // Draw bottom-right corner
@@ -223,16 +100,16 @@ class BorderDrawer(
                 drawn = false
                 for (y in bottomEnd - 1 downTo bottomStart) {
                     if (bottomRight.isBorder(x - rightStart, y - bottomStart)) {
-                        canvas.setPixel(x, y, color)
+                        setPixel(x, y, color)
                         drawn = true
                     } else if (!inner && depth == 0 && !drawn) {
-                        canvas.setPixel(x, y, IColor.TRANSPARENT)
+                        setPixel(x, y, IColor.TRANSPARENT)
                     }
                 }
             }
 
             for (y in topRight.radius + depth until bottomStart) {
-                canvas.setPixel(width - depth - 1, y, color)
+                setPixel(width - depth - 1, y, color)
             }
         }
     }

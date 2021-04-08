@@ -2,7 +2,7 @@
 
 package com.heroslender.hmf.core
 
-import com.heroslender.hmf.core.ui.Component
+import com.heroslender.hmf.core.ui_old.Component
 import java.lang.ref.WeakReference
 import java.util.*
 import kotlin.reflect.KProperty

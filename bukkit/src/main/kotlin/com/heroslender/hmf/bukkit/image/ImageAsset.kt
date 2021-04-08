@@ -4,7 +4,7 @@ package com.heroslender.hmf.bukkit.image
 
 import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.IColor
-import com.heroslender.hmf.core.ui.components.Image
+import com.heroslender.hmf.core.ui_old.components.Image
 import kotlin.math.min
 
 class ImageAsset(

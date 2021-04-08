@@ -5,7 +5,7 @@ import com.heroslender.hmf.bukkit.listeners.MenuClickListener
 import com.heroslender.hmf.bukkit.listeners.MenuListeners
 import com.heroslender.hmf.bukkit.utils.scheduleAsyncTimer
 import com.heroslender.hmf.core.MenuManager
-import com.heroslender.hmf.core.ui.components.Image
+import com.heroslender.hmf.core.ui_old.components.Image
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
