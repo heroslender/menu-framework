@@ -3,6 +3,7 @@ package com.heroslender.hmf.core.ui_v2
 import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.RenderContext
 import com.heroslender.hmf.core.ui_v2.modifier.Modifier
+import com.heroslender.hmf.core.ui_v2.modifier.modifiers.ClickEvent
 
 /**
  * A component is a node in the component tree.
@@ -61,6 +62,10 @@ interface Component : Measurable {
     fun flagDirty() {
         isDirty = true
     }
+
+    fun checkIntersects(x: Int, y: Int): Boolean
+
+    fun tryClick(x: Int, y: Int, type: ClickEvent.Type): Boolean
 
     var measurableGroup: MeasurableGroup
 

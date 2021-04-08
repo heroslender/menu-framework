@@ -20,6 +20,7 @@ interface Menu {
         ) {
             getUi2()
         }
+        context.rootNew = root
 
         root.compose()
         root.measure(Constraints())

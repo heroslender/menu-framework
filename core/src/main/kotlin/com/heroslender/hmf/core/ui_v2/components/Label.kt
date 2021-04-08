@@ -5,7 +5,7 @@ import com.heroslender.hmf.core.IColor
 import com.heroslender.hmf.core.font.Font
 import com.heroslender.hmf.core.font.FontStyle
 import com.heroslender.hmf.core.ui_v2.Composable
-import com.heroslender.hmf.core.ui_v2.modifier.DrawerModifier
+import com.heroslender.hmf.core.ui_v2.modifier.type.DrawerModifier
 import com.heroslender.hmf.core.ui_v2.modifier.Modifier
 import com.heroslender.hmf.core.ui_v2.modifier.Placeable
 import com.heroslender.hmf.core.ui_v2.modifier.modifiers.fixedSize

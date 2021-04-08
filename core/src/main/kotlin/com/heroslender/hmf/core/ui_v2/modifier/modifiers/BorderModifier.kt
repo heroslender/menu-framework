@@ -5,6 +5,8 @@ import com.heroslender.hmf.core.IColor
 import com.heroslender.hmf.core.ui_v2.Measurable
 import com.heroslender.hmf.core.ui_v2.MeasureScope
 import com.heroslender.hmf.core.ui_v2.modifier.*
+import com.heroslender.hmf.core.ui_v2.modifier.type.DrawerModifier
+import com.heroslender.hmf.core.ui_v2.modifier.type.LayoutModifier
 
 
 fun Modifier.border(

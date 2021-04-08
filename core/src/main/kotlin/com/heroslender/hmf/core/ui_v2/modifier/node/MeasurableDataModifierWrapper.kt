@@ -1,6 +1,6 @@
 package com.heroslender.hmf.core.ui_v2.modifier.node
 
-import com.heroslender.hmf.core.ui_v2.modifier.MeasurableDataModifier
+import com.heroslender.hmf.core.ui_v2.modifier.type.MeasurableDataModifier
 
 class MeasurableDataModifierWrapper(
     wrapped: ComponentWrapper,
