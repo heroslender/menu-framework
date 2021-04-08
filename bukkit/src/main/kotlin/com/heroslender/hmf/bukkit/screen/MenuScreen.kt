@@ -48,15 +48,15 @@ class MenuScreen(
             return
         }
 
-        val chunkIndex = x % 128 + y % 128 * width
+        val chunkIndex = x / 128 + y / 128 * width
         if (chunkIndex >= chunks.size) {
             // Outside the menu? This should not happen
             return
         }
 
         val chunk = chunks[chunkIndex]
-        val mapX = x * 2 - 128 + cursorOpts.offsetX
-        val mapY = y * 2 - 128 + cursorOpts.offsetY
+        val mapX = x % 128 * 2 - 128 + cursorOpts.offsetX
+        val mapY = y % 128 * 2 - 128 + cursorOpts.offsetY
 
         chunk.sendCursorUpdate(MapIcon(
             clampByte(mapX),
