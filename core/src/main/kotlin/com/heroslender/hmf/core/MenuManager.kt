@@ -1,5 +1,6 @@
 package com.heroslender.hmf.core
 
+import com.heroslender.hmf.core.ui.AbstractNode
 import com.heroslender.hmf.core.ui.Composable
 import com.heroslender.hmf.core.ui.ComposableNode
 import com.heroslender.hmf.core.ui.modifier.Constraints
@@ -56,13 +57,16 @@ interface MenuManager<O, M : Menu> {
 
         for (component in dirtyComponents) {
             component.compose()
-        }
 
-        rootComponent.measure(Constraints())
+            component.measure((component as AbstractNode).constraints)
+        }
 
         (rootComponent as ComposableNode).outerWrapper.placeAt(0, 0)
         val rendered = rootComponent.draw(context.canvas)
         if (rendered) {
+            rootComponent.foldIn(Unit) { _, c ->
+                println("${"  ".repeat(c.deepLevel)}> ${c.name} -> ${c.width}x${c.height} at ${c.positionX} ${c.positionY}")
+            }
             context.update()
             return true
         }

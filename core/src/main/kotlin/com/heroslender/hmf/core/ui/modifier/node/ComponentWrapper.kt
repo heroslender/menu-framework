@@ -4,7 +4,7 @@ import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.ui.Component
 import com.heroslender.hmf.core.ui.Measurable
 import com.heroslender.hmf.core.ui.MeasureScope
-import com.heroslender.hmf.core.ui.modifier.AbstractPlaceable
+import com.heroslender.hmf.core.ui.AbstractPlaceable
 
 abstract class ComponentWrapper(open val component: Component) : AbstractPlaceable(), Measurable {
     open val wrapped: ComponentWrapper? = null

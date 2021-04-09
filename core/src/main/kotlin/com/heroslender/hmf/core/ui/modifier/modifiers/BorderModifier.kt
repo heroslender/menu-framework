@@ -4,6 +4,7 @@ import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.IColor
 import com.heroslender.hmf.core.ui.Measurable
 import com.heroslender.hmf.core.ui.MeasureScope
+import com.heroslender.hmf.core.ui.Placeable
 import com.heroslender.hmf.core.ui.modifier.*
 import com.heroslender.hmf.core.ui.modifier.type.DrawerModifier
 import com.heroslender.hmf.core.ui.modifier.type.LayoutModifier

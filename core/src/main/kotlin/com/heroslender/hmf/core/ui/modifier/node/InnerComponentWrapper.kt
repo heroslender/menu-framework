@@ -5,7 +5,7 @@ import com.heroslender.hmf.core.ui.Component
 import com.heroslender.hmf.core.ui.Composable
 import com.heroslender.hmf.core.ui.MeasureScope
 import com.heroslender.hmf.core.ui.modifier.Constraints
-import com.heroslender.hmf.core.ui.modifier.Placeable
+import com.heroslender.hmf.core.ui.Placeable
 
 class InnerComponentWrapper(component: Component) : ComponentWrapper(component) {
 

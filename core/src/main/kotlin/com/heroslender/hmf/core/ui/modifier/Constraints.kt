@@ -11,6 +11,8 @@ data class Constraints(
     fun constrainHeight(height: Int) = height.coerceIn(minHeight, maxHeight)
 
     companion object {
+        val Default: Constraints = Constraints()
+
         /**
          * Unlimited size constraint.
          */

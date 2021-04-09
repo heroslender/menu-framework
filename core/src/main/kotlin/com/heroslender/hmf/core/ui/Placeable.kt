@@ -1,4 +1,6 @@
-package com.heroslender.hmf.core.ui.modifier
+package com.heroslender.hmf.core.ui
+
+import com.heroslender.hmf.core.ui.modifier.Constraints
 
 interface Placeable {
     val width: Int

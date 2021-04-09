@@ -1,10 +1,7 @@
 package com.heroslender.hmf.core.ui.components
 
+import com.heroslender.hmf.core.ui.*
 import com.heroslender.hmf.core.ui_old.Orientation
-import com.heroslender.hmf.core.ui.Composable
-import com.heroslender.hmf.core.ui.Measurable
-import com.heroslender.hmf.core.ui.MeasurableGroup
-import com.heroslender.hmf.core.ui.MeasureScope
 import com.heroslender.hmf.core.ui.modifier.*
 import com.heroslender.hmf.core.ui.modifier.type.LayoutModifier
 import com.heroslender.hmf.core.ui.modifier.type.MeasurableDataModifier
@@ -206,9 +203,10 @@ private fun orientedCopmonentMeasurableGroup(
 
             val width = if (orientation == Orientation.HORIZONTAL) usedSize else crossAxisSize
             val height = if (orientation == Orientation.HORIZONTAL) crossAxisSize else usedSize
-            var x = 0
-            var y = 0
             result(constraints.constrainWidth(width), constraints.constrainHeight(height)) {
+                var x = 0
+                var y = 0
+
                 for (placeable in placeables) {
                     if (placeable == null || !placeable.hasBoundingBox) continue
 

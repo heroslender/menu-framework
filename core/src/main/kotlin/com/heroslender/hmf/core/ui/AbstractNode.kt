@@ -32,8 +32,10 @@ abstract class AbstractNode(
         get() = outerWrapper.data
 
     override var measurableGroup: MeasurableGroup = MeasurableGroup
+    var constraints: Constraints = Constraints.Default
 
     override fun measure(constraints: Constraints): Placeable {
+        this.constraints = constraints
         return outerWrapper.measure(constraints)
     }
 

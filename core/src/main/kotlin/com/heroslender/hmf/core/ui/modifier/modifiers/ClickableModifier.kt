@@ -2,7 +2,7 @@ package com.heroslender.hmf.core.ui.modifier.modifiers
 
 import com.heroslender.hmf.core.ui.Component
 import com.heroslender.hmf.core.ui.modifier.Modifier
-import com.heroslender.hmf.core.ui.modifier.Placeable
+import com.heroslender.hmf.core.ui.Placeable
 import com.heroslender.hmf.core.ui.modifier.type.CursorClickModifier
 
 typealias ClickListener = ClickEvent.() -> Unit

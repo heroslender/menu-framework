@@ -1,3 +1,5 @@
+@file:Suppress("FunctionName")
+
 package com.heroslender.hmf.core.ui.components
 
 import com.heroslender.hmf.core.Canvas
@@ -7,7 +9,7 @@ import com.heroslender.hmf.core.font.FontStyle
 import com.heroslender.hmf.core.ui.Composable
 import com.heroslender.hmf.core.ui.modifier.type.DrawerModifier
 import com.heroslender.hmf.core.ui.modifier.Modifier
-import com.heroslender.hmf.core.ui.modifier.Placeable
+import com.heroslender.hmf.core.ui.Placeable
 import com.heroslender.hmf.core.ui.modifier.modifiers.fixedSize
 
 fun Composable.Label(
