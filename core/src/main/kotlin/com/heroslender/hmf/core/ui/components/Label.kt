@@ -6,22 +6,32 @@ import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.IColor
 import com.heroslender.hmf.core.font.Font
 import com.heroslender.hmf.core.font.FontStyle
-import com.heroslender.hmf.core.ui.Composable
-import com.heroslender.hmf.core.ui.modifier.type.DrawerModifier
+import com.heroslender.hmf.core.ui.*
+import com.heroslender.hmf.core.ui.modifier.Constraints
 import com.heroslender.hmf.core.ui.modifier.Modifier
-import com.heroslender.hmf.core.ui.Placeable
-import com.heroslender.hmf.core.ui.modifier.modifiers.fixedSize
+import com.heroslender.hmf.core.ui.modifier.type.DrawerModifier
+import kotlin.math.min
 
 fun Composable.Label(
     text: String,
     style: FontStyle,
     modifier: Modifier = Modifier,
 ) {
-    val width = style.font.getWidth(text)
-    val height = style.font.height
-    val mod = modifier.fixedSize(width, height).then(TextDrawer(text, style))
+    val mod = modifier.then(TextDrawer(text, style))
 
-    appendComponent(mod)
+    appendComponent(mod) {
+        measurableGroup = object : MeasurableGroup {
+            override fun MeasureScope.measure(
+                measurables: List<Measurable>,
+                constraints: Constraints,
+            ): MeasureScope.MeasureResult {
+                val width = min(style.font.getWidth(text), constraints.maxWidth)
+                val height = min(style.font.height, constraints.maxHeight)
+
+                return result(width, height) {}
+            }
+        }
+    }
 }
 
 internal class TextDrawer(
@@ -36,7 +46,6 @@ internal class TextDrawer(
         get() = style.shadowColor
     private val borderColor: IColor
         get() = style.borderColor
-
 
     private fun getTextSubstring(placeable: Placeable): String {
         return if (font.getWidth(text) > placeable.width) {
