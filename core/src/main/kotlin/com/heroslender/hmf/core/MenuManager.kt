@@ -3,7 +3,7 @@ package com.heroslender.hmf.core
 import com.heroslender.hmf.core.ui.AbstractNode
 import com.heroslender.hmf.core.ui.Composable
 import com.heroslender.hmf.core.ui.ComposableNode
-import com.heroslender.hmf.core.ui_old.components.Image
+import com.heroslender.hmf.core.ui.components.Image
 
 interface MenuManager<O, M : Menu> {
     /**

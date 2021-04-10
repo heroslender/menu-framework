@@ -15,20 +15,20 @@ interface Image {
     fun draw(canvas: Canvas, offsetX: Int = 0, offsetY: Int = 0)
 }
 
-inline fun Composable.Image(
-    asset: String,
-    width: Int = -1,
-    height: Int = -1,
-    cached: Boolean = true,
-    modifier: Modifier = Modifier,
-) {
-    val image = renderContext.manager.getImage(asset, width, height, cached) ?: return
-
-    Image(
-        image = image,
-        modifier = modifier,
-    )
-}
+//inline fun Composable.Image(
+//    asset: String,
+//    width: Int = -1,
+//    height: Int = -1,
+//    cached: Boolean = true,
+//    modifier: Modifier = Modifier,
+//) {
+//    val image = renderContext.manager.getImage(asset, width, height, cached) ?: return
+//
+//    Image(
+//        image = image,
+//        modifier = modifier,
+//    )
+//}
 
 inline fun Composable.Image(
     image: Image,
