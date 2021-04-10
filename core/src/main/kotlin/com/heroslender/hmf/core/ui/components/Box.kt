@@ -13,6 +13,19 @@ fun Composable.Box(
     measurableGroup = boxMeasurableGroup(alignment)
 }
 
+fun Composable.Box(
+    modifier: Modifier,
+) = appendComponent(modifier) {
+    measurableGroup = EmptyMeasurableGroup
+}
+
+object EmptyMeasurableGroup : MeasurableGroup {
+    override fun MeasureScope.measure(
+        measurables: List<Measurable>,
+        constraints: Constraints,
+    ): MeasureScope.MeasureResult = result(constraints.minWidth, constraints.minHeight) {}
+}
+
 private fun boxMeasurableGroup(
     alignment: Alignment,
 ): MeasurableGroup = object : MeasurableGroup {

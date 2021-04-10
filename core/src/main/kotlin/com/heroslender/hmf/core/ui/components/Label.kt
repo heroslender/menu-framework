@@ -7,7 +7,6 @@ import com.heroslender.hmf.core.IColor
 import com.heroslender.hmf.core.font.Font
 import com.heroslender.hmf.core.font.FontStyle
 import com.heroslender.hmf.core.ui.*
-import com.heroslender.hmf.core.ui.modifier.Constraints
 import com.heroslender.hmf.core.ui.modifier.Modifier
 import com.heroslender.hmf.core.ui.modifier.type.DrawerModifier
 import kotlin.math.min
@@ -20,16 +19,11 @@ fun Composable.Label(
     val mod = modifier.then(TextDrawer(text, style))
 
     appendComponent(mod) {
-        measurableGroup = object : MeasurableGroup {
-            override fun MeasureScope.measure(
-                measurables: List<Measurable>,
-                constraints: Constraints,
-            ): MeasureScope.MeasureResult {
-                val width = min(style.font.getWidth(text), constraints.maxWidth)
-                val height = min(style.font.height, constraints.maxHeight)
+        measurableGroup = newMeasurableGroup { _, constraints ->
+            val width = min(style.font.getWidth(text), constraints.maxWidth)
+            val height = min(style.font.height, constraints.maxHeight)
 
-                return result(width, height) {}
-            }
+            result(width, height) {}
         }
     }
 }
