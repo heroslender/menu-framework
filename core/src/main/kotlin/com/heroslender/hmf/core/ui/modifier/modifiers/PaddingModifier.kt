@@ -6,6 +6,7 @@ import com.heroslender.hmf.core.ui.MeasureScope
 import com.heroslender.hmf.core.ui.modifier.Constraints
 import com.heroslender.hmf.core.ui.modifier.Modifier
 import com.heroslender.hmf.core.ui.modifier.offset
+import com.heroslender.hmf.core.ui.layout
 
 class PaddingModifier(
     val top: Int,
@@ -23,7 +24,7 @@ class PaddingModifier(
         val width = constraints.constrainWidth(placeable.width + horizontal)
         val height = constraints.constrainHeight(placeable.height + vertical)
 
-        return result(width, height) {
+        return layout(width, height) {
             placeable.placeAt(left, top)
         }
     }

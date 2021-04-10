@@ -23,7 +23,7 @@ object EmptyMeasurableGroup : MeasurableGroup {
     override fun MeasureScope.measure(
         measurables: List<Measurable>,
         constraints: Constraints,
-    ): MeasureScope.MeasureResult = result(constraints.minWidth, constraints.minHeight) {}
+    ): MeasureScope.MeasureResult = layout(constraints.minWidth, constraints.minHeight)
 }
 
 private fun boxMeasurableGroup(
@@ -33,7 +33,7 @@ private fun boxMeasurableGroup(
         measurables: List<Measurable>,
         constraints: Constraints,
     ): MeasureScope.MeasureResult = when {
-        measurables.isEmpty() -> result(constraints.minWidth, constraints.minHeight) {}
+        measurables.isEmpty() -> layout(constraints.minWidth, constraints.minHeight) {}
         else -> {
             var width = constraints.minWidth
             var height = constraints.minHeight
@@ -47,7 +47,7 @@ private fun boxMeasurableGroup(
                 placeables[index] = placeable
             }
 
-            result(width, height) {
+            layout(width, height) {
                 for (placeable in placeables) {
                     placeable!!
                     val (x, y) = alignment.align(width - placeable.width, height - placeable.height)

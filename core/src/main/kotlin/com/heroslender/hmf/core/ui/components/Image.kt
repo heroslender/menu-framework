@@ -5,6 +5,7 @@ package com.heroslender.hmf.core.ui.components
 import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.ui.Composable
 import com.heroslender.hmf.core.ui.Placeable
+import com.heroslender.hmf.core.ui.layout
 import com.heroslender.hmf.core.ui.modifier.Modifier
 import com.heroslender.hmf.core.ui.modifier.type.DrawerModifier
 import kotlin.math.min
@@ -43,7 +44,7 @@ inline fun Composable.Image(
             val width = min(image.width, constraints.maxWidth)
             val height = min(image.height, constraints.maxHeight)
 
-            result(width, height) {}
+            layout(width, height)
         }
     }
 }

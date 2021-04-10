@@ -17,7 +17,11 @@ interface MeasureScope {
         fun placeChildren()
     }
 
-    fun result(width: Int, height: Int, placeChild: () -> Unit) = object : MeasureResult {
+    companion object : MeasureScope
+}
+
+inline fun MeasureScope.layout(width: Int, height: Int, crossinline placeChild: () -> Unit = {}) =
+    object : MeasureScope.MeasureResult {
         override val width: Int = width
         override val height: Int = height
 
@@ -25,9 +29,6 @@ interface MeasureScope {
             placeChild()
         }
     }
-
-    companion object : MeasureScope
-}
 
 interface MeasurableGroup {
     fun MeasureScope.measure(
@@ -40,10 +41,10 @@ interface MeasurableGroup {
             measurables: List<Measurable>,
             constraints: Constraints,
         ): MeasureScope.MeasureResult = when {
-            measurables.isEmpty() -> result(constraints.minWidth, constraints.minHeight) {}
+            measurables.isEmpty() -> layout(constraints.minWidth, constraints.minHeight) {}
             measurables.size == 1 -> {
                 val placeable = measurables[0].measure(constraints)
-                result(placeable.width, placeable.height) {
+                layout(placeable.width, placeable.height) {
                     placeable.placeAt(0, 0)
                 }
             }
@@ -53,7 +54,7 @@ interface MeasurableGroup {
                 }
                 val maxWidth = placeables.maxOf { it.width }
                 val maxHeight = placeables.maxOf { it.height }
-                result(maxWidth, maxHeight) {
+                layout(maxWidth, maxHeight) {
                     placeables.forEach { placeable ->
                         placeable.placeAt(0, 0)
                     }

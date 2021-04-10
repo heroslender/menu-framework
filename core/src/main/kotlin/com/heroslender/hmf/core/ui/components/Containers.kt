@@ -69,7 +69,7 @@ internal class FillModifier(
 
         val placeable = measurable.measure(Constraints(minWidth, maxWidth, minHeight, maxHeight))
 
-        return result(placeable.width, placeable.height) {
+        return layout(placeable.width, placeable.height) {
             placeable.placeAt(0, 0)
         }
     }
@@ -135,7 +135,7 @@ private fun orientedCopmonentMeasurableGroup(
         measurables: List<Measurable>,
         constraints: Constraints,
     ): MeasureScope.MeasureResult = when {
-        measurables.isEmpty() -> result(constraints.minWidth, constraints.minHeight) {}
+        measurables.isEmpty() -> layout(constraints.minWidth, constraints.minHeight) {}
         else -> {
             val axisConstraints = constraints.toAxisConstraints(orientation)
             val placeables = arrayOfNulls<Placeable>(measurables.size)
@@ -207,7 +207,7 @@ private fun orientedCopmonentMeasurableGroup(
 
             val width = if (orientation == Orientation.HORIZONTAL) mainAxisSize else crossAxisSize
             val height = if (orientation == Orientation.HORIZONTAL) crossAxisSize else mainAxisSize
-            result(width, height) {
+            layout(width, height) {
                 val sizes = IntArray(placeables.size) { i -> placeables[i]!!.mainAxisSize(orientation) }
                 val outPositions = IntArray(placeables.size)
                 mainAxisArrangment.arrange(mainAxisSize, sizes, outPositions)

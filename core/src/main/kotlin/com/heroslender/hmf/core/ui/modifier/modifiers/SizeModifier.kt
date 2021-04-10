@@ -3,8 +3,9 @@ package com.heroslender.hmf.core.ui.modifier.modifiers
 import com.heroslender.hmf.core.ui.Measurable
 import com.heroslender.hmf.core.ui.MeasureScope
 import com.heroslender.hmf.core.ui.modifier.Constraints
-import com.heroslender.hmf.core.ui.modifier.type.LayoutModifier
 import com.heroslender.hmf.core.ui.modifier.Modifier
+import com.heroslender.hmf.core.ui.modifier.type.LayoutModifier
+import com.heroslender.hmf.core.ui.layout
 
 internal class SizeModifier(
     private val minWidth: Int = 0,
@@ -27,7 +28,7 @@ internal class SizeModifier(
 
         val placeable = measurable.measure(newConstraints)
 
-        return result(placeable.width, placeable.height) {
+        return layout(placeable.width, placeable.height) {
             placeable.placeAt(0, 0)
         }
     }
@@ -42,8 +43,7 @@ fun Modifier.fixedSize(width: Int, height: Int): Modifier =
         ignoreConstraints = false,
     )
 
-
-fun Modifier.maxSize(width: Int, height: Int): Modifier =
+fun Modifier.maxSize(width: Int = Constraints.Infinity, height: Int = Constraints.Infinity): Modifier =
     this then SizeModifier(
         0,
         width,

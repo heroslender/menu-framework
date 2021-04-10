@@ -8,6 +8,7 @@ import com.heroslender.hmf.core.ui.Placeable
 import com.heroslender.hmf.core.ui.modifier.*
 import com.heroslender.hmf.core.ui.modifier.type.DrawerModifier
 import com.heroslender.hmf.core.ui.modifier.type.LayoutModifier
+import com.heroslender.hmf.core.ui.layout
 
 
 fun Modifier.border(
@@ -143,7 +144,7 @@ class BorderDrawer(
 
         val width = constraints.constrainWidth(placeable.width + offset)
         val height = constraints.constrainHeight(placeable.height + offset)
-        return result(width, height) {
+        return layout(width, height) {
             placeable.placeAt(thickness, thickness)
         }
     }
