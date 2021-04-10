@@ -2,9 +2,9 @@ package com.heroslender.hmf.core.ui.modifier.node
 
 import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.ui.MeasureScope
+import com.heroslender.hmf.core.ui.Placeable
 import com.heroslender.hmf.core.ui.modifier.Constraints
 import com.heroslender.hmf.core.ui.modifier.Modifier
-import com.heroslender.hmf.core.ui.Placeable
 
 abstract class ModifierElementWrapper<T : Modifier.Element>(
     override val wrapped: ComponentWrapper,
@@ -36,6 +36,10 @@ abstract class ModifierElementWrapper<T : Modifier.Element>(
     }
 
     override fun draw(canvas: Canvas) {
+        if (!isVisible) {
+            return
+        }
+
         withOffset(canvas) {
             wrapped.draw(canvas)
         }

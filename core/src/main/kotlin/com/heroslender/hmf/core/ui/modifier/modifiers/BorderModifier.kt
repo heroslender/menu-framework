@@ -152,7 +152,6 @@ class BorderDrawer(
         if (this@BorderDrawer === None) {
             return
         }
-        println("Drawing border")
 
         val width = this.width
         val height = this.height

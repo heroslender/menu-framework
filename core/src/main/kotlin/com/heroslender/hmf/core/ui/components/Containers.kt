@@ -1,8 +1,8 @@
 package com.heroslender.hmf.core.ui.components
 
 import com.heroslender.hmf.core.ui.*
-import com.heroslender.hmf.core.ui_old.Orientation
-import com.heroslender.hmf.core.ui.modifier.*
+import com.heroslender.hmf.core.ui.modifier.Constraints
+import com.heroslender.hmf.core.ui.modifier.Modifier
 import com.heroslender.hmf.core.ui.modifier.type.LayoutModifier
 import com.heroslender.hmf.core.ui.modifier.type.MeasurableDataModifier
 import kotlin.math.max
@@ -10,22 +10,21 @@ import kotlin.math.sign
 
 fun Composable.Row(
     modifier: Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Horizontal.Start,
+    verticalAlignment: Alignment.Vertical = Alignment.Vertical.Top,
     content: Composable.() -> Unit,
 ) = appendComposable(modifier, content) {
-    measurableGroup = orientedCopmonentMeasurableGroup(Orientation.HORIZONTAL)
+    measurableGroup = orientedCopmonentMeasurableGroup(Orientation.HORIZONTAL, horizontalArrangement, verticalAlignment)
 }
 
 fun Composable.Column(
     modifier: Modifier,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Vertical.Top,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Horizontal.Start,
     content: Composable.() -> Unit,
 ) = appendComposable(modifier, content) {
-    measurableGroup = orientedCopmonentMeasurableGroup(Orientation.VERTICAL)
+    measurableGroup = orientedCopmonentMeasurableGroup(Orientation.VERTICAL, verticalArrangement, horizontalAlignment)
 }
-
-fun Composable.Box(
-    modifier: Modifier,
-    content: Composable.() -> Unit,
-) = appendComposable(modifier, content)
 
 enum class Direction {
     HORIZONTAL,
@@ -129,6 +128,8 @@ val Placeable.hasBoundingBox: Boolean
 
 private fun orientedCopmonentMeasurableGroup(
     orientation: Orientation,
+    mainAxisArrangment: Arrangement,
+    crossAxisAlignment: Alignment.Directional,
 ): MeasurableGroup = object : MeasurableGroup {
     override fun MeasureScope.measure(
         measurables: List<Measurable>,
@@ -144,7 +145,7 @@ private fun orientedCopmonentMeasurableGroup(
             var weightCount = 0
 
             var usedSize = 0
-            var crossAxisSize = 0
+            var crossAxisUsedSize = 0
             measurables.forEachIndexed { index, measurable ->
                 val data = datas[index]
                 val weight = data?.weight ?: 0
@@ -165,7 +166,7 @@ private fun orientedCopmonentMeasurableGroup(
                         ).toConstraints(orientation)
                     )
                     usedSize += placeable.mainAxisSize(orientation)
-                    crossAxisSize = max(crossAxisSize, placeable.crossAxisSize(orientation))
+                    crossAxisUsedSize = max(crossAxisUsedSize, placeable.crossAxisSize(orientation))
                     placeables[index] = placeable
                 }
             }
@@ -196,27 +197,45 @@ private fun orientedCopmonentMeasurableGroup(
                         ).toConstraints(orientation)
                     )
                     usedSize += placeable.mainAxisSize(orientation)
-                    crossAxisSize = max(crossAxisSize, placeable.crossAxisSize(orientation))
+                    crossAxisUsedSize = max(crossAxisUsedSize, placeable.crossAxisSize(orientation))
                     placeables[i] = placeable
                 }
             }
 
-            val width = if (orientation == Orientation.HORIZONTAL) usedSize else crossAxisSize
-            val height = if (orientation == Orientation.HORIZONTAL) crossAxisSize else usedSize
-            result(constraints.constrainWidth(width), constraints.constrainHeight(height)) {
-                var x = 0
-                var y = 0
+            val mainAxisSize = max(usedSize, axisConstraints.mainAxisMin)
+            val crossAxisSize = max(crossAxisUsedSize, axisConstraints.crossAxisMin)
 
-                for (placeable in placeables) {
-                    if (placeable == null || !placeable.hasBoundingBox) continue
+            val width = if (orientation == Orientation.HORIZONTAL) mainAxisSize else crossAxisSize
+            val height = if (orientation == Orientation.HORIZONTAL) crossAxisSize else mainAxisSize
+            result(width, height) {
+                val sizes = IntArray(placeables.size) { i -> placeables[i]!!.mainAxisSize(orientation) }
+                val outPositions = IntArray(placeables.size)
+                mainAxisArrangment.arrange(mainAxisSize, sizes, outPositions)
 
+                placeables.forEachIndexed { index, placeable ->
+                    placeable!!
+                    if (!placeable.hasBoundingBox) {
+                        placeable.isVisible = false
+                        return@forEachIndexed
+                    }
+
+                    val crossAxisPos =
+                        crossAxisAlignment.align(crossAxisUsedSize - placeable.crossAxisSize(orientation))
+
+                    val x: Int
+                    val y: Int
+                    if (orientation == Orientation.HORIZONTAL) {
+                        x = outPositions[index]
+                        y = crossAxisPos
+                    } else {
+                        x = crossAxisPos
+                        y = outPositions[index]
+                    }
                     placeable.placeAt(x, y)
+
                     if (x > constraints.maxWidth || y > constraints.maxHeight) {
                         placeable.isVisible = false
                     }
-
-                    x += placeable.width * orientation.x
-                    y += placeable.height * orientation.y
                 }
             }
         }

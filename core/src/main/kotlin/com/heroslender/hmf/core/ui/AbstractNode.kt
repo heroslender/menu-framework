@@ -115,23 +115,29 @@ abstract class AbstractNode(
     private var prevCanvas: Canvas? = null
 
     override fun draw(canvas: Canvas): Boolean {
-        if (!isDirty) {
-            prevCanvas?.also {
-                canvas.draw(it, positionX, positionY)
+        try {
+            if (width == 0 || height == 0 || !outerWrapper.isVisible) {
+                return false
             }
 
-            return false
+            if (!isDirty) {
+                prevCanvas?.also {
+                    canvas.draw(it, positionX, positionY)
+                }
+
+                return false
+            }
+
+            // Temporary canvas to handle transparent pixels
+            val tempCanvas: Canvas = getPrevCanvas()
+            outerWrapper.draw(tempCanvas)
+
+            canvas.draw(tempCanvas, positionX, positionY)
+
+            return true
+        } finally {
+            isDirty = false
         }
-
-        isDirty = false
-
-        // Temporary canvas to handle transparent pixels
-        val tempCanvas: Canvas = getPrevCanvas()
-        outerWrapper.draw(tempCanvas)
-
-        canvas.draw(tempCanvas, positionX, positionY)
-
-        return true
     }
 
     private fun getPrevCanvas(): Canvas {
