@@ -25,30 +25,42 @@ player to interact with it.
 ```kotlin
 class SampleMenu(player: Player, manager: BukkitMenuManager) : BaseMenu(player, manager = manager) {
     override fun Composable.getUi() {
-        Box(modifier = Modifier.fill().backgroundColor(Color.CYAN_4)) {
+        Column(modifier = Modifier.fillSize().background(Color.CYAN_7)) {
             Box(
                 modifier = Modifier
-                    .fixedSize(25)
-                    .margin(top = 15, left = 15)
-                    .backgroundColor(Color.RED_1)
+                    .padding(10)
+                    .fixedSize(50, 50)
                     .clickable {
-                        owner.sendMessage("Clicou no vermelho!")
+                        counter.value++
+                        owner.sendMessage("${ChatColor.GREEN}Counter incremented to ${counter.value}!")
                     }
-            ) {}
+                    .border(Color.BLACK_1)
+                    .background(Color.GREEN_10)
+            )
             Box(
                 modifier = Modifier
-                    .fixedSize(25)
-                    .margin(top = 35, left = 35)
-                    .backgroundColor(Color.GREEN_10)
+                    .padding(0, 10)
+                    .fixedSize(50, 50)
                     .clickable {
-                        owner.sendMessage("Clicou no verde!")
+                        counter.value--
+                        owner.sendMessage("${ChatColor.RED}Counter decremented to ${counter.value}!")
                     }
-            ) {}
-            
-            Column(modifier = Modifier.margin(top = 70, left = 15)) {
-                val fontStyle = FontStyle(font = MINECRAFTIA_24, Color.BLACK_1, Color.TRANSPARENT, Color.CYAN_8)
-                Label("Hello World", style = fontStyle)
-            }
+                    .border(Color.BLACK_1)
+                    .background(Color.RED_1)
+            )
+
+            // Bind the state to this component, so that the
+            // component updates with it.
+            val count = withState(counter)
+            Label(
+                "Couter value: $count",
+                style = FontStyle(
+                    font = UBUNTU_MONO_16,
+                    color = Color.BLACK_1,
+                    shadowColor = Color.GRAY_13
+                ),
+                modifier = Modifier.padding(10)
+            )
         }
     }
 }
@@ -56,7 +68,7 @@ class SampleMenu(player: Player, manager: BukkitMenuManager) : BaseMenu(player, 
 
 Result: 
 
-![Render Result](https://i.heroslender.com/tKWxw.png)
+![Render Result](Sample/preview.png)
 
 ### Sending the menu to the player
 
