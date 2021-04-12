@@ -9,6 +9,9 @@ open class MapCanvas(
     final override val height: Int,
     val buffer: ByteArray = ByteArray(width * height),
 ) : Canvas {
+    var offsetX: Int = 0
+    var offsetY: Int = 0
+
     constructor(other: MapCanvas) : this(other.width, other.height, other.buffer.clone())
 
     override fun clone(): Canvas {
@@ -18,6 +21,9 @@ open class MapCanvas(
     override fun setPixel(x: Int, y: Int, color: IColor) = setPixelByte(x, y, color.id)
 
     override fun setPixelByte(x: Int, y: Int, color: Byte) {
+        val x = x + offsetX
+        val y = y + offsetY
+
         if (x >= 0 && y >= 0 && x < width && y < height) {
             buffer[x + y * width] = color
         }
@@ -26,6 +32,9 @@ open class MapCanvas(
     override fun getPixel(x: Int, y: Int): IColor = throw UnsupportedOperationException("Not implemented")
 
     override fun getPixelByte(x: Int, y: Int): Byte {
+        val x = x + offsetX
+        val y = y + offsetY
+
         return if (x >= 0 && y >= 0 && x < width && y < height)
             buffer[x + y * width]
         else
@@ -43,10 +52,21 @@ open class MapCanvas(
         }
     }
 
+    override fun resetOffset() {
+        this.offsetX = 0
+        this.offsetY = 0
+    }
+
+    override fun addOffset(x: Int, y: Int) {
+        this.offsetX += x
+        this.offsetY += y
+    }
+
     override fun newCanvas(width: Int, height: Int): Canvas = UnverifiedMapCanvas(width, height)
 
     override fun subCanvas(width: Int, height: Int, offsetX: Int, offsetY: Int): Canvas {
         val canvas = UnverifiedMapCanvas(width, height)
+
 
         for (x in 0 until min(width, this.width - offsetX)) {
             for (y in 0 until min(height, this.height - offsetY)) {
@@ -65,9 +85,9 @@ open class MapCanvas(
     ) : MapCanvas(width, height) {
 
         override fun setPixelByte(x: Int, y: Int, color: Byte) {
-            buffer[x + y * width] = color
+            buffer[x + offsetX + (y + offsetY) * width] = color
         }
 
-        override fun getPixelByte(x: Int, y: Int): Byte = buffer[x + y * width]
+        override fun getPixelByte(x: Int, y: Int): Byte = buffer[x + offsetX + (y + offsetY) * width]
     }
 }

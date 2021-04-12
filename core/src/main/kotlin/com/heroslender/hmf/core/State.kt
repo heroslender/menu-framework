@@ -2,7 +2,6 @@
 
 package com.heroslender.hmf.core
 
-import com.heroslender.hmf.core.ui.Component
 import java.lang.ref.WeakReference
 import java.util.*
 import kotlin.reflect.KProperty
@@ -17,6 +16,8 @@ inline operator fun <T> State<T>.getValue(thisObj: Any?, property: KProperty<*>)
 
 interface MutableState<T> : State<T> {
     override var value: T
+
+    fun bind(holder: Any, callback: () -> Unit)
 }
 
 fun <T> mutableStateOf(value: T): MutableState<T> {
@@ -27,7 +28,7 @@ inline operator fun <T> MutableState<T>.setValue(thisObj: Any, property: KProper
     this.value = newValue
 }
 
-class StateImpl<T>(override val value: T): State<T>
+class StateImpl<T>(override val value: T) : State<T>
 
 class MutableStateImpl<T>(value: T) : MutableState<T> {
     private val callbacksMap: MutableMap<WeakReference<Any>, () -> Unit> = IdentityHashMap()
@@ -73,9 +74,5 @@ class MutableStateImpl<T>(value: T) : MutableState<T> {
         }
     }
 
-    fun bind(component: Component) {
-        onValueChange(component) { component.flagDirty() }
-    }
-
-    fun bind(holder: Any, callback: () -> Unit) = onValueChange(holder, callback)
+    override fun bind(holder: Any, callback: () -> Unit) = onValueChange(holder, callback)
 }

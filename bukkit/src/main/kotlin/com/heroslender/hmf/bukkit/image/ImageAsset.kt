@@ -4,6 +4,7 @@ package com.heroslender.hmf.bukkit.image
 
 import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.IColor
+import com.heroslender.hmf.core.ui.Placeable
 import com.heroslender.hmf.core.ui.components.Image
 import kotlin.math.min
 
@@ -17,12 +18,15 @@ class ImageAsset(
         require(buffer.size == width * height) { "Buffer size is invalid for $asset!" }
     }
 
-    override fun draw(canvas: Canvas, offsetX: Int, offsetY: Int) {
-        for (x in 0 until min(canvas.width - offsetX, width)) {
-            for (y in 0 until min(canvas.height - offsetY, height)) {
+    override fun Placeable.draw(canvas: Canvas) {
+        val imageWidth = this@ImageAsset.width
+        val imageHeight = this@ImageAsset.height
+
+        for (x in 0 until min(imageWidth, width)) {
+            for (y in 0 until min(imageHeight, height)) {
                 val pixel = buffer[x + y * width]
                 if (pixel != IColor.TRANSPARENT.id) {
-                    canvas.setPixelByte(x + offsetX, y + offsetY, pixel)
+                    canvas.setPixelByte(x, y, pixel)
                 }
             }
         }

@@ -4,13 +4,17 @@ package com.heroslender.hmf.core.ui
  * A component that's composed by multiple child components.
  */
 interface Composable : Component {
+
+    val childOffsetX: Int
+    val childOffsetY: Int
+
     /**
-     * List of children this composable holds
+     * List of children this composable holds.
      */
     val children: List<Component>
 
     /**
-     * Add a [child] to this composable component
+     * Add a [child] to this composable component.
      */
     fun addChild(child: Component)
 

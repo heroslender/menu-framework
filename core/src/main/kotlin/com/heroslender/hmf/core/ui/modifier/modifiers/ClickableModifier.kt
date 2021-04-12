@@ -2,9 +2,8 @@ package com.heroslender.hmf.core.ui.modifier.modifiers
 
 import com.heroslender.hmf.core.ui.Component
 import com.heroslender.hmf.core.ui.modifier.Modifier
-import com.heroslender.hmf.core.ui.modifier.ModifierExtra
-import com.heroslender.hmf.core.ui.modifier.then
-
+import com.heroslender.hmf.core.ui.Placeable
+import com.heroslender.hmf.core.ui.modifier.type.CursorClickModifier
 
 typealias ClickListener = ClickEvent.() -> Unit
 
@@ -22,20 +21,11 @@ fun Modifier.clickable(onClick: ClickListener?): Modifier {
 /**
  * Instantiates a new listener for mouse events.
  */
-fun clickableListener(callback: ClickListener): CursorListener {
-    return object : CursorListener {
-        override fun onClick(event: ClickEvent) {
-            callback(event)
+fun clickableListener(callback: ClickListener): CursorClickModifier {
+    return object : CursorClickModifier {
+        override fun Placeable.onClick(e: ClickEvent) {
+            callback(e)
         }
-    }
-}
-
-interface CursorListener : ModifierExtra.Element {
-
-    fun onClick(event: ClickEvent)
-
-    companion object : CursorListener {
-        override fun onClick(event: ClickEvent) {}
     }
 }
 

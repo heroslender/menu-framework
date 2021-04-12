@@ -3,14 +3,14 @@ package com.heroslender.hmf.core.ui
 /**
  * Defines a component orientation.
  */
-enum class Orientation {
+enum class Orientation(val x: Int, val y: Int) {
     /**
      * Vertically aligned component.
      */
-    VERTICAL,
+    VERTICAL(0, 1),
 
     /**
      * Horizontally aligned component.
      */
-    HORIZONTAL,
+    HORIZONTAL(1, 0),
 }
