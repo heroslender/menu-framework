@@ -29,7 +29,7 @@ class SampleMenu(player: Player, manager: BukkitMenuManager) : BaseMenu(player, 
             Box(
                 modifier = Modifier
                     .padding(10)
-                    .fixedSize(50, 50)
+                    .size(50, 50)
                     .clickable {
                         counter.value++
                         owner.sendMessage("${ChatColor.GREEN}Counter incremented to ${counter.value}!")
@@ -40,7 +40,7 @@ class SampleMenu(player: Player, manager: BukkitMenuManager) : BaseMenu(player, 
             Box(
                 modifier = Modifier
                     .padding(0, 10)
-                    .fixedSize(50, 50)
+                    .size(50, 50)
                     .clickable {
                         counter.value--
                         owner.sendMessage("${ChatColor.RED}Counter decremented to ${counter.value}!")
