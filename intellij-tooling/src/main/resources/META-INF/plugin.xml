@@ -1,0 +1,16 @@
+<idea-plugin>
+    <id>org.jetbrains.plugins.template</id>
+    <name>Template</name>
+    <vendor>JetBrains</vendor>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+    <depends>org.jetbrains.kotlin</depends>
+    <depends>com.intellij.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <codeInsight.lineMarkerProvider language="" implementationClass="com.heroslender.hmf.intellij.insight.ColorLineMarkerProvider"/>
+
+        <annotator language="kotlin" implementationClass="com.heroslender.hmf.intellij.insight.ColorAnnotator"/>
+    </extensions>
+</idea-plugin>
