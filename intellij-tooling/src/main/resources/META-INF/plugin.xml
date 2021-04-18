@@ -1,0 +1,28 @@
+<idea-plugin>
+    <id>com.heroslender.hmf.intellij</id>
+    <name>Template</name>
+    <vendor>HMF Tooling</vendor>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+    <depends>org.jetbrains.kotlin</depends>
+    <depends>com.intellij.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <codeInsight.lineMarkerProvider
+            language="kotlin"
+            implementationClass="com.heroslender.hmf.intellij.insight.ColorLineMarkerProvider"
+        />
+
+        <completion.contributor
+            language="kotlin"
+            implementationClass="com.heroslender.hmf.intellij.insight.ColorCompletableReference"
+            order="first"
+        />
+
+        <annotator
+            language="kotlin"
+            implementationClass="com.heroslender.hmf.intellij.insight.ColorAnnotator"
+        />
+    </extensions>
+</idea-plugin>
