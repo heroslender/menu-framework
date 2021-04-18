@@ -1,7 +1,7 @@
 <idea-plugin>
-    <id>org.jetbrains.plugins.template</id>
+    <id>com.heroslender.hmf.intellij</id>
     <name>Template</name>
-    <vendor>JetBrains</vendor>
+    <vendor>HMF Tooling</vendor>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
@@ -9,8 +9,20 @@
     <depends>com.intellij.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <codeInsight.lineMarkerProvider language="" implementationClass="com.heroslender.hmf.intellij.insight.ColorLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider
+            language="kotlin"
+            implementationClass="com.heroslender.hmf.intellij.insight.ColorLineMarkerProvider"
+        />
 
-        <annotator language="kotlin" implementationClass="com.heroslender.hmf.intellij.insight.ColorAnnotator"/>
+        <completion.contributor
+            language="kotlin"
+            implementationClass="com.heroslender.hmf.intellij.insight.ColorCompletableReference"
+            order="first"
+        />
+
+        <annotator
+            language="kotlin"
+            implementationClass="com.heroslender.hmf.intellij.insight.ColorAnnotator"
+        />
     </extensions>
 </idea-plugin>
