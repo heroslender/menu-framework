@@ -1,9 +1,9 @@
 package com.heroslender.hmf.sample
 
 import com.heroslender.hmf.bukkit.BukkitMenuManager
-import com.heroslender.hmf.bukkit.nms.version.IllegalServerException
-import com.heroslender.hmf.bukkit.nms.version.ServerVersion
-import com.heroslender.hmf.bukkit.nms.version.UnsupportedServerVersionException
+import com.heroslender.hmf.bukkit.sdk.nms.version.IllegalServerException
+import com.heroslender.hmf.bukkit.sdk.nms.version.ServerVersion
+import com.heroslender.hmf.bukkit.sdk.nms.version.UnsupportedServerVersionException
 import com.heroslender.hmf.core.font.loadFonts
 import com.heroslender.hmf.sample.menu.TestMenu
 import org.bukkit.entity.Player
