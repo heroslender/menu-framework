@@ -3,6 +3,7 @@ package com.heroslender.hmf.bukkit.sdk.nms.v1_12
 import com.heroslender.hmf.bukkit.sdk.Direction
 import com.heroslender.hmf.bukkit.sdk.map.MapIcon
 import com.heroslender.hmf.bukkit.sdk.nms.PacketAdapter
+import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
 import net.minecraft.server.v1_12_R1.DataWatcher
 import net.minecraft.server.v1_12_R1.DataWatcherObject
 import net.minecraft.server.v1_12_R1.DataWatcherRegistry
@@ -24,6 +25,10 @@ class PacketAdapterImpl : PacketAdapter {
         private val MAP_ITEM: Item = CraftMagicNumbers.getItem(Material.MAP)
 
         private val itemFrameItemWatcher: DataWatcherObject<ItemStack> = DataWatcherRegistry.f.a(6)
+    }
+
+    override fun addPacketInterceptor(player: Player, handler: PacketInterceptor.PacketInterceptorHandler) {
+        TODO("Not yet implemented")
     }
 
     override fun spawnMapItemFrame(

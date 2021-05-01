@@ -4,13 +4,13 @@ import com.heroslender.hmf.bukkit.map.MapCanvas
 import com.heroslender.hmf.bukkit.screen.MenuScreen
 import com.heroslender.hmf.bukkit.screen.privateMenuScreenOf
 import com.heroslender.hmf.bukkit.sdk.Direction
+import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
 import com.heroslender.hmf.bukkit.utils.BoundingBox
 import com.heroslender.hmf.bukkit.utils.boundingBoxOf
 import com.heroslender.hmf.bukkit.utils.ignore
 import com.heroslender.hmf.core.ui.modifier.modifiers.ClickEvent
 import org.bukkit.Location
 import org.bukkit.entity.Player
-import org.bukkit.event.block.Action
 
 abstract class BaseMenu(
     val owner: Player,
@@ -84,12 +84,12 @@ abstract class BaseMenu(
         screen?.updateCursor((x * 128).toInt(), (y * 128).toInt())
     }.ignore()
 
-    override fun onInteract(action: Action): Boolean = raytrace { x, y ->
+    override fun onInteract(action: PacketInterceptor.Action): Boolean = raytrace { x, y ->
         val mapX = (x * 128).toInt()
         val mapY = (y * 128).toInt()
 
         val type = when (action) {
-            Action.RIGHT_CLICK_BLOCK, Action.RIGHT_CLICK_AIR ->
+            PacketInterceptor.Action.RIGHT_CLICK ->
                 ClickEvent.Type.RIGHT_CLICK
             else ->
                 ClickEvent.Type.LEFT_CLICK

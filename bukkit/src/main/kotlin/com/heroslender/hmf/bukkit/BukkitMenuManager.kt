@@ -3,6 +3,7 @@ package com.heroslender.hmf.bukkit
 import com.heroslender.hmf.bukkit.image.ImageManager
 import com.heroslender.hmf.bukkit.listeners.MenuClickListener
 import com.heroslender.hmf.bukkit.listeners.MenuListeners
+import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
 import com.heroslender.hmf.bukkit.utils.scheduleAsyncTimer
 import com.heroslender.hmf.core.MenuManager
 import com.heroslender.hmf.core.ui.components.Image
@@ -15,7 +16,7 @@ class BukkitMenuManager(
     val plugin: Plugin,
     val opts: Options = Options(),
     private val imageManager: ImageManager = ImageManager(),
-) : MenuManager<Player, BaseMenu> {
+) : MenuManager<Player, BaseMenu>, PacketInterceptor.PacketInterceptorHandler {
     private val _menus: MutableList<BaseMenu> = mutableListOf()
     val menus: List<BaseMenu>
         get() = _menus
@@ -83,6 +84,15 @@ class BukkitMenuManager(
 
     override fun getImage(url: String, width: Int, height: Int, cached: Boolean): Image? =
         imageManager.getImage(url, width, height, cached)
+
+    override fun handleInteraction(player: Player, entityId: Int, action: PacketInterceptor.Action): Boolean {
+        if (entityId < opts.firstEntityId) {
+            return false
+        }
+
+        val menu = get(player) ?: return false
+        return menu.onInteract(action)
+    }
 
     private fun launchCursorTask(delay: Long) {
         if (delay <= 0) return

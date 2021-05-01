@@ -33,6 +33,8 @@ interface PacketAdapter {
         vararg players: Player,
     )
 
+    fun addPacketInterceptor(player: Player, handler: PacketInterceptor.PacketInterceptorHandler)
+
     companion object {
         @JvmStatic
         fun current(): PacketAdapter = when (ServerVersion.CURRENT) {
