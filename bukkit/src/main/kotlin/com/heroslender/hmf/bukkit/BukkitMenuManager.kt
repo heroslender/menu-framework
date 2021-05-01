@@ -27,9 +27,8 @@ class BukkitMenuManager(
     private var menuListeners: Listener? = null
 
     init {
-        if (opts.cursorUpdateDelay > 0) {
-            launchCursorTask()
-        }
+        launchCursorTask(opts.cursorUpdateDelay)
+        launchRenderTask(opts.renderUpdateDelay)
 
         if (opts.listenClicks) {
             this.menuClickListener = MenuClickListener(this).also { listener ->
@@ -40,8 +39,6 @@ class BukkitMenuManager(
         this.menuListeners = MenuListeners(this).also { listener ->
             Bukkit.getPluginManager().registerEvents(listener, plugin)
         }
-
-        launchRenderTask()
     }
 
     val entityIdMutex: Any = Any()
@@ -87,16 +84,20 @@ class BukkitMenuManager(
     override fun getImage(url: String, width: Int, height: Int, cached: Boolean): Image? =
         imageManager.getImage(url, width, height, cached)
 
-    private fun launchCursorTask() {
-        cursorTaskId = scheduleAsyncTimer(plugin, opts.cursorUpdateDelay) {
+    private fun launchCursorTask(delay: Long) {
+        if (delay <= 0) return
+
+        cursorTaskId = scheduleAsyncTimer(plugin, delay) {
             for (menu in menus) {
                 menu.tickCursor()
             }
         }
     }
 
-    private fun launchRenderTask() {
-        renderTaskId = scheduleAsyncTimer(plugin, 10) {
+    private fun launchRenderTask(delay: Long) {
+        if (delay <= 0) return
+
+        renderTaskId = scheduleAsyncTimer(plugin, delay) {
             for (menu in menus) {
                 render(menu)
             }
@@ -104,9 +105,31 @@ class BukkitMenuManager(
     }
 
     data class Options(
+        /**
+         * The first entity ID to be used when sending the
+         * ItemFrame spawn packet to the player.
+         */
         val firstEntityId: Int = 9999,
+
+        /**
+         * Whether this manager should listen for menu clicks.
+         */
         val listenClicks: Boolean = true,
+
+        /**
+         * The delay, in game ticks, between each render.
+         */
+        val renderUpdateDelay: Long = 10,
+
+        /**
+         * The delay, in game ticks, between each cursor update.
+         */
         val cursorUpdateDelay: Long = 2,
+
+        /**
+         * The maximum distance the player can interact with
+         * the menu. This is for the cursor movement and clicks.
+         */
         val maxInteractDistance: Double = 5.0,
     )
 }
