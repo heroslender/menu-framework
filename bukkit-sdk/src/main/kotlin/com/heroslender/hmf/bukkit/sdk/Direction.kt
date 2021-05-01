@@ -1,5 +1,6 @@
 package com.heroslender.hmf.bukkit.sdk
 
+import com.heroslender.hmf.bukkit.sdk.utils.patchedYaw
 import org.bukkit.Location
 import org.bukkit.entity.Player
 
