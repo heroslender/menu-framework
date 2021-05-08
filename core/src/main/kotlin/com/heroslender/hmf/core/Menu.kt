@@ -11,6 +11,8 @@ interface Menu {
 
     fun Composable.getUi()
 
+    fun close()
+
     fun render() {
         val root = ComposableNode(
             parent = null,

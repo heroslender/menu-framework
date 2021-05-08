@@ -74,9 +74,15 @@ abstract class BaseMenu(
         render()
     }
 
+    override fun close() {
+        dispose()
+    }
+
     fun destroy() {
         screen?.despawn()
+    }
 
+    fun dispose() {
         manager.remove(owner)
     }
 
