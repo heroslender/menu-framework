@@ -5,12 +5,14 @@ import com.heroslender.hmf.bukkit.listeners.MenuClickListener
 import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
 import com.heroslender.hmf.bukkit.manager.ImageManager
 import com.heroslender.hmf.bukkit.manager.UserManager
+import com.heroslender.hmf.bukkit.models.User
 import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
 import com.heroslender.hmf.bukkit.utils.scheduleAsyncTimer
 import com.heroslender.hmf.core.ui.components.Image
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
+import org.bukkit.event.block.Action
 import org.bukkit.plugin.Plugin
 
 @Suppress("MemberVisibilityCanBePrivate")
@@ -67,29 +69,50 @@ class BukkitMenuManagerImpl(
     }
 
     override fun remove(owner: Player): BaseMenu? {
-        val user = userManager.get(owner) ?: return null
-
-        val menu = user.menu
-        user.menu = null
-        menu?.destroy()
-        return menu
+        return userManager.remove(owner)?.menu
     }
 
     override fun add(menu: BaseMenu) {
-        userManager.getOrCreate(menu.owner, this).menu = menu
+        userManager.create(menu.owner, menu, this)
     }
 
     override fun getImage(url: String, width: Int, height: Int, cached: Boolean): Image? =
         imageManager.getImage(url, width, height, cached)
 
     override fun handleInteraction(player: Player, entityId: Int, action: PacketInterceptor.Action): Boolean {
-        if (!opts.listenClicks || entityId < opts.firstEntityId) {
+        if (entityId < opts.firstEntityId) {
             return false
         }
 
-        val menu = get(player) ?: return false
-        return menu.raytrace(player) { x, y ->
-            menu.onInteract(player, action, x, y)
+        val user = userManager.get(player) ?: return false
+        return handleInteraction(user, action)
+    }
+
+    fun handleInteraction(player: Player, action: Action): Boolean {
+        val user = userManager.get(player) ?: return false
+
+        val act = when (action) {
+            Action.RIGHT_CLICK_BLOCK, Action.RIGHT_CLICK_AIR ->
+                PacketInterceptor.Action.RIGHT_CLICK
+            else ->
+                PacketInterceptor.Action.LEFT_CLICK
+        }
+
+        return handleInteraction(user, act)
+    }
+
+    fun handleInteraction(user: User, action: PacketInterceptor.Action): Boolean {
+        if (!opts.listenClicks) {
+            return false
+        }
+
+        if (!user.tryInteract()) {
+            return false
+        }
+
+        val menu = user.menu
+        return menu.raytrace(user.player) { x, y ->
+            menu.onInteract(user.player, action, x, y)
         }
     }
 

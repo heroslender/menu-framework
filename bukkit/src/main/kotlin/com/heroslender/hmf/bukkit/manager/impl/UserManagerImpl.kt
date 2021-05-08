@@ -1,7 +1,7 @@
 package com.heroslender.hmf.bukkit.manager.impl
 
+import com.heroslender.hmf.bukkit.BaseMenu
 import com.heroslender.hmf.bukkit.HmfBukkit
-import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
 import com.heroslender.hmf.bukkit.manager.UserManager
 import com.heroslender.hmf.bukkit.models.User
 import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
@@ -25,20 +25,26 @@ class UserManagerImpl(
 
     override fun get(player: Player): User? = users.firstOrNull { it.player == player }
 
-    override fun getOrCreate(player: Player, handler: PacketInterceptor.PacketInterceptorHandler): User =
-        get(player) ?: userOf(player, handler).also { users.add(it) }
+    override fun create(player: Player, menu: BaseMenu, handler: PacketInterceptor.PacketInterceptorHandler): User {
+        remove(player)
+
+        val user = userOf(player, menu, handler)
+        users.add(user)
+
+        return user
+    }
 
     override fun remove(player: Player): User? {
         return get(player)?.also { user ->
-            user.menu?.destroy()
-            user.menu = null
+            user.menu.destroy()
             users.remove(user)
         }
     }
 
-    private fun userOf(player: Player, handler: PacketInterceptor.PacketInterceptorHandler): User = User(player).also {
-//        HmfBukkit.packetAdapter.addPacketInterceptor(player, handler)
-    }
+    private fun userOf(player: Player, menu: BaseMenu, handler: PacketInterceptor.PacketInterceptorHandler): User =
+        User(player, menu).also {
+            HmfBukkit.packetAdapter.addPacketInterceptor(player, handler)
+        }
 
     private fun onDisconnect(player: Player): Unit = remove(player).ignore()
 
