@@ -1,25 +1,25 @@
-package com.heroslender.hmf.bukkit
+package com.heroslender.hmf.bukkit.manager.impl
 
-import com.heroslender.hmf.bukkit.image.ImageManager
+import com.heroslender.hmf.bukkit.BaseMenu
 import com.heroslender.hmf.bukkit.listeners.MenuClickListener
-import com.heroslender.hmf.bukkit.listeners.MenuListeners
+import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
+import com.heroslender.hmf.bukkit.manager.ImageManager
+import com.heroslender.hmf.bukkit.manager.UserManager
 import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
 import com.heroslender.hmf.bukkit.utils.scheduleAsyncTimer
-import com.heroslender.hmf.core.MenuManager
 import com.heroslender.hmf.core.ui.components.Image
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
 
-class BukkitMenuManager(
-    val plugin: Plugin,
+@Suppress("MemberVisibilityCanBePrivate")
+class BukkitMenuManagerImpl(
+    private val plugin: Plugin,
     val opts: Options = Options(),
-    private val imageManager: ImageManager = ImageManager(),
-) : MenuManager<Player, BaseMenu>, PacketInterceptor.PacketInterceptorHandler {
-    private val _menus: MutableList<BaseMenu> = mutableListOf()
-    val menus: List<BaseMenu>
-        get() = _menus
+    val imageManager: ImageManager = ImageManagerImpl(),
+    val userManager: UserManager = UserManagerImpl(plugin),
+) : BukkitMenuManager, PacketInterceptor.PacketInterceptorHandler {
 
     private var cursorTaskId: Int = 0
     private var renderTaskId: Int = 0
@@ -36,30 +36,24 @@ class BukkitMenuManager(
                 Bukkit.getPluginManager().registerEvents(listener, plugin)
             }
         }
-
-        this.menuListeners = MenuListeners(this).also { listener ->
-            Bukkit.getPluginManager().registerEvents(listener, plugin)
-        }
     }
 
-    val entityIdMutex: Any = Any()
+    private val entityIdMutex: Any = Any()
 
-    /**
-     * Returns the next available entity id to be used
-     * by maps & item frames.
-     */
-    fun nextEntityId(): Int = withEntityIdFactory { next -> next() }
+    override fun nextEntityId(): Int = withEntityIdFactory { next -> next() }
+
+    override fun <R> withEntityIdFactory(factory: (nextEntityId: () -> Int) -> R): R = entityIdFactory(factory)
 
     /**
      * Executes [factory] while holding a lock on the [entityIdMutex].
      */
-    inline fun <R> withEntityIdFactory(factory: (nextEntityId: () -> Int) -> R): R = synchronized(entityIdMutex) {
+    private inline fun <R> entityIdFactory(factory: (nextEntityId: () -> Int) -> R): R = synchronized(entityIdMutex) {
         val usedIds: MutableList<Int> = mutableListOf()
 
         factory {
             var id = opts.firstEntityId
 
-            while (usedIds.contains(id) || menus.any { it.hasEntityId(id) }) {
+            while (usedIds.contains(id) || userManager.users.any { it.menu?.hasEntityId(id) == true }) {
                 id++
             }
 
@@ -69,37 +63,45 @@ class BukkitMenuManager(
     }
 
     override fun get(owner: Player): BaseMenu? {
-        return menus.firstOrNull { it.owner === owner }
+        return userManager.get(owner)?.menu
     }
 
     override fun remove(owner: Player): BaseMenu? {
-        return get(owner)?.also { _menus.remove(it) }
+        val user = userManager.get(owner) ?: return null
+
+        val menu = user.menu
+        user.menu = null
+        menu?.destroy()
+        return menu
     }
 
     override fun add(menu: BaseMenu) {
-        remove(menu.owner)?.destroy()
-
-        _menus.add(menu)
+        userManager.getOrCreate(menu.owner, this).menu = menu
     }
 
     override fun getImage(url: String, width: Int, height: Int, cached: Boolean): Image? =
         imageManager.getImage(url, width, height, cached)
 
     override fun handleInteraction(player: Player, entityId: Int, action: PacketInterceptor.Action): Boolean {
-        if (entityId < opts.firstEntityId) {
+        if (!opts.listenClicks || entityId < opts.firstEntityId) {
             return false
         }
 
         val menu = get(player) ?: return false
-        return menu.onInteract(action)
+        return menu.raytrace(player) { x, y ->
+            menu.onInteract(player, action, x, y)
+        }
     }
 
     private fun launchCursorTask(delay: Long) {
         if (delay <= 0) return
 
         cursorTaskId = scheduleAsyncTimer(plugin, delay) {
-            for (menu in menus) {
-                menu.tickCursor()
+            for (user in userManager.users) {
+                val menu = user.menu ?: continue
+                menu.raytrace(user.player) { x, y ->
+                    menu.tickCursor(user.player, x, y)
+                }
             }
         }
     }
@@ -108,10 +110,33 @@ class BukkitMenuManager(
         if (delay <= 0) return
 
         renderTaskId = scheduleAsyncTimer(plugin, delay) {
-            for (menu in menus) {
-                render(menu)
+            for (user in userManager.users) {
+                user.menu?.also { render(it) }
             }
         }
+    }
+
+    inline fun BaseMenu.raytrace(player: Player, onIntersect: (x: Int, y: Int) -> Unit): Boolean {
+        val intersection = boundingBox.rayTrace(
+            start = player.eyeLocation.toVector(),
+            direction = player.location.direction,
+            maxDistance = this@BukkitMenuManagerImpl.opts.maxInteractDistance
+        ) ?: return false
+
+        val rd = direction.rotateLeft()
+        val x = if (rd.x != 0) {
+            (intersection.x - boundingBox.minX) * rd.x
+        } else {
+            (intersection.z - boundingBox.minZ) * rd.z
+        }
+
+        val y = boundingBox.maxY - intersection.y
+
+        onIntersect(
+            ((if (x < 0) x + width else x) * 128).toInt(),
+            (y * 128).toInt()
+        )
+        return true
     }
 
     data class Options(

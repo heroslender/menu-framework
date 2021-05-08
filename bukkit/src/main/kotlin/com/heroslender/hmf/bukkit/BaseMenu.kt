@@ -1,5 +1,6 @@
 package com.heroslender.hmf.bukkit
 
+import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
 import com.heroslender.hmf.bukkit.map.MapCanvas
 import com.heroslender.hmf.bukkit.screen.MenuScreen
 import com.heroslender.hmf.bukkit.screen.privateMenuScreenOf
@@ -7,7 +8,6 @@ import com.heroslender.hmf.bukkit.sdk.Direction
 import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
 import com.heroslender.hmf.bukkit.utils.BoundingBox
 import com.heroslender.hmf.bukkit.utils.boundingBoxOf
-import com.heroslender.hmf.bukkit.utils.ignore
 import com.heroslender.hmf.core.ui.modifier.modifiers.ClickEvent
 import org.bukkit.Location
 import org.bukkit.entity.Player
@@ -80,14 +80,11 @@ abstract class BaseMenu(
         manager.remove(owner)
     }
 
-    override fun tickCursor() = raytrace { x, y ->
-        screen?.updateCursor((x * 128).toInt(), (y * 128).toInt())
-    }.ignore()
+    override fun tickCursor(player: Player, x: Int, y: Int) {
+        screen?.updateCursor(x, y)
+    }
 
-    override fun onInteract(action: PacketInterceptor.Action): Boolean = raytrace { x, y ->
-        val mapX = (x * 128).toInt()
-        val mapY = (y * 128).toInt()
-
+    override fun onInteract(player: Player, action: PacketInterceptor.Action, x: Int, y: Int) {
         val type = when (action) {
             PacketInterceptor.Action.RIGHT_CLICK ->
                 ClickEvent.Type.RIGHT_CLICK
@@ -95,26 +92,7 @@ abstract class BaseMenu(
                 ClickEvent.Type.LEFT_CLICK
         }
 
-        context.handleClick(mapX, mapY, type)
-    }
-
-    private inline fun raytrace(onIntersect: (x: Double, y: Double) -> Unit): Boolean {
-        val intersection = boundingBox.rayTrace(
-            start = owner.eyeLocation.toVector(),
-            direction = owner.location.direction,
-            maxDistance = manager.opts.maxInteractDistance
-        ) ?: return false
-
-        val rd = direction.rotateLeft()
-        val x = if (rd.x != 0) {
-            (intersection.x - boundingBox.minX) * rd.x
-        } else {
-            (intersection.z - boundingBox.minZ) * rd.z
-        }
-        val y = boundingBox.maxY - intersection.y
-
-        onIntersect(if (x < 0) x + width else x, y)
-        return true
+        context.handleClick(x, y, type)
     }
 
     private fun calculateBoundingBox(): BoundingBox {

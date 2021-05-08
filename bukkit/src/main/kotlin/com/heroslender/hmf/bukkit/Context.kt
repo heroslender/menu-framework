@@ -1,5 +1,6 @@
 package com.heroslender.hmf.bukkit
 
+import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
 import com.heroslender.hmf.bukkit.map.MapCanvas
 import com.heroslender.hmf.core.ui.Composable
 import com.heroslender.hmf.core.ui.modifier.modifiers.ClickEvent

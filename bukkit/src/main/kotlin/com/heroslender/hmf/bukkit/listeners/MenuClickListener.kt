@@ -1,6 +1,6 @@
 package com.heroslender.hmf.bukkit.listeners
 
-import com.heroslender.hmf.bukkit.BukkitMenuManager
+import com.heroslender.hmf.bukkit.manager.impl.BukkitMenuManagerImpl
 import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -8,10 +8,10 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 
 class MenuClickListener(
-    private val manager: BukkitMenuManager,
+    private val manager: BukkitMenuManagerImpl,
 ) : Listener {
 
-    @EventHandler(ignoreCancelled = false)
+    @EventHandler
     fun onInteract(e: PlayerInteractEvent) {
         val menu = manager.get(e.player) ?: return
 
@@ -22,6 +22,10 @@ class MenuClickListener(
                 PacketInterceptor.Action.LEFT_CLICK
         }
 
-        e.isCancelled = menu.onInteract(action)
+        with(manager) {
+            e.isCancelled = menu.raytrace(e.player) { x, y ->
+                menu.onInteract(e.player, action, x, y)
+            }
+        }
     }
 }
