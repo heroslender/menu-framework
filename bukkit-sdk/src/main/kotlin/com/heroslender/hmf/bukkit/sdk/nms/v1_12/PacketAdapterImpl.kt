@@ -4,7 +4,6 @@ import com.heroslender.hmf.bukkit.sdk.Direction
 import com.heroslender.hmf.bukkit.sdk.map.MapIcon
 import com.heroslender.hmf.bukkit.sdk.nms.PacketAdapter
 import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
-import com.heroslender.hmf.bukkit.sdk.nms.v1_8.PacketInterceptorImpl
 import net.minecraft.server.v1_12_R1.DataWatcher
 import net.minecraft.server.v1_12_R1.DataWatcherObject
 import net.minecraft.server.v1_12_R1.DataWatcherRegistry
