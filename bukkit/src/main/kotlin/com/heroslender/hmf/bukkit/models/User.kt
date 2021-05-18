@@ -10,11 +10,9 @@ class User(
     fun tryInteract(): Boolean {
         val now = System.currentTimeMillis()
         if (nextInteraction > now) {
-            println("Negated! $nextInteraction; Now: $now")
             return false
         }
 
-        println("$nextInteraction; Now: $now")
         nextInteraction = now + INTERACT_COOLDOWN
         return true
     }
