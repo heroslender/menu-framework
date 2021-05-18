@@ -6,6 +6,7 @@ import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
 import com.heroslender.hmf.bukkit.manager.ImageManager
 import com.heroslender.hmf.bukkit.manager.UserManager
 import com.heroslender.hmf.bukkit.models.User
+import com.heroslender.hmf.bukkit.screen.PublicMenuScreen
 import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
 import com.heroslender.hmf.bukkit.utils.scheduleAsyncTimer
 import com.heroslender.hmf.core.ui.components.Image
@@ -27,7 +28,6 @@ class BukkitMenuManagerImpl(
     private var renderTaskId: Int = 0
 
     private var menuClickListener: Listener? = null
-    private var menuListeners: Listener? = null
 
     init {
         launchCursorTask(opts.cursorUpdateDelay)
@@ -55,7 +55,7 @@ class BukkitMenuManagerImpl(
         factory {
             var id = opts.firstEntityId
 
-            while (usedIds.contains(id) || userManager.users.any { it.menu?.hasEntityId(id) == true }) {
+            while (usedIds.contains(id) || userManager.users.any { it.menu.hasEntityId(id) }) {
                 id++
             }
 
@@ -121,7 +121,7 @@ class BukkitMenuManagerImpl(
 
         cursorTaskId = scheduleAsyncTimer(plugin, delay) {
             for (user in userManager.users) {
-                val menu = user.menu ?: continue
+                val menu = user.menu
                 menu.raytrace(user.player) { x, y ->
                     menu.tickCursor(user.player, x, y)
                 }
@@ -134,7 +134,9 @@ class BukkitMenuManagerImpl(
 
         renderTaskId = scheduleAsyncTimer(plugin, delay) {
             for (user in userManager.users) {
-                user.menu?.also { render(it) }
+                val menu = user.menu
+                (menu.screen as? PublicMenuScreen)?.viewerTracker?.tick()
+                menu.also { render(it) }
             }
         }
     }

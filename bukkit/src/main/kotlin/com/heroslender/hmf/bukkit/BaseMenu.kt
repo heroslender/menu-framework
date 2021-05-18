@@ -3,7 +3,8 @@ package com.heroslender.hmf.bukkit
 import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
 import com.heroslender.hmf.bukkit.map.MapCanvas
 import com.heroslender.hmf.bukkit.screen.MenuScreen
-import com.heroslender.hmf.bukkit.screen.privateMenuScreenOf
+import com.heroslender.hmf.bukkit.screen.PublicMenuScreen
+import com.heroslender.hmf.bukkit.screen.publicMenuScreenOf
 import com.heroslender.hmf.bukkit.sdk.Direction
 import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
 import com.heroslender.hmf.bukkit.utils.BoundingBox
@@ -25,11 +26,11 @@ abstract class BaseMenu(
     var startY: Int = 0
     var startZ: Int = 0
 
-    private var screen: MenuScreen? = null
+    var screen: MenuScreen? = null
     final override var boundingBox: BoundingBox = BoundingBox.EMPTY
 
     fun hasEntityId(id: Int): Boolean {
-        return screen?.chunks?.any { it.id == id } ?: false
+        return screen?.holdsEntityId(id) ?: false
     }
 
     init {
@@ -52,8 +53,26 @@ abstract class BaseMenu(
         this.screen = manager.withEntityIdFactory { nextEntityId ->
             manager.add(this)
 
-            privateMenuScreenOf(
-                owner,
+//            privateMenuScreenOf(
+//                owner,
+//                opts,
+//                width,
+//                height,
+//                startX,
+//                startY,
+//                startZ,
+//                direction,
+//                nextEntityId
+//            )
+
+            val left = direction.rotateLeft()
+            publicMenuScreenOf(
+                Location(
+                    owner.world,
+                    startX + width / 2.0 * left.x,
+                    startY - height / 2.0,
+                    startZ + width / 2.0 * left.z,
+                ),
                 opts,
                 width,
                 height,
@@ -61,10 +80,11 @@ abstract class BaseMenu(
                 startY,
                 startZ,
                 direction,
-                nextEntityId
+                idSupplier = nextEntityId
             )
         }
 
+        (screen as? PublicMenuScreen)?.viewerTracker?.tick()
         screen?.spawn()
 
         context.onUpdate {
@@ -87,7 +107,7 @@ abstract class BaseMenu(
     }
 
     override fun tickCursor(player: Player, x: Int, y: Int) {
-        screen?.updateCursor(x, y)
+        screen?.updateCursor(player, x, y)
     }
 
     override fun onInteract(player: Player, action: PacketInterceptor.Action, x: Int, y: Int) {
