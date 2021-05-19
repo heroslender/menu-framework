@@ -12,8 +12,8 @@ import org.bukkit.entity.Player
  * This represents the screen in the world, where the menu
  * will be displayed.
  */
-class PublicMenuScreen(
-    val viewerTracker: MenuScreenViewerTracker,
+class BukkitMenuScreen(
+    override val viewerTracker: MenuScreenViewerTracker,
     private val cursorOpts: MenuOptions.CursorOptions,
     override val width: Int,
     override val height: Int,

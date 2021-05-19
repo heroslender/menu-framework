@@ -4,6 +4,7 @@ import com.heroslender.hmf.bukkit.MenuOptions
 import com.heroslender.hmf.bukkit.screen.chunk.MenuScreenChunk
 import com.heroslender.hmf.bukkit.screen.chunk.ScreenChunk
 import com.heroslender.hmf.bukkit.screen.tracker.NearbyMenuScreenViewerTracker
+import com.heroslender.hmf.bukkit.screen.tracker.PrivateMenuScreenViewerTracker
 import com.heroslender.hmf.bukkit.sdk.Direction
 import org.bukkit.Location
 import org.bukkit.entity.Player
@@ -21,8 +22,8 @@ inline fun privateMenuScreenOf(
 ): MenuScreen {
     val chunks: Array<ScreenChunk> = getMenuScreenChunks(width, height, startX, startY, startZ, facing, idSupplier)
 
-    return PrivateMenuScreen(
-        owner = owner,
+    return BukkitMenuScreen(
+        viewerTracker = PrivateMenuScreenViewerTracker(owner),
         cursorOpts = opts.cursor,
         width = width,
         height = height,
@@ -45,7 +46,7 @@ inline fun publicMenuScreenOf(
 ): MenuScreen {
     val chunks: Array<ScreenChunk> = getMenuScreenChunks(width, height, startX, startY, startZ, facing, idSupplier)
 
-    return PublicMenuScreen(
+    return BukkitMenuScreen(
         viewerTracker = NearbyMenuScreenViewerTracker(location, trackingRange, trackedLifetime),
         cursorOpts = opts.cursor,
         width = width,

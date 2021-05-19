@@ -2,13 +2,14 @@ package com.heroslender.hmf.bukkit
 
 import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
 import com.heroslender.hmf.bukkit.map.MapCanvas
+import com.heroslender.hmf.bukkit.screen.BukkitMenuScreen
 import com.heroslender.hmf.bukkit.screen.MenuScreen
-import com.heroslender.hmf.bukkit.screen.PublicMenuScreen
 import com.heroslender.hmf.bukkit.screen.publicMenuScreenOf
 import com.heroslender.hmf.bukkit.sdk.Direction
 import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
 import com.heroslender.hmf.bukkit.utils.BoundingBox
 import com.heroslender.hmf.bukkit.utils.boundingBoxOf
+import com.heroslender.hmf.bukkit.utils.centerLocation
 import com.heroslender.hmf.core.ui.modifier.modifiers.ClickEvent
 import org.bukkit.Location
 import org.bukkit.entity.Player
@@ -50,29 +51,11 @@ abstract class BaseMenu(
     }
 
     fun send() {
-        this.screen = manager.withEntityIdFactory { nextEntityId ->
+        val screen = manager.withEntityIdFactory { nextEntityId ->
             manager.add(this)
 
-//            privateMenuScreenOf(
-//                owner,
-//                opts,
-//                width,
-//                height,
-//                startX,
-//                startY,
-//                startZ,
-//                direction,
-//                nextEntityId
-//            )
-
-            val left = direction.rotateLeft()
             publicMenuScreenOf(
-                Location(
-                    owner.world,
-                    startX + width / 2.0 * left.x,
-                    startY - height / 2.0,
-                    startZ + width / 2.0 * left.z,
-                ),
+                centerLocation,
                 opts,
                 width,
                 height,
@@ -83,12 +66,13 @@ abstract class BaseMenu(
                 idSupplier = nextEntityId
             )
         }
+        this.screen = screen
 
-        (screen as? PublicMenuScreen)?.viewerTracker?.tick()
-        screen?.spawn()
+        screen.viewerTracker.tick()
+        screen.spawn()
 
         context.onUpdate {
-            screen?.update(context.canvas)
+            screen.update(context.canvas)
         }
 
         render()

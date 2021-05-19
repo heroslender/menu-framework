@@ -6,7 +6,6 @@ import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
 import com.heroslender.hmf.bukkit.manager.ImageManager
 import com.heroslender.hmf.bukkit.manager.UserManager
 import com.heroslender.hmf.bukkit.models.User
-import com.heroslender.hmf.bukkit.screen.PublicMenuScreen
 import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
 import com.heroslender.hmf.bukkit.utils.scheduleAsyncTimer
 import com.heroslender.hmf.core.ui.components.Image
@@ -135,7 +134,9 @@ class BukkitMenuManagerImpl(
         renderTaskId = scheduleAsyncTimer(plugin, delay) {
             for (user in userManager.users) {
                 val menu = user.menu
-                (menu.screen as? PublicMenuScreen)?.viewerTracker?.tick()
+                val screen = menu.screen ?: continue
+
+                screen.viewerTracker.tick()
                 menu.also { render(it) }
             }
         }
