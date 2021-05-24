@@ -121,8 +121,9 @@ class BukkitMenuManagerImpl(
 
         cursorTaskId = scheduleAsyncTimer(plugin, delay) {
             for (menu in menus) {
-                menu.location.world.players
-                    .filter { player -> menu.location.distanceSquared(player.location) < opts.maxInteractDistanceSqr }
+                val loc = menu.opts.location
+                loc.world.players
+                    .filter { player -> loc.distanceSquared(player.location) < opts.maxInteractDistanceSqr }
                     .forEach { player ->
                         menu.raytrace(player) { x, y ->
                             menu.tickCursor(player, x, y)
@@ -147,7 +148,7 @@ class BukkitMenuManagerImpl(
 
     inline fun raytrace(player: Player, onIntersect: (menu: BaseMenu, x: Int, y: Int) -> Unit): Boolean {
         return menus
-            .filter { it.location.distanceSquared(player.location) < opts.maxInteractDistanceSqr }
+            .filter { it.opts.location.distanceSquared(player.location) < opts.maxInteractDistanceSqr }
             .any { menu -> menu.raytrace(player) { x, y -> onIntersect(menu, x, y) } }
     }
 
@@ -158,7 +159,7 @@ class BukkitMenuManagerImpl(
             maxDistance = this@BukkitMenuManagerImpl.opts.maxInteractDistance
         ) ?: return false
 
-        val rd = direction.rotateLeft()
+        val rd = opts.direction.rotateLeft()
         val x = if (rd.x != 0) {
             (intersection.x - boundingBox.minX) * rd.x
         } else {
@@ -168,7 +169,7 @@ class BukkitMenuManagerImpl(
         val y = boundingBox.maxY - intersection.y
 
         onIntersect(
-            ((if (x < 0) x + width else x) * 128).toInt(),
+            ((if (x < 0) x + opts.width else x) * 128).toInt(),
             (y * 128).toInt()
         )
         return true

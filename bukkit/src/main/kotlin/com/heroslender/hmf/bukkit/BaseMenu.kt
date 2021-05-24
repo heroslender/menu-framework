@@ -2,68 +2,23 @@ package com.heroslender.hmf.bukkit
 
 import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
 import com.heroslender.hmf.bukkit.map.MapCanvas
-import com.heroslender.hmf.bukkit.models.PrivateViewerTrackerOptions
-import com.heroslender.hmf.bukkit.models.ViewerTrackerOptions
 import com.heroslender.hmf.bukkit.screen.BukkitMenuScreen
 import com.heroslender.hmf.bukkit.screen.MenuScreen
 import com.heroslender.hmf.bukkit.screen.getMenuScreenChunks
-import com.heroslender.hmf.bukkit.sdk.Direction
 import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
 import com.heroslender.hmf.bukkit.utils.BoundingBox
 import com.heroslender.hmf.bukkit.utils.boundingBoxOf
 import com.heroslender.hmf.core.ui.modifier.modifiers.ClickEvent
-import org.bukkit.Location
 import org.bukkit.entity.Player
 
 abstract class BaseMenu(
-    /** Start location of the menu */
-    val location: Location,
-    /** Width of the menu, in game blocks. 1 block = 128 pixels */
-    val width: Int = 4,
-    /** Height of the menu, in game blocks. 1 block = 128 pixels */
-    val height: Int = 3,
-    /** Options for the viewer tracker */
-    private val viewerTrackerOptions: ViewerTrackerOptions,
-    /** The direction the menu will be facing */
-    val direction: Direction = (viewerTrackerOptions as? PrivateViewerTrackerOptions)?.let {
-        Direction.from(it.owner).opposite()
-    } ?: Direction.SOUTH,
+    /** Menu specific options */
+    val opts: MenuOptions,
     /** The manager that will handle this menu */
     val manager: BukkitMenuManager,
     /** The context of the menu */
-    override val context: BukkitContext = Context(manager, MapCanvas(width * 128, height * 128)),
-    /** Menu specific options */
-    val opts: MenuOptions = MenuOptions(),
+    override val context: BukkitContext = Context(manager, MapCanvas(opts.width * 128, opts.height * 128)),
 ) : BukkitMenu {
-
-    constructor(
-        owner: Player,
-        width: Int = 4,
-        height: Int = 3,
-        manager: BukkitMenuManager,
-        direction: Direction = Direction.from(owner).opposite(),
-        opts: MenuOptions = MenuOptions(),
-    ) : this(
-        location = kotlin.run {
-            val startScreen: Location = owner.location.clone()
-                .apply { pitch = 0F }
-                .let { it.add(it.direction.multiply(2)) }
-
-            val left = direction.rotateLeft()
-            val startOffset = -(width / 2 - 1).toDouble()
-            startScreen.add(startOffset * left.x, 2.0, startOffset * left.z)
-        },
-        width = width,
-        height = height,
-        viewerTrackerOptions = PrivateViewerTrackerOptions(owner),
-        direction = direction,
-        manager = manager,
-        opts = opts
-    )
-
-    var startX: Int = 0
-    var startY: Int = 0
-    var startZ: Int = 0
 
     var screen: MenuScreen? = null
     final override var boundingBox: BoundingBox = BoundingBox.EMPTY
@@ -73,10 +28,6 @@ abstract class BaseMenu(
     }
 
     init {
-        this.startX = location.blockX
-        this.startY = location.blockY
-        this.startZ = location.blockZ
-
         this.boundingBox = calculateBoundingBox()
     }
 
@@ -84,14 +35,14 @@ abstract class BaseMenu(
         val chunks = manager.withEntityIdFactory { nextEntityId ->
             manager.register(this)
 
-            getMenuScreenChunks(width, height, startX, startY, startZ, direction, nextEntityId)
+            getMenuScreenChunks(opts.width, opts.height, opts.location, opts.direction, nextEntityId)
         }
 
         val screen = BukkitMenuScreen(
-            viewerTracker = viewerTrackerOptions.make(),
+            viewerTracker = opts.viewerTracker.make(),
             cursorOpts = opts.cursor,
-            width = width,
-            height = height,
+            width = opts.width,
+            height = opts.height,
             chunks = chunks
         )
         this.screen = screen
@@ -135,6 +86,12 @@ abstract class BaseMenu(
     }
 
     private fun calculateBoundingBox(): BoundingBox {
+        val startX = opts.location.blockX
+        val startY = opts.location.blockY
+        val startZ = opts.location.blockZ
+        val direction = opts.direction
+        val width = opts.width
+        val height = opts.height
         val bbStartX: Double
         val bbEndX: Double
         when (direction.x) {
@@ -181,10 +138,10 @@ abstract class BaseMenu(
 
         return boundingBoxOf(
             bbStartX,
-            startY - (height - 1.0),
+            startY.toDouble(),
             bbStartZ,
             bbEndX,
-            startY + 1.0,
+            startY + height + 1.0,
             bbEndZ,
         )
     }
