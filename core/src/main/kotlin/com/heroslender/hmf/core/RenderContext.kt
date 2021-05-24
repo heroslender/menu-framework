@@ -4,7 +4,7 @@ import com.heroslender.hmf.core.ui.Composable
 import com.heroslender.hmf.core.ui.modifier.modifiers.ClickEvent
 
 interface RenderContext {
-    val manager: MenuManager<out Any, out Menu>
+    val manager: MenuManager<out Menu>
     val canvas: Canvas
     var root: Composable?
 

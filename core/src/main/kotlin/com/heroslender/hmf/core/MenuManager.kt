@@ -5,21 +5,17 @@ import com.heroslender.hmf.core.ui.Composable
 import com.heroslender.hmf.core.ui.ComposableNode
 import com.heroslender.hmf.core.ui.components.Image
 
-interface MenuManager<O, M : Menu> {
-    /**
-     * Get a menu that belongs to [owner].
-     */
-    fun get(owner: O): M?
+interface MenuManager<M : Menu> {
 
     /**
-     * Remove a menu bound to [owner] from this manager.
+     * Register the [menu] to this manager.
      */
-    fun remove(owner: O): M?
+    fun register(menu: M)
 
     /**
-     * Register a [menu] to this manager.
+     * Removes the [menu] from this manager.
      */
-    fun add(menu: M)
+    fun unregister(menu: M)
 
     /**
      * Get an [Image] from the jar resources with the [url] path.

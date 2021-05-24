@@ -16,7 +16,7 @@ val BaseMenu.centerLocation: Location
         val left = direction.rotateLeft()
 
         return Location(
-            owner.world,
+            location.world,
             startX + width / 2.0 * left.x,
             startY - height / 2.0,
             startZ + width / 2.0 * left.z,

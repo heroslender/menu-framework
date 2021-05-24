@@ -2,27 +2,65 @@ package com.heroslender.hmf.bukkit
 
 import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
 import com.heroslender.hmf.bukkit.map.MapCanvas
+import com.heroslender.hmf.bukkit.models.PrivateViewerTrackerOptions
+import com.heroslender.hmf.bukkit.models.ViewerTrackerOptions
 import com.heroslender.hmf.bukkit.screen.BukkitMenuScreen
 import com.heroslender.hmf.bukkit.screen.MenuScreen
-import com.heroslender.hmf.bukkit.screen.publicMenuScreenOf
+import com.heroslender.hmf.bukkit.screen.getMenuScreenChunks
 import com.heroslender.hmf.bukkit.sdk.Direction
 import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
 import com.heroslender.hmf.bukkit.utils.BoundingBox
 import com.heroslender.hmf.bukkit.utils.boundingBoxOf
-import com.heroslender.hmf.bukkit.utils.centerLocation
 import com.heroslender.hmf.core.ui.modifier.modifiers.ClickEvent
 import org.bukkit.Location
 import org.bukkit.entity.Player
 
 abstract class BaseMenu(
-    val owner: Player,
+    /** Start location of the menu */
+    val location: Location,
+    /** Width of the menu, in game blocks. 1 block = 128 pixels */
     val width: Int = 4,
+    /** Height of the menu, in game blocks. 1 block = 128 pixels */
     val height: Int = 3,
-    val direction: Direction = Direction.from(owner).opposite(),
+    /** Options for the viewer tracker */
+    private val viewerTrackerOptions: ViewerTrackerOptions,
+    /** The direction the menu will be facing */
+    val direction: Direction = (viewerTrackerOptions as? PrivateViewerTrackerOptions)?.let {
+        Direction.from(it.owner).opposite()
+    } ?: Direction.SOUTH,
+    /** The manager that will handle this menu */
     val manager: BukkitMenuManager,
+    /** The context of the menu */
     override val context: BukkitContext = Context(manager, MapCanvas(width * 128, height * 128)),
+    /** Menu specific options */
     val opts: MenuOptions = MenuOptions(),
 ) : BukkitMenu {
+
+    constructor(
+        owner: Player,
+        width: Int = 4,
+        height: Int = 3,
+        manager: BukkitMenuManager,
+        direction: Direction = Direction.from(owner).opposite(),
+        opts: MenuOptions = MenuOptions(),
+    ) : this(
+        location = kotlin.run {
+            val startScreen: Location = owner.location.clone()
+                .apply { pitch = 0F }
+                .let { it.add(it.direction.multiply(2)) }
+
+            val left = direction.rotateLeft()
+            val startOffset = -(width / 2 - 1).toDouble()
+            startScreen.add(startOffset * left.x, 2.0, startOffset * left.z)
+        },
+        width = width,
+        height = height,
+        viewerTrackerOptions = PrivateViewerTrackerOptions(owner),
+        direction = direction,
+        manager = manager,
+        opts = opts
+    )
+
     var startX: Int = 0
     var startY: Int = 0
     var startZ: Int = 0
@@ -35,37 +73,27 @@ abstract class BaseMenu(
     }
 
     init {
-        val startScreen: Location = owner.location.clone()
-            .apply { pitch = 0F }
-            .let { it.add(it.direction.multiply(2)) }
-
-        val left = direction.rotateLeft()
-        val startOffset = -(width / 2 - 1).toDouble()
-        startScreen.add(startOffset * left.x, 2.0, startOffset * left.z)
-
-        this.startX = startScreen.blockX
-        this.startY = startScreen.blockY
-        this.startZ = startScreen.blockZ
+        this.startX = location.blockX
+        this.startY = location.blockY
+        this.startZ = location.blockZ
 
         this.boundingBox = calculateBoundingBox()
     }
 
     fun send() {
-        val screen = manager.withEntityIdFactory { nextEntityId ->
-            manager.add(this)
+        val chunks = manager.withEntityIdFactory { nextEntityId ->
+            manager.register(this)
 
-            publicMenuScreenOf(
-                centerLocation,
-                opts,
-                width,
-                height,
-                startX,
-                startY,
-                startZ,
-                direction,
-                idSupplier = nextEntityId
-            )
+            getMenuScreenChunks(width, height, startX, startY, startZ, direction, nextEntityId)
         }
+
+        val screen = BukkitMenuScreen(
+            viewerTracker = viewerTrackerOptions.make(),
+            cursorOpts = opts.cursor,
+            width = width,
+            height = height,
+            chunks = chunks
+        )
         this.screen = screen
 
         screen.viewerTracker.tick()
@@ -80,6 +108,7 @@ abstract class BaseMenu(
 
     override fun close() {
         dispose()
+        destroy()
     }
 
     fun destroy() {
@@ -87,7 +116,7 @@ abstract class BaseMenu(
     }
 
     fun dispose() {
-        manager.remove(owner)
+        manager.unregister(this)
     }
 
     override fun tickCursor(player: Player, x: Int, y: Int) {
