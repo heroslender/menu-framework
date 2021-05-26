@@ -1,6 +1,5 @@
 package com.heroslender.hmf.core.ui.modifier.node
 
-import com.heroslender.hmf.core.ui.modifier.modifiers.ClickEvent
 import com.heroslender.hmf.core.ui.modifier.type.CursorClickModifier
 
 class ClickableModifierWrapper(
@@ -8,16 +7,13 @@ class ClickableModifierWrapper(
     modifier: CursorClickModifier,
 ) : ModifierElementWrapper<CursorClickModifier>(wrapped, modifier) {
 
-    fun click(x: Int, y: Int, type: ClickEvent.Type) {
+    fun click(x: Int, y: Int, data: Any): Boolean =
         with(modifier) {
-            onClick(
-                ClickEvent(
-                    x = x,
-                    y = y,
-                    type = type,
-                    component = component,
-                )
+            return onClick(
+                x = x,
+                y = y,
+                component = component,
+                data = data,
             )
         }
-    }
 }

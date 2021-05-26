@@ -2,13 +2,14 @@ package com.heroslender.hmf.bukkit
 
 import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
 import com.heroslender.hmf.bukkit.map.MapCanvas
+import com.heroslender.hmf.bukkit.modifiers.ClickEventData
+import com.heroslender.hmf.bukkit.modifiers.ClickType
 import com.heroslender.hmf.bukkit.screen.BukkitMenuScreen
 import com.heroslender.hmf.bukkit.screen.MenuScreen
 import com.heroslender.hmf.bukkit.screen.getMenuScreenChunks
 import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
 import com.heroslender.hmf.bukkit.utils.BoundingBox
 import com.heroslender.hmf.bukkit.utils.boundingBoxOf
-import com.heroslender.hmf.core.ui.modifier.modifiers.ClickEvent
 import org.bukkit.entity.Player
 
 abstract class BaseMenu(
@@ -77,12 +78,12 @@ abstract class BaseMenu(
     override fun onInteract(player: Player, action: PacketInterceptor.Action, x: Int, y: Int) {
         val type = when (action) {
             PacketInterceptor.Action.RIGHT_CLICK ->
-                ClickEvent.Type.RIGHT_CLICK
+                ClickType.RIGHT_CLICK
             else ->
-                ClickEvent.Type.LEFT_CLICK
+                ClickType.LEFT_CLICK
         }
 
-        context.handleClick(x, y, type)
+        context.handleClick(x, y, ClickEventData(type, player))
     }
 
     private fun calculateBoundingBox(): BoundingBox {
