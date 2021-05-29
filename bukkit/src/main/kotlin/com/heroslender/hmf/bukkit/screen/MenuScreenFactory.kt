@@ -24,7 +24,7 @@ inline fun getMenuScreenChunks(
         MenuScreenChunk(
             id = idSupplier(),
             x = startX + x * left.x,
-            y = startY + y,
+            y = startY + height - y,
             z = startZ + x * left.z,
             direction = facing
         )

@@ -1,13 +1,17 @@
-package com.heroslender.hmf.bukkit.screen.tracker
+package com.heroslender.hmf.bukkit.screen.tracker.viewer
 
+import com.heroslender.hmf.bukkit.screen.tracker.cursor.CursorTracker
+import com.heroslender.hmf.bukkit.screen.tracker.interactor.InteractorTracker
 import org.bukkit.Location
 import org.bukkit.entity.Player
 
-class NearbyMenuScreenViewerTracker(
+class NearbyViewerTracker(
     private val location: Location,
     range: Int,
     private val lifetime: Int,
-) : MenuScreenViewerTracker {
+    cursorTracker: CursorTracker,
+    interactorTracker: InteractorTracker,
+) : AbstractViewerTracker(cursorTracker, interactorTracker) {
     private val rangeSquared: Int = range * range
 
     private var expiration: Long = 0

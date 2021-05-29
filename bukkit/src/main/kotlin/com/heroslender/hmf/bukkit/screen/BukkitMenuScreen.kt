@@ -3,7 +3,7 @@ package com.heroslender.hmf.bukkit.screen
 import com.heroslender.hmf.bukkit.MenuOptions
 import com.heroslender.hmf.bukkit.map.MapCanvas
 import com.heroslender.hmf.bukkit.screen.chunk.ScreenChunk
-import com.heroslender.hmf.bukkit.screen.tracker.MenuScreenViewerTracker
+import com.heroslender.hmf.bukkit.screen.tracker.viewer.ViewerTracker
 import com.heroslender.hmf.bukkit.sdk.map.MapIcon
 import com.heroslender.hmf.bukkit.utils.clampByte
 import org.bukkit.entity.Player
@@ -13,7 +13,7 @@ import org.bukkit.entity.Player
  * will be displayed.
  */
 class BukkitMenuScreen(
-    override val viewerTracker: MenuScreenViewerTracker,
+    override val viewerTracker: ViewerTracker,
     private val cursorOpts: MenuOptions.CursorOptions,
     override val width: Int,
     override val height: Int,

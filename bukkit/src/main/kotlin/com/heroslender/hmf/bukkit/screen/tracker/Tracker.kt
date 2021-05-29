@@ -2,8 +2,7 @@ package com.heroslender.hmf.bukkit.screen.tracker
 
 import org.bukkit.entity.Player
 
-interface MenuScreenViewerTracker {
-    val viewers: Array<Player>
+interface Tracker {
 
-    fun tick()
+    fun isTracked(player: Player): Boolean
 }

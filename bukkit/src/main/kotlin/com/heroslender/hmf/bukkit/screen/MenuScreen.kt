@@ -2,7 +2,7 @@ package com.heroslender.hmf.bukkit.screen
 
 import com.heroslender.hmf.bukkit.map.MapCanvas
 import com.heroslender.hmf.bukkit.screen.chunk.ScreenChunk
-import com.heroslender.hmf.bukkit.screen.tracker.MenuScreenViewerTracker
+import com.heroslender.hmf.bukkit.screen.tracker.viewer.ViewerTracker
 import org.bukkit.entity.Player
 
 /**
@@ -13,7 +13,7 @@ interface MenuScreen {
     val width: Int
     val height: Int
     val chunks: Array<ScreenChunk>
-    val viewerTracker: MenuScreenViewerTracker
+    val viewerTracker: ViewerTracker
 
     fun holdsEntityId(entityId: Int): Boolean = chunks.any { it.id == entityId }
 

@@ -114,3 +114,17 @@ fun MenuOptions.Builder.publicViewerTracker(
 ): MenuOptions.Builder = apply {
     viewerTracker = PublicViewerTrackerOptions(center, range, lifetime)
 }
+
+fun MenuOptions.Builder.publicViewerTracker(
+    player: Player,
+    range: Int = 50,
+    lifetime: Int = 1000,
+): MenuOptions.Builder = apply {
+    viewerTracker = PublicViewerTrackerOptions(
+        center = player.location.clone()
+            .apply { pitch = 0F }
+            .let { it.add(it.direction.multiply(2)) },
+        range = range,
+        lifetime = lifetime,
+    )
+}

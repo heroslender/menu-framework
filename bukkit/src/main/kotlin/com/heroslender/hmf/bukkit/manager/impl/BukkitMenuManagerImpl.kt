@@ -86,12 +86,13 @@ class BukkitMenuManagerImpl(
             return false
         }
 
-        return raytrace(player) { menu, x, y ->
+        return raytraceInteraction(player) raytrace@{ menu, x, y ->
             if (!player.tryInteract()) {
-                return false
+                return@raytrace false
             }
 
             menu.onInteract(player.player, action, x, y)
+            return@raytrace true
         }
     }
 
@@ -100,9 +101,9 @@ class BukkitMenuManagerImpl(
             return false
         }
 
-        return raytrace(player) { menu, x, y ->
+        return raytraceInteraction(player) raytrace@{ menu, x, y ->
             if (!player.tryInteract()) {
-                return false
+                return@raytrace false
             }
 
             val act = when (action) {
@@ -113,6 +114,7 @@ class BukkitMenuManagerImpl(
             }
 
             menu.onInteract(player.player, act, x, y)
+            return@raytrace true
         }
     }
 
@@ -122,13 +124,18 @@ class BukkitMenuManagerImpl(
         cursorTaskId = scheduleAsyncTimer(plugin, delay) {
             for (menu in menus) {
                 val loc = menu.opts.location
-                loc.world.players
-                    .filter { player -> loc.distanceSquared(player.location) < opts.maxInteractDistanceSqr }
-                    .forEach { player ->
-                        menu.raytrace(player) { x, y ->
-                            menu.tickCursor(player, x, y)
+
+                for (player in loc.world.players) {
+                    if (loc.distanceSquared(player.location) < opts.maxInteractDistanceSqr) {
+                        val viewerTracker = menu.screen?.viewerTracker ?: continue
+
+                        if (viewerTracker.isTracked(player) && viewerTracker.canInteract(player)) {
+                            menu.raytrace(player) { x, y ->
+                                menu.tickCursor(player, x, y)
+                            }
                         }
                     }
+                }
             }
         }
     }
@@ -146,10 +153,24 @@ class BukkitMenuManagerImpl(
         }
     }
 
-    inline fun raytrace(player: Player, onIntersect: (menu: BaseMenu, x: Int, y: Int) -> Unit): Boolean {
-        return menus
-            .filter { it.opts.location.distanceSquared(player.location) < opts.maxInteractDistanceSqr }
-            .any { menu -> menu.raytrace(player) { x, y -> onIntersect(menu, x, y) } }
+    inline fun raytraceInteraction(player: Player, onIntersect: (menu: BaseMenu, x: Int, y: Int) -> Boolean): Boolean {
+        for (menu in menus) {
+            if (menu.opts.location.distanceSquared(player.location) < opts.maxInteractDistanceSqr) {
+                val viewerTracker = menu.screen?.viewerTracker ?: continue
+
+                if (viewerTracker.isTracked(player) && viewerTracker.canInteract(player)) {
+                    menu.raytrace(player) { x, y ->
+                        val handled = onIntersect(menu, x, y)
+
+                        if (handled) {
+                            return true
+                        }
+                    }
+                }
+            }
+        }
+
+        return false
     }
 
     inline fun BaseMenu.raytrace(player: Player, onIntersect: (x: Int, y: Int) -> Unit): Boolean {
