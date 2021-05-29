@@ -11,6 +11,6 @@ class MenuClickListener(
 
     @EventHandler
     fun onInteract(e: PlayerInteractEvent) {
-        manager.handleInteraction(e.player, e.action)
+        e.isCancelled = !manager.handleInteraction(e.player, e.action)
     }
 }

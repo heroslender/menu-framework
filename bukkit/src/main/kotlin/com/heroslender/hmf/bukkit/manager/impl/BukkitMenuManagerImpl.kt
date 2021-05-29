@@ -4,8 +4,6 @@ import com.heroslender.hmf.bukkit.BaseMenu
 import com.heroslender.hmf.bukkit.listeners.MenuClickListener
 import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
 import com.heroslender.hmf.bukkit.manager.ImageManager
-import com.heroslender.hmf.bukkit.manager.UserManager
-import com.heroslender.hmf.bukkit.models.User
 import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
 import com.heroslender.hmf.bukkit.utils.scheduleAsyncTimer
 import com.heroslender.hmf.core.ui.components.Image
@@ -20,14 +18,30 @@ class BukkitMenuManagerImpl(
     private val plugin: Plugin,
     val opts: Options = Options(),
     val imageManager: ImageManager = ImageManagerImpl(),
-    val userManager: UserManager = UserManagerImpl(plugin),
 ) : BukkitMenuManager, PacketInterceptor.PacketInterceptorHandler {
 
     private var cursorTaskId: Int = 0
     private var renderTaskId: Int = 0
 
     private var menuClickListener: Listener? = null
-    private var menuListeners: Listener? = null
+
+    private val interactCooldown: MutableMap<Player, Long> = mutableMapOf()
+
+    private val _menus: MutableList<BaseMenu> = mutableListOf()
+    val menus: List<BaseMenu>
+        get() = _menus
+
+    override fun register(menu: BaseMenu) {
+        while (menus.size > 4) {
+            _menus[0].close()
+        }
+
+        _menus.add(menu)
+    }
+
+    override fun unregister(menu: BaseMenu) {
+        _menus.remove(menu)
+    }
 
     init {
         launchCursorTask(opts.cursorUpdateDelay)
@@ -55,7 +69,7 @@ class BukkitMenuManagerImpl(
         factory {
             var id = opts.firstEntityId
 
-            while (usedIds.contains(id) || userManager.users.any { it.menu?.hasEntityId(id) == true }) {
+            while (usedIds.contains(id) || menus.any { it.hasEntityId(id) }) {
                 id++
             }
 
@@ -64,55 +78,43 @@ class BukkitMenuManagerImpl(
         }
     }
 
-    override fun get(owner: Player): BaseMenu? {
-        return userManager.get(owner)?.menu
-    }
-
-    override fun remove(owner: Player): BaseMenu? {
-        return userManager.remove(owner)?.menu
-    }
-
-    override fun add(menu: BaseMenu) {
-        userManager.create(menu.owner, menu, this)
-    }
-
     override fun getImage(url: String, width: Int, height: Int, cached: Boolean): Image? =
         imageManager.getImage(url, width, height, cached)
 
     override fun handleInteraction(player: Player, entityId: Int, action: PacketInterceptor.Action): Boolean {
-        if (entityId < opts.firstEntityId) {
+        if (!opts.listenClicks || entityId < opts.firstEntityId) {
             return false
         }
 
-        val user = userManager.get(player) ?: return false
-        return handleInteraction(user, action)
+        return raytraceInteraction(player) raytrace@{ menu, x, y ->
+            if (!player.tryInteract()) {
+                return@raytrace false
+            }
+
+            menu.onInteract(player.player, action, x, y)
+            return@raytrace true
+        }
     }
 
     fun handleInteraction(player: Player, action: Action): Boolean {
-        val user = userManager.get(player) ?: return false
-
-        val act = when (action) {
-            Action.RIGHT_CLICK_BLOCK, Action.RIGHT_CLICK_AIR ->
-                PacketInterceptor.Action.RIGHT_CLICK
-            else ->
-                PacketInterceptor.Action.LEFT_CLICK
-        }
-
-        return handleInteraction(user, act)
-    }
-
-    fun handleInteraction(user: User, action: PacketInterceptor.Action): Boolean {
         if (!opts.listenClicks) {
             return false
         }
 
-        if (!user.tryInteract()) {
-            return false
-        }
+        return raytraceInteraction(player) raytrace@{ menu, x, y ->
+            if (!player.tryInteract()) {
+                return@raytrace false
+            }
 
-        val menu = user.menu
-        return menu.raytrace(user.player) { x, y ->
-            menu.onInteract(user.player, action, x, y)
+            val act = when (action) {
+                Action.RIGHT_CLICK_BLOCK, Action.RIGHT_CLICK_AIR ->
+                    PacketInterceptor.Action.RIGHT_CLICK
+                else ->
+                    PacketInterceptor.Action.LEFT_CLICK
+            }
+
+            menu.onInteract(player.player, act, x, y)
+            return@raytrace true
         }
     }
 
@@ -120,10 +122,19 @@ class BukkitMenuManagerImpl(
         if (delay <= 0) return
 
         cursorTaskId = scheduleAsyncTimer(plugin, delay) {
-            for (user in userManager.users) {
-                val menu = user.menu ?: continue
-                menu.raytrace(user.player) { x, y ->
-                    menu.tickCursor(user.player, x, y)
+            for (menu in menus) {
+                val loc = menu.opts.location
+
+                for (player in loc.world.players) {
+                    if (loc.distanceSquared(player.location) < opts.maxInteractDistanceSqr) {
+                        val viewerTracker = menu.screen?.viewerTracker ?: continue
+
+                        if (viewerTracker.isTracked(player) && viewerTracker.canInteract(player)) {
+                            menu.raytrace(player) { x, y ->
+                                menu.tickCursor(player, x, y)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -133,10 +144,33 @@ class BukkitMenuManagerImpl(
         if (delay <= 0) return
 
         renderTaskId = scheduleAsyncTimer(plugin, delay) {
-            for (user in userManager.users) {
-                user.menu?.also { render(it) }
+            for (menu in menus) {
+                val screen = menu.screen ?: continue
+
+                screen.viewerTracker.tick()
+                menu.also { render(it) }
             }
         }
+    }
+
+    inline fun raytraceInteraction(player: Player, onIntersect: (menu: BaseMenu, x: Int, y: Int) -> Boolean): Boolean {
+        for (menu in menus) {
+            if (menu.opts.location.distanceSquared(player.location) < opts.maxInteractDistanceSqr) {
+                val viewerTracker = menu.screen?.viewerTracker ?: continue
+
+                if (viewerTracker.isTracked(player) && viewerTracker.canInteract(player)) {
+                    menu.raytrace(player) { x, y ->
+                        val handled = onIntersect(menu, x, y)
+
+                        if (handled) {
+                            return true
+                        }
+                    }
+                }
+            }
+        }
+
+        return false
     }
 
     inline fun BaseMenu.raytrace(player: Player, onIntersect: (x: Int, y: Int) -> Unit): Boolean {
@@ -146,7 +180,7 @@ class BukkitMenuManagerImpl(
             maxDistance = this@BukkitMenuManagerImpl.opts.maxInteractDistance
         ) ?: return false
 
-        val rd = direction.rotateLeft()
+        val rd = opts.direction.rotateLeft()
         val x = if (rd.x != 0) {
             (intersection.x - boundingBox.minX) * rd.x
         } else {
@@ -156,9 +190,20 @@ class BukkitMenuManagerImpl(
         val y = boundingBox.maxY - intersection.y
 
         onIntersect(
-            ((if (x < 0) x + width else x) * 128).toInt(),
+            ((if (x < 0) x + opts.width else x) * 128).toInt(),
             (y * 128).toInt()
         )
+        return true
+    }
+
+    private fun Player.tryInteract(): Boolean {
+        val nextInteraction = interactCooldown[this] ?: 0
+        val now = System.currentTimeMillis()
+        if (nextInteraction > now) {
+            return false
+        }
+
+        interactCooldown[this] = now + INTERACT_COOLDOWN
         return true
     }
 
@@ -189,5 +234,11 @@ class BukkitMenuManagerImpl(
          * the menu. This is for the cursor movement and clicks.
          */
         val maxInteractDistance: Double = 5.0,
-    )
+    ) {
+        val maxInteractDistanceSqr: Double = maxInteractDistance * maxInteractDistance
+    }
+
+    companion object {
+        const val INTERACT_COOLDOWN = 200
+    }
 }

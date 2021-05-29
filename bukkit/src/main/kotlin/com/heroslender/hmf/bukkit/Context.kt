@@ -2,8 +2,8 @@ package com.heroslender.hmf.bukkit
 
 import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
 import com.heroslender.hmf.bukkit.map.MapCanvas
+import com.heroslender.hmf.bukkit.modifiers.ClickEventData
 import com.heroslender.hmf.core.ui.Composable
-import com.heroslender.hmf.core.ui.modifier.modifiers.ClickEvent
 
 class Context(
     override val manager: BukkitMenuManager,
@@ -20,13 +20,11 @@ class Context(
         this.callback = callback
     }
 
-    override fun handleClick(x: Int, y: Int, type: ClickEvent.Type) {
+    override fun handleClick(x: Int, y: Int, data: ClickEventData) {
         root?.foldOut(false) { acc, component ->
             if (!acc) {
                 if (component.checkIntersects(x, y)) {
-                    component.tryClick(x, y, type)
-
-                    return@foldOut true
+                    return@foldOut component.tryClick(x, y, data)
                 }
             }
 

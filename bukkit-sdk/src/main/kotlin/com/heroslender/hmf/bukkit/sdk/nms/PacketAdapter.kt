@@ -13,7 +13,7 @@ interface PacketAdapter {
         y: Int,
         z: Int,
         direction: Direction,
-        vararg players: Player,
+        players: Array<Player>,
     )
 
     fun updateMap(
@@ -25,12 +25,12 @@ interface PacketAdapter {
         offsetY: Int,
         sizeX: Int,
         sizeZ: Int,
-        vararg players: Player,
+        players: Array<Player>,
     )
 
     fun destroy(
         itemFrameID: Int,
-        vararg players: Player,
+        players: Array<Player>,
     )
 
     fun addPacketInterceptor(player: Player, handler: PacketInterceptor.PacketInterceptorHandler)

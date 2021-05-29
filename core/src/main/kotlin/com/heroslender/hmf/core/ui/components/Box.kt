@@ -6,7 +6,7 @@ import com.heroslender.hmf.core.ui.modifier.Modifier
 import kotlin.math.max
 
 fun Composable.Box(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     alignment: Alignment = Alignment.TopStart,
     content: Composable.() -> Unit,
 ) = appendComposable(modifier, content) {
@@ -14,7 +14,7 @@ fun Composable.Box(
 }
 
 fun Composable.Box(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
 ) = appendComponent(modifier) {
     measurableGroup = EmptyMeasurableGroup
 }

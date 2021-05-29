@@ -11,8 +11,7 @@ import kotlin.math.min
 /**
  * A [ScreenChunk] that can only be seen by one player.
  */
-class PrivateScreenChunk(
-    private val owner: Player,
+class MenuScreenChunk(
     override val id: Int,
     override val x: Int,
     override val y: Int,
@@ -22,23 +21,23 @@ class PrivateScreenChunk(
 ) : ScreenChunk {
     private val packetAdapter: PacketAdapter = HmfBukkit.packetAdapter
 
-    override fun create() {
+    override fun create(players: Array<Player>) {
         packetAdapter.spawnMapItemFrame(
-            id, id, x, y, z, direction, owner
+            id, id, x, y, z, direction, players = players
         )
     }
 
-    override fun updateBuffer(source: ByteArray, sourceWidth: Int, offsetX: Int, offsetY: Int) {
+    override fun updateBuffer(source: ByteArray, sourceWidth: Int, offsetX: Int, offsetY: Int, players: Array<Player>) {
         for (x in 0 until min(sourceWidth, 128)) {
             for (y in 0 until min(source.size / sourceWidth, 128)) {
                 buffer[x + y * 128] = source[x + offsetX + (y + offsetY) * sourceWidth]
             }
         }
 
-        sendUpdate()
+        sendUpdate(players)
     }
 
-    override fun sendCursorUpdate(cursor: MapIcon?) {
+    override fun sendCursorUpdate(cursor: MapIcon?, players: Array<Player>) {
         packetAdapter.updateMap(
             id,
             0,
@@ -48,11 +47,11 @@ class PrivateScreenChunk(
             0,
             0,
             0,
-            owner,
+            players,
         )
     }
 
-    fun sendUpdate() {
+    private fun sendUpdate(players: Array<Player>) {
         packetAdapter.updateMap(
             id,
             0,
@@ -62,11 +61,11 @@ class PrivateScreenChunk(
             0,
             128,
             128,
-            owner
+            players
         )
     }
 
-    override fun destroy() {
-        packetAdapter.destroy(id, owner)
+    override fun destroy(players: Array<Player>) {
+        packetAdapter.destroy(id, players)
     }
 }

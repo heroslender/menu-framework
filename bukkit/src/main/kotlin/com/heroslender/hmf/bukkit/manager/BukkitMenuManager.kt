@@ -4,7 +4,7 @@ import com.heroslender.hmf.bukkit.BaseMenu
 import com.heroslender.hmf.core.MenuManager
 import org.bukkit.entity.Player
 
-interface BukkitMenuManager : MenuManager<Player, BaseMenu> {
+interface BukkitMenuManager : MenuManager<BaseMenu> {
     /**
      * Returns the next available entity id to be used
      * by maps & item frames.

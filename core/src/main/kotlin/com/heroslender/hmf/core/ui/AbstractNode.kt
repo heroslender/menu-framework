@@ -2,8 +2,8 @@ package com.heroslender.hmf.core.ui
 
 import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.RenderContext
-import com.heroslender.hmf.core.ui.modifier.*
-import com.heroslender.hmf.core.ui.modifier.modifiers.ClickEvent
+import com.heroslender.hmf.core.ui.modifier.Constraints
+import com.heroslender.hmf.core.ui.modifier.Modifier
 import com.heroslender.hmf.core.ui.modifier.node.*
 import com.heroslender.hmf.core.ui.modifier.type.CursorClickModifier
 import com.heroslender.hmf.core.ui.modifier.type.DrawerModifier
@@ -49,9 +49,9 @@ abstract class AbstractNode(
 
     private var hasClickable: Boolean = false
 
-    override fun tryClick(x: Int, y: Int, type: ClickEvent.Type): Boolean {
+    override fun tryClick(x: Int, y: Int, data: Any): Boolean {
         if (!hasClickable) {
-            return parent?.tryClick(x, y, type) ?: false
+            return parent?.tryClick(x, y, data) ?: false
         }
 
         var wrapper: ComponentWrapper? = outerWrapper
@@ -64,19 +64,17 @@ abstract class AbstractNode(
                 posY += wrapper.y
             }
 
-            if (posX < x && x < posX + width
-                && posY < y && y < posY + height
+            if (posX < x && x < posX + wrapper.width
+                && posY < y && y < posY + wrapper.height
                 && wrapper is ClickableModifierWrapper
             ) {
-                wrapper.click(x, y, type)
-
-                result = true
+                result = result || wrapper.click(x, y, data)
             }
 
             wrapper = wrapper.wrapped
         }
 
-        return result || parent?.tryClick(x, y, type) ?: false
+        return result || parent?.tryClick(x, y, data) ?: false
     }
 
     override fun onNodePlaced() {
