@@ -2,19 +2,20 @@ package com.heroslender.hmf.core.font
 
 import com.heroslender.hmf.core.utils.getResource
 import it.unimi.dsi.fastutil.chars.Char2ObjectArrayMap
-import java.awt.Color
+import java.awt.*
 import java.awt.Font
-import java.awt.FontFormatException
-import java.awt.GraphicsEnvironment
 import java.awt.image.BufferedImage
 import java.io.IOException
 
 @Suppress("MemberVisibilityCanBePrivate")
 object FontParser {
-    const val fontChars =
-        " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_'abcdefghijklmnopqrstuvwxyz{|}~\u007fÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø×ƑáíóúñÑªº¿®¬½¼¡«»"
 
-    fun getFontFromResources(asset: String, fontName: String, size: Int = 16): com.heroslender.hmf.core.font.Font {
+    fun getFontFromResources(
+        asset: String,
+        fontName: String,
+        size: Int = 16,
+        charsToLoad: Collection<Char> = CharacterRanges.DefaultChars,
+    ): com.heroslender.hmf.core.font.Font {
         try {
             val stream = getResource(asset) ?: error("Font $asset not found in resources")
             val ge = GraphicsEnvironment.getLocalGraphicsEnvironment()
@@ -26,7 +27,7 @@ object FontParser {
         val font = Font(fontName, Font.PLAIN, size)
 
         val chars = Char2ObjectArrayMap<com.heroslender.hmf.core.font.Font.CharacterSprite>()
-        for (char in fontChars) {
+        for (char in charsToLoad.asSequence()) {
             chars[char] = getChar(font, char)
         }
 
