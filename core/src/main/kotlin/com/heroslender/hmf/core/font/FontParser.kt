@@ -2,8 +2,10 @@ package com.heroslender.hmf.core.font
 
 import com.heroslender.hmf.core.utils.getResource
 import it.unimi.dsi.fastutil.chars.Char2ObjectArrayMap
-import java.awt.*
+import java.awt.Color
 import java.awt.Font
+import java.awt.FontFormatException
+import java.awt.GraphicsEnvironment
 import java.awt.image.BufferedImage
 import java.io.IOException
 
@@ -28,22 +30,27 @@ object FontParser {
 
         val chars = Char2ObjectArrayMap<com.heroslender.hmf.core.font.Font.CharacterSprite>()
         for (char in charsToLoad.asSequence()) {
-            chars[char] = getChar(font, char)
+            chars[char] = getChar(font, char) ?: continue
         }
 
         return Font(chars)
     }
 
-    private fun getChar(font: Font, char: Char): com.heroslender.hmf.core.font.Font.CharacterSprite {
+    private fun getChar(font: Font, char: Char): com.heroslender.hmf.core.font.Font.CharacterSprite? {
         // Create a map-sized image
         val bufferedImage = BufferedImage(128, 128, 1)
         val graphics = bufferedImage.graphics
+
+        graphics.font = font
+        if (graphics.fontMetrics.charWidth(char) <= 0) {
+            // Empty char, not supported by the font?
+            return null
+        }
 
         // Paint white background
         graphics.color = Color.WHITE
         graphics.fillRect(0, 0, 128, 128)
         // Paint black text
-        graphics.font = font
         graphics.color = Color.BLACK
 
         val width = graphics.fontMetrics.stringWidth(char.toString())
