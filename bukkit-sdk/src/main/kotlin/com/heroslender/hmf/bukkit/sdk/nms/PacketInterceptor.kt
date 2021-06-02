@@ -7,6 +7,8 @@ interface PacketInterceptor {
     val handler: PacketInterceptorHandler
 
     interface PacketInterceptorHandler {
+        val handlerId: String
+
         fun handleInteraction(player: Player, entityId: Int, action: Action): Boolean
     }
 

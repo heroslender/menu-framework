@@ -68,4 +68,10 @@ interface MenuManager<M : Menu> {
 
         return false
     }
+
+    /**
+     * Disposes this menu manager, unregisters listeners and
+     * cancels running tasks.
+     */
+    fun dispose()
 }

@@ -16,11 +16,11 @@ class PacketInterceptorImpl(
     init {
         val channel = (player as CraftPlayer).handle.playerConnection.networkManager.channel
         if (channel != null) {
-            if (channel.pipeline()[HANDLER_ID] != null) {
-                channel.pipeline().remove(HANDLER_ID)
+            if (channel.pipeline()[handler.handlerId] != null) {
+                channel.pipeline().remove(handler.handlerId)
             }
 
-            channel.pipeline().addBefore("packet_handler", HANDLER_ID, this)
+            channel.pipeline().addBefore("packet_handler", handler.handlerId, this)
         }
         // TODO Use the channel directly to send packets in the future
     }
@@ -43,10 +43,17 @@ class PacketInterceptorImpl(
     }
 
     companion object {
-        const val HANDLER_ID = "hmf_packet_handler"
-
         val entityIdField: Field = PacketPlayInUseEntity::class.java.getDeclaredField("a").apply {
             isAccessible = true
+        }
+
+        fun dispose(player: Player, identifier: String) {
+            val channel = (player as CraftPlayer).handle.playerConnection.networkManager.channel
+            if (channel != null) {
+                if (channel.pipeline()[identifier] != null) {
+                    channel.pipeline().remove(identifier)
+                }
+            }
         }
     }
 }

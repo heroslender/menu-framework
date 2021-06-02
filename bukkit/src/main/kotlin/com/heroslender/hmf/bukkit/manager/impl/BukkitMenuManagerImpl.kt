@@ -1,6 +1,7 @@
 package com.heroslender.hmf.bukkit.manager.impl
 
 import com.heroslender.hmf.bukkit.BaseMenu
+import com.heroslender.hmf.bukkit.HmfBukkit
 import com.heroslender.hmf.bukkit.listeners.MenuListener
 import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
 import com.heroslender.hmf.bukkit.manager.ImageManager
@@ -10,10 +11,12 @@ import com.heroslender.hmf.core.ui.components.Image
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
+import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.plugin.Plugin
+import java.util.concurrent.atomic.AtomicInteger
 
 @Suppress("MemberVisibilityCanBePrivate")
 class BukkitMenuManagerImpl(
@@ -21,6 +24,7 @@ class BukkitMenuManagerImpl(
     val opts: Options = Options(),
     val imageManager: ImageManager = ImageManagerImpl(),
 ) : BukkitMenuManager, PacketInterceptor.PacketInterceptorHandler {
+    override val handlerId: String = "hmf_packet_handler_${handlerIdCounter.getAndIncrement()}"
 
     private var cursorTaskId: Int = 0
     private var renderTaskId: Int = 0
@@ -49,6 +53,18 @@ class BukkitMenuManagerImpl(
 
         this.menuListener = MenuListener(this).also { listener ->
             Bukkit.getPluginManager().registerEvents(listener, plugin)
+        }
+    }
+
+    override fun dispose() {
+        HandlerList.unregisterAll(menuListener)
+        HandlerList.unregisterAll(menuClickListener)
+
+        Bukkit.getScheduler().cancelTask(cursorTaskId)
+        Bukkit.getScheduler().cancelTask(renderTaskId)
+
+        for (player in Bukkit.getOnlinePlayers()) {
+            HmfBukkit.packetAdapter.removePacketInterceptor(player, this)
         }
     }
 
@@ -250,5 +266,7 @@ class BukkitMenuManagerImpl(
 
     companion object {
         const val INTERACT_COOLDOWN = 200
+
+        private val handlerIdCounter: AtomicInteger = AtomicInteger()
     }
 }

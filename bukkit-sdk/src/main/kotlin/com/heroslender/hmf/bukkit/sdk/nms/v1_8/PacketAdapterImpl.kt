@@ -26,6 +26,10 @@ class PacketAdapterImpl : PacketAdapter {
         PacketInterceptorImpl(player, handler)
     }
 
+    override fun removePacketInterceptor(player: Player, handler: PacketInterceptor.PacketInterceptorHandler) {
+        PacketInterceptorImpl.dispose(player, handler.handlerId)
+    }
+
     override fun spawnMapItemFrame(
         itemFrameID: Int,
         mapID: Int,
