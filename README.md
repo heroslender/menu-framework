@@ -23,7 +23,16 @@ player to interact with it.
 ### Creating a new menu
 
 ```kotlin
-class SampleMenu(player: Player, manager: BukkitMenuManager) : BaseMenu(player, manager = manager) {
+class SampleMenu(player: Player, manager: BukkitMenuManager) : BaseMenu(
+    opts = MenuOptions.builder {
+        width = 4
+        height = 3
+        privateFor(player)
+    },
+    manager = manager,
+) {
+    private val counter = mutableStateOf(0)
+    
     override fun Composable.getUi() {
         Column(modifier = Modifier.fillSize().background(Color.CYAN_7)) {
             Box(
@@ -32,7 +41,7 @@ class SampleMenu(player: Player, manager: BukkitMenuManager) : BaseMenu(player, 
                     .size(50, 50)
                     .clickable {
                         counter.value++
-                        owner.sendMessage("${ChatColor.GREEN}Counter incremented to ${counter.value}!")
+                        whoCLicked.sendMessage("${ChatColor.GREEN}Counter incremented to ${counter.value}!")
                     }
                     .border(Color.BLACK_1)
                     .background(Color.GREEN_10)
@@ -43,7 +52,7 @@ class SampleMenu(player: Player, manager: BukkitMenuManager) : BaseMenu(player, 
                     .size(50, 50)
                     .clickable {
                         counter.value--
-                        owner.sendMessage("${ChatColor.RED}Counter decremented to ${counter.value}!")
+                        whoCLicked.sendMessage("${ChatColor.RED}Counter decremented to ${counter.value}!")
                     }
                     .border(Color.BLACK_1)
                     .background(Color.RED_1)

@@ -1,6 +1,7 @@
 package com.heroslender.hmf.sample
 
-import com.heroslender.hmf.bukkit.BukkitMenuManager
+import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
+import com.heroslender.hmf.bukkit.manager.impl.BukkitMenuManagerImpl
 import com.heroslender.hmf.bukkit.sdk.nms.version.IllegalServerException
 import com.heroslender.hmf.bukkit.sdk.nms.version.ServerVersion
 import com.heroslender.hmf.bukkit.sdk.nms.version.UnsupportedServerVersionException
@@ -15,7 +16,7 @@ class SamplePlugin : JavaPlugin() {
     override fun onEnable() {
         if (!canRun()) return
 
-        manager = BukkitMenuManager(this)
+        manager = BukkitMenuManagerImpl(this)
         // Load fonts to memory
         loadFonts()
 

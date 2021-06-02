@@ -3,6 +3,8 @@
 package com.heroslender.hmf.sample.menu.components
 
 import com.heroslender.hmf.bukkit.map.Color
+import com.heroslender.hmf.bukkit.modifiers.ClickListener
+import com.heroslender.hmf.bukkit.modifiers.clickable
 import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.IColor
 import com.heroslender.hmf.core.font.FontStyle
@@ -13,7 +15,9 @@ import com.heroslender.hmf.core.ui.Placeable
 import com.heroslender.hmf.core.ui.components.Box
 import com.heroslender.hmf.core.ui.components.Label
 import com.heroslender.hmf.core.ui.modifier.Modifier
-import com.heroslender.hmf.core.ui.modifier.modifiers.*
+import com.heroslender.hmf.core.ui.modifier.modifiers.PaddingValues
+import com.heroslender.hmf.core.ui.modifier.modifiers.border
+import com.heroslender.hmf.core.ui.modifier.modifiers.padding
 import com.heroslender.hmf.core.ui.modifier.type.DrawerModifier
 
 val DefaultFont: FontStyle = FontStyle(font = MINECRAFTIA_8, color = Color.BLACK_1, shadowColor = Color.GRAY_3)

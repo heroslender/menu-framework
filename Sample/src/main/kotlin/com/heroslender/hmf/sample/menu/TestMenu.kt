@@ -1,11 +1,11 @@
 package com.heroslender.hmf.sample.menu
 
 import com.heroslender.hmf.bukkit.BaseMenu
-import com.heroslender.hmf.bukkit.BukkitMenuManager
-import com.heroslender.hmf.sample.menu.components.ButtonBackgroundColors
-import com.heroslender.hmf.sample.menu.components.Text
-import com.heroslender.hmf.sample.menu.components.TextButton
+import com.heroslender.hmf.bukkit.MenuOptions
+import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
 import com.heroslender.hmf.bukkit.map.Color
+import com.heroslender.hmf.bukkit.modifiers.clickable
+import com.heroslender.hmf.bukkit.privateFor
 import com.heroslender.hmf.core.mutableStateOf
 import com.heroslender.hmf.core.ui.Alignment
 import com.heroslender.hmf.core.ui.Composable
@@ -13,10 +13,20 @@ import com.heroslender.hmf.core.ui.components.*
 import com.heroslender.hmf.core.ui.modifier.Modifier
 import com.heroslender.hmf.core.ui.modifier.modifiers.*
 import com.heroslender.hmf.core.ui.withState
+import com.heroslender.hmf.sample.menu.components.ButtonBackgroundColors
+import com.heroslender.hmf.sample.menu.components.Text
+import com.heroslender.hmf.sample.menu.components.TextButton
 import org.bukkit.entity.Player
 
-class TestMenu(player: Player, manager: BukkitMenuManager) : BaseMenu(player, manager = manager) {
-    val counter = mutableStateOf(0)
+class TestMenu(player: Player, manager: BukkitMenuManager) : BaseMenu(
+    opts = MenuOptions.builder {
+        width = 4
+        height = 3
+        privateFor(player)
+    },
+    manager = manager,
+) {
+    private val counter = mutableStateOf(0)
 
     override fun Composable.getUi() {
 
