@@ -1,7 +1,7 @@
 package com.heroslender.hmf.bukkit.manager.impl
 
 import com.heroslender.hmf.bukkit.BaseMenu
-import com.heroslender.hmf.bukkit.listeners.MenuClickListener
+import com.heroslender.hmf.bukkit.listeners.MenuListener
 import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
 import com.heroslender.hmf.bukkit.manager.ImageManager
 import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
@@ -9,8 +9,10 @@ import com.heroslender.hmf.bukkit.utils.scheduleAsyncTimer
 import com.heroslender.hmf.core.ui.components.Image
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.plugin.Plugin
 
 @Suppress("MemberVisibilityCanBePrivate")
@@ -23,6 +25,7 @@ class BukkitMenuManagerImpl(
     private var cursorTaskId: Int = 0
     private var renderTaskId: Int = 0
 
+    private var menuListener: Listener? = null
     private var menuClickListener: Listener? = null
 
     private val interactCooldown: MutableMap<Player, Long> = mutableMapOf()
@@ -30,6 +33,24 @@ class BukkitMenuManagerImpl(
     private val _menus: MutableList<BaseMenu> = mutableListOf()
     val menus: List<BaseMenu>
         get() = _menus
+
+    init {
+        launchCursorTask(opts.cursorUpdateDelay)
+        launchRenderTask(opts.renderUpdateDelay)
+
+        if (opts.listenClicks) {
+            this.menuClickListener = object : Listener {
+                @EventHandler
+                fun onInteract(e: PlayerInteractEvent) {
+                    e.isCancelled = !handleInteraction(e.player, e.action)
+                }
+            }.also { Bukkit.getPluginManager().registerEvents(it, plugin) }
+        }
+
+        this.menuListener = MenuListener(this).also { listener ->
+            Bukkit.getPluginManager().registerEvents(listener, plugin)
+        }
+    }
 
     override fun register(menu: BaseMenu) {
         while (menus.size > 4) {
@@ -41,17 +62,6 @@ class BukkitMenuManagerImpl(
 
     override fun unregister(menu: BaseMenu) {
         _menus.remove(menu)
-    }
-
-    init {
-        launchCursorTask(opts.cursorUpdateDelay)
-        launchRenderTask(opts.renderUpdateDelay)
-
-        if (opts.listenClicks) {
-            this.menuClickListener = MenuClickListener(this).also { listener ->
-                Bukkit.getPluginManager().registerEvents(listener, plugin)
-            }
-        }
     }
 
     private val entityIdMutex: Any = Any()
