@@ -46,7 +46,8 @@ class BukkitMenuManagerImpl(
             this.menuClickListener = object : Listener {
                 @EventHandler
                 fun onInteract(e: PlayerInteractEvent) {
-                    e.isCancelled = !handleInteraction(e.player, e.action)
+                    // Cancel the event if the interaction was handled by a menu
+                    e.isCancelled = handleInteraction(e.player, e.action)
                 }
             }.also { Bukkit.getPluginManager().registerEvents(it, plugin) }
         }
