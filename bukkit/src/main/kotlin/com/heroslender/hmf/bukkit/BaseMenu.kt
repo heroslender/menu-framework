@@ -139,7 +139,7 @@ abstract class BaseMenu(
 
         return boundingBoxOf(
             bbStartX,
-            startY.toDouble(),
+            startY + 1.0,
             bbStartZ,
             bbEndX,
             startY + height + 1.0,
