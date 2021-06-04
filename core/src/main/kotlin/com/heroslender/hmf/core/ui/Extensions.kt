@@ -4,7 +4,7 @@ import com.heroslender.hmf.core.MutableState
 import com.heroslender.hmf.core.MutableStateImpl
 import com.heroslender.hmf.core.State
 
-infix fun <T> Composable.withState(state: State<T>): T {
+infix fun <T> Component.withState(state: State<T>): T {
     if (state is MutableStateImpl) {
         state.bind(this)
     }
