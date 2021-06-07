@@ -260,7 +260,7 @@ class BukkitMenuManagerImpl(
          * The maximum distance the player can interact with
          * the menu. This is for the cursor movement and clicks.
          */
-        val maxInteractDistance: Double = 5.0,
+        val maxInteractDistance: Double = 8.0,
     ) {
         val maxInteractDistanceSqr: Double = maxInteractDistance * maxInteractDistance
     }
