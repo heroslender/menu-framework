@@ -3,6 +3,7 @@ package com.heroslender.hmf.bukkit
 import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
 import com.heroslender.hmf.bukkit.map.MapCanvas
 import com.heroslender.hmf.bukkit.modifiers.ClickEventData
+import com.heroslender.hmf.core.Menu
 import com.heroslender.hmf.core.ui.Composable
 
 class Context(
@@ -10,6 +11,8 @@ class Context(
     override val canvas: MapCanvas,
     override var root: Composable? = null,
 ) : BukkitContext {
+    override lateinit var menu: Menu
+
     private var callback: () -> Unit = {}
 
     override fun update() {

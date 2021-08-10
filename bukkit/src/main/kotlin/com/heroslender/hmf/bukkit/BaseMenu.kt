@@ -33,6 +33,8 @@ abstract class BaseMenu(
     }
 
     fun send() {
+        context.menu = this
+
         val chunks = manager.withEntityIdFactory { nextEntityId ->
             manager.register(this)
 

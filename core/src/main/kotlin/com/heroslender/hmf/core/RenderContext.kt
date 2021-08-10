@@ -6,6 +6,7 @@ interface RenderContext {
     val manager: MenuManager<out Menu>
     val canvas: Canvas
     var root: Composable?
+    val menu: Menu
 
     fun update()
 
