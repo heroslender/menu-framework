@@ -9,7 +9,7 @@ import kotlin.math.max
 import kotlin.math.sign
 
 fun Composable.Row(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Horizontal.Start,
     verticalAlignment: Alignment.Vertical = Alignment.Vertical.Top,
     content: Composable.() -> Unit,
@@ -18,7 +18,7 @@ fun Composable.Row(
 }
 
 fun Composable.Column(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.Vertical.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Horizontal.Start,
     content: Composable.() -> Unit,
