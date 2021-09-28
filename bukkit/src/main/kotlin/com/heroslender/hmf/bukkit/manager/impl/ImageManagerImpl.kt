@@ -64,8 +64,8 @@ class ImageManagerImpl : ImageManager {
         }
 
         val rgb = bImage.getRGB(0, 0, bImage.width, bImage.height, null, 0, bImage.width)
-        val buffer = JetpImageUtil.dither2Minecraft(rgb, bImage.width)
+        val buffer = JetpImageUtil.simplify(rgb)
 
-        return ImageAsset(asset, buffer.array(), bImage.width)
+        return ImageAsset(asset, buffer, bImage.width)
     }
 }
