@@ -9,6 +9,8 @@
     <depends>com.intellij.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <fileEditorProvider implementation="com.heroslender.hmf.intellij.preview.MenuPreviewFileEditorProvider"/>
+
         <codeInsight.lineMarkerProvider
             language="kotlin"
             implementationClass="com.heroslender.hmf.intellij.insight.ColorLineMarkerProvider"
