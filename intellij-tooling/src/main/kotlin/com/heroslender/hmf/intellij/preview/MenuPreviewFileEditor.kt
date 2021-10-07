@@ -1,6 +1,7 @@
 package com.heroslender.hmf.intellij.preview
 
 import com.heroslender.hmf.intellij.preview.components.LayeredPaneLayout
+import com.heroslender.hmf.intellij.preview.components.MenuComponent
 import com.heroslender.hmf.intellij.preview.components.MenuListComponent
 import com.heroslender.hmf.intellij.preview.components.ToolbarComponent
 import com.intellij.icons.AllIcons
@@ -54,8 +55,7 @@ class MenuPreviewFileEditor(
 
         addAncestorListener(object : AncestorListenerAdapter() {
             override fun ancestorMoved(event: AncestorEvent) {
-                // fixme
-                this@apply.updateUI()
+                redraw()
             }
         })
     }
@@ -118,10 +118,15 @@ class MenuPreviewFileEditor(
         }
     }
 
-    private fun reCompose() {
-        val opts = menusPanel.opts
-        menusPanel = MenuListComponent(myUi, opts)
+    private data class MenuData(
+        val labelText: String,
+        val menuComponent: MenuComponent,
+    )
 
+    private val data = mutableListOf<MenuData>()
+
+    private fun reCompose() {
+        data.clear()
         val tree = PsiDocumentManager.getInstance(myProject).getPsiFile(myDocument) ?: return
         tree.forEachDescendantOfType<KtNamedFunction> { function ->
             val annotations = function.annotationEntries
@@ -133,18 +138,12 @@ class MenuPreviewFileEditor(
                 return@forEachDescendantOfType
             }
 
-            menusPanel.add(
-                JPanel().apply {
-                    layout = BoxLayout(this, BoxLayout.LINE_AXIS)
-                    border = EmptyBorder(40, 0, 10, 0) // Margin around the element
-
-                    add(JLabel(function.name + " has @Preview! (${function.fqName?.asString()})"))
-                }
-            )
-
             val menuComponent = invokePreview(function)
             if (menuComponent != null) {
-                menusPanel.add(menuComponent)
+                data.add(MenuData(
+                    function.name + " has @Preview! (${function.fqName?.asString()})",
+                    menuComponent
+                ))
             }
         }
     }
@@ -155,7 +154,23 @@ class MenuPreviewFileEditor(
         // clear the old UI
         myUi.removeAll()
 
-        if (menusPanel.componentCount > 0) {
+        if (data.isNotEmpty()) {
+            val opts = menusPanel.opts
+            menusPanel = MenuListComponent(myUi, opts)
+
+            for ((labelText, menuComponent) in data) {
+                menusPanel.add(
+                    JPanel().apply {
+                        layout = BoxLayout(this, BoxLayout.LINE_AXIS)
+                        border = EmptyBorder(40, 0, 10, 0) // Margin around the element
+
+                        add(JLabel(labelText))
+                    }
+                )
+
+                menusPanel.add(menuComponent)
+            }
+
             val toolbar = ToolbarComponent().apply {
                 addButton(AllIcons.General.Add) {
                     menusPanel.opts.zoomFactor *= 1.1
