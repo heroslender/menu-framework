@@ -68,6 +68,7 @@ class MenuPreviewFileEditor(
         redraw()
 
         val bus = myProject.messageBus.connect()
+        this.messageBus?.disconnect()
         this.messageBus = bus
         bus.subscribe(VirtualFileManager.VFS_CHANGES, object : BulkFileListener {
             override fun after(events: List<VFileEvent?>) {
@@ -261,5 +262,6 @@ class MenuPreviewFileEditor(
 
     override fun dispose() {
         messageBus?.disconnect()
+        messageBus = null
     }
 }
