@@ -8,19 +8,45 @@ import com.heroslender.hmf.core.ui.modifier.modifiers.background
 import com.heroslender.hmf.core.ui.modifier.modifiers.maxSize
 import com.heroslender.hmf.intellij.preview.components.MenuComponent
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.OrderEnumerator
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiFile
 import com.intellij.util.lang.UrlClassLoader
+import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptorIfAny
+import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import org.jetbrains.kotlin.idea.util.module
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.containingClass
+import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import java.awt.Color
 import java.io.File
 import java.lang.reflect.Method
 import java.net.MalformedURLException
 import java.net.URL
 import javax.swing.JComponent
+
+fun VirtualFile.hasPreview(project: Project): Boolean {
+    return toPsiFile(project)?.hasPreview() ?: false
+}
+
+fun PsiFile.hasPreview(): Boolean {
+    return anyDescendantOfType<KtNamedFunction> { function ->
+        val annotations = function.annotationEntries
+        if (annotations.isEmpty()) {
+            return@anyDescendantOfType false
+        }
+
+        if (!annotations.any { it.resolveToDescriptorIfAny(BodyResolveMode.FULL)?.fqName?.asString() == MenuPreviewFileEditor.PREVIEW_QUALIFIED_NAME }) {
+            return@anyDescendantOfType false
+        }
+
+        return@anyDescendantOfType true
+    }
+}
 
 fun drawPreview(method: Method, objInstance: Any?): MenuComponent {
     val context = Context(Context.ICanvas(512, 380))

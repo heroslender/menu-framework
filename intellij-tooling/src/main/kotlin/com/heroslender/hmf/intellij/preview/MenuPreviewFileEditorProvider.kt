@@ -18,6 +18,11 @@ class MenuPreviewFileEditorProvider : WeighedFileEditorProvider() {
         val type = file.fileType
 
         if (type != KotlinFileType.INSTANCE) return false
+
+        if (!file.hasPreview(project)) {
+            return false
+        }
+
         return true
     }
 
