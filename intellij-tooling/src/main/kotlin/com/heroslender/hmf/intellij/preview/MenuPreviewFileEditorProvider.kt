@@ -2,6 +2,7 @@ package com.heroslender.hmf.intellij.preview
 
 import com.intellij.openapi.fileEditor.*
 import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider
+import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.kotlin.idea.KotlinFileType
@@ -19,9 +20,9 @@ class MenuPreviewFileEditorProvider : WeighedFileEditorProvider() {
 
         if (type != KotlinFileType.INSTANCE) return false
 
-        if (!file.hasPreview(project)) {
-            return false
-        }
+        if (DumbService.isDumb(project)) return false
+
+        if (!file.hasPreview(project)) return false
 
         return true
     }

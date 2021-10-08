@@ -109,12 +109,12 @@ class MenuPreviewFileEditor(
         }
     }
 
-    private fun JComponent.centerComponent(): JPanel {
+    private fun JComponent.bindToLeft(): JPanel {
         return JPanel().apply {
             isVisible = true
             layout = BoxLayout(this, BoxLayout.X_AXIS)
 
-            add(this@centerComponent)
+            add(this@bindToLeft)
         }
     }
 
@@ -211,10 +211,24 @@ class MenuPreviewFileEditor(
             myUi.setLayer(panel, 1)
             myUi.add(panel)
         } else {
-            myUi.add(
-                JLabel("Currently this source code has no menu declaration!").centerComponent(),
-                BorderLayout.CENTER
-            )
+
+            myUi.add(JPanel().apply {
+                layout = BoxLayout(this, BoxLayout.PAGE_AXIS)
+                border = EmptyBorder(10, 10, 0, 0) // Margin around the element
+
+                add(
+                    JLabel("Currently this source code has no menu declaration!").bindToLeft().apply {
+                        border = EmptyBorder(0, 0, 5, 0)
+                    },
+                    BorderLayout.CENTER
+                )
+
+                add(JButton("Rebuild").apply {
+                    addActionListener {
+                        rebuild()
+                    }
+                })
+            })
         }
     }
 
