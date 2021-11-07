@@ -14,8 +14,9 @@ import kotlin.math.min
 class Context(
     override val canvas: ICanvas,
     override var root: Composable? = null,
+      classLoader: ClassLoader,
 ) : RenderContext {
-    override val manager: DummyManager = DummyManager()
+    override val manager: DummyManager = DummyManager(classLoader)
     override lateinit var menu: Menu
 
     private var callback: () -> Unit = {}
@@ -28,7 +29,7 @@ class Context(
         this.callback = callback
     }
 
-    class DummyManager : MenuManager<Menu> {
+    class DummyManager(private val classLoader: ClassLoader) : MenuManager<Menu> {
         override fun register(menu: Menu) {
 //            TODO("Not yet implemented")
         }
@@ -46,7 +47,7 @@ class Context(
         }
 
         private fun getImageResource(asset: String, width: Int, height: Int): Image? {
-            val resource: InputStream = getResource(asset) ?: return null
+            val resource: InputStream = getResource(asset, this.classLoader) ?: return null
             var bImage: BufferedImage = ImageIO.read(resource)
 
             if (width > 0 || height > 0) {

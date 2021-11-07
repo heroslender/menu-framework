@@ -49,7 +49,7 @@ fun PsiFile.hasPreview(): Boolean {
 }
 
 fun drawPreview(method: Method, objInstance: Any?): MenuComponent {
-    val context = Context(Context.ICanvas(512, 380))
+    val context = Context(Context.ICanvas(512, 380), classLoader = method.declaringClass.classLoader)
 
     val root = ComposableNode(
         parent = null,
