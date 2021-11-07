@@ -248,11 +248,15 @@ class BukkitMenuManagerImpl(
 
         /**
          * The delay, in game ticks, between each render.
+         *
+         * If set to 0(zero) or less, render updates will be disabled
          */
         val renderUpdateDelay: Long = 10,
 
         /**
          * The delay, in game ticks, between each cursor update.
+         *
+         * If set to 0(zero) or less, cursor updates will be disabled
          */
         val cursorUpdateDelay: Long = 2,
 
