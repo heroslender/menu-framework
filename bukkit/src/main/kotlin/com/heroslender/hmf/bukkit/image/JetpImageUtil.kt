@@ -94,6 +94,11 @@ object JetpImageUtil {
         val map = ByteArray(buffer.size)
         for (index in buffer.indices) {
             val rgb = buffer[index]
+            val alpha = rgb shr 24 and 0xFF
+            if (alpha == 0) {
+                map[index] = 0
+                continue
+            }
             val red = rgb shr 16 and 0xFF
             val green = rgb shr 8 and 0xFF
             val blue = rgb and 0xFF
