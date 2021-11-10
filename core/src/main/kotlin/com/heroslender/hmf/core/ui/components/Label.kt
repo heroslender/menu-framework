@@ -74,11 +74,12 @@ internal class TextDrawer(
         var i = 0
         while (i < text.length) {
             val ch = text[i]
+            ++i
             if (ch == '\n') {
                 startX = xStart
                 startY += font.height + 1
             } else {
-                val sprite = font.getChar(text[i]) ?: continue
+                val sprite = font.getChar(ch) ?: continue
 
                 sprite.stream { x, y ->
                     canvas.setPixel(startX + x, startY + y, color)
@@ -97,7 +98,6 @@ internal class TextDrawer(
                 startX += sprite.width + 1
             }
 
-            ++i
         }
     }
 }
