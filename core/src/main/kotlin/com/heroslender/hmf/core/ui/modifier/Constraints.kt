@@ -10,6 +10,13 @@ data class Constraints(
 
     fun constrainHeight(height: Int) = height.coerceIn(minHeight, maxHeight)
 
+    fun constrain(other: Constraints): Constraints = Constraints(
+        minWidth = other.minWidth.coerceIn(minWidth, maxWidth),
+        maxWidth = other.maxWidth.coerceIn(minWidth, maxWidth),
+        minHeight = other.minHeight.coerceIn(minHeight, maxHeight),
+        maxHeight = other.maxHeight.coerceIn(minHeight, maxHeight),
+    )
+
     companion object {
         val Default: Constraints = Constraints()
 
@@ -17,6 +24,10 @@ data class Constraints(
          * Unlimited size constraint.
          */
         const val Infinity: Int = Int.MAX_VALUE
+
+        fun fixedHeight(height: Int): Constraints = Constraints(minHeight = height, maxHeight = height)
+
+        fun fixedWidth(width: Int): Constraints = Constraints(minWidth = width, maxWidth = width)
     }
 }
 

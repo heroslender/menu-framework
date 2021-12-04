@@ -7,7 +7,7 @@ class MeasurableDataModifierWrapper(
     modifier: MeasurableDataModifier,
 ) : ModifierElementWrapper<MeasurableDataModifier>(wrapped, modifier) {
 
-    override val data: Any?
-        get() = modifier.modifyData(wrapped.data)
+    override val parentData: Any?
+        get() = modifier.modifyData(wrapped.parentData)
 
 }

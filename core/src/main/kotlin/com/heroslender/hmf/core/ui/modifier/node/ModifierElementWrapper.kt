@@ -11,8 +11,8 @@ abstract class ModifierElementWrapper<T : Modifier.Element>(
     val modifier: T,
 ) : ComponentWrapper(wrapped.component) {
 
-    override val data: Any?
-        get() = wrapped.data
+    override val parentData: Any?
+        get() = wrapped.parentData
 
     override fun placeAt(x: Int, y: Int) {
         this.x = x
@@ -44,4 +44,12 @@ abstract class ModifierElementWrapper<T : Modifier.Element>(
             wrapped.draw(canvas)
         }
     }
+
+    override fun minIntrinsicWidth(height: Int): Int = wrapped.minIntrinsicWidth(height)
+
+    override fun maxIntrinsicWidth(height: Int): Int = wrapped.maxIntrinsicWidth(height)
+
+    override fun minIntrinsicHeight(width: Int): Int = wrapped.minIntrinsicHeight(width)
+
+    override fun maxIntrinsicHeight(width: Int): Int = wrapped.maxIntrinsicHeight(width)
 }

@@ -28,8 +28,8 @@ abstract class AbstractNode(
     abstract val innerWrapper: ComponentWrapper
     abstract val outerWrapper: ComponentWrapper
 
-    override val data: Any?
-        get() = outerWrapper.data
+    override val parentData: Any?
+        get() = outerWrapper.parentData
 
     override var measurableGroup: MeasurableGroup = MeasurableGroup
     var constraints: Constraints = Constraints.Default
@@ -150,4 +150,12 @@ abstract class AbstractNode(
 
         return prev
     }
+
+    override fun minIntrinsicWidth(height: Int): Int = outerWrapper.minIntrinsicWidth(height)
+
+    override fun maxIntrinsicWidth(height: Int): Int = outerWrapper.maxIntrinsicWidth(height)
+
+    override fun minIntrinsicHeight(width: Int): Int = outerWrapper.minIntrinsicHeight(width)
+
+    override fun maxIntrinsicHeight(width: Int): Int = outerWrapper.maxIntrinsicHeight(width)
 }
