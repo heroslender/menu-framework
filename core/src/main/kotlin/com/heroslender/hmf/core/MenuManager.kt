@@ -3,9 +3,10 @@ package com.heroslender.hmf.core
 import com.heroslender.hmf.core.ui.AbstractNode
 import com.heroslender.hmf.core.ui.Composable
 import com.heroslender.hmf.core.ui.ComposableNode
-import com.heroslender.hmf.core.ui.components.Image
 
 interface MenuManager<M : Menu> {
+
+    val imageProvider: ImageProvider
 
     /**
      * Register the [menu] to this manager.
@@ -16,18 +17,6 @@ interface MenuManager<M : Menu> {
      * Removes the [menu] from this manager.
      */
     fun unregister(menu: M)
-
-    /**
-     * Get an [Image] from the jar resources with the [url] path.
-     * If [cached] is true, a cached value of the image will be returned.
-     *
-     * If [width] is specified and higher than zero, the image will be
-     * resized to that width. The same applies to the [height].
-     *
-     * If one is specified without the other, the image will be resized
-     * maintaining the same aspect ratio.
-     */
-    fun getImage(url: String, width: Int = -1, height: Int = -1, cached: Boolean = true): Image?
 
     /**
      * Tick render a menu.

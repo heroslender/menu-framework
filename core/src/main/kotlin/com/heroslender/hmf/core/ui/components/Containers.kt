@@ -38,6 +38,31 @@ fun Modifier.fillWidth(fraction: Float = 1F): Modifier = this then FillModifier(
 fun Modifier.fillHeight(fraction: Float = 1F): Modifier = this then FillModifier(Direction.VERTICAL, fraction)
 fun Modifier.fillSize(fraction: Float = 1F): Modifier = this then FillModifier(Direction.BOTH, fraction)
 
+fun Modifier.wrapContentWidth(): Modifier = this then WrapContentModifier(Direction.HORIZONTAL)
+fun Modifier.wrapContentHeight(): Modifier = this then WrapContentModifier(Direction.VERTICAL)
+fun Modifier.wrapContentSize(): Modifier = this then WrapContentModifier(Direction.BOTH)
+
+internal class WrapContentModifier(
+    private val direction: Direction,
+) : LayoutModifier {
+    override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureScope.MeasureResult {
+        val minWidth = if (direction != Direction.VERTICAL) 0 else constraints.minWidth
+        val minHeight = if (direction != Direction.HORIZONTAL) 0 else constraints.minHeight
+
+        val newConstraints = Constraints(
+            minWidth = minWidth,
+            minHeight = minHeight,
+            maxWidth = constraints.maxWidth,
+            maxHeight = constraints.maxHeight
+        )
+
+        val placeable = measurable.measure(newConstraints)
+        return layout(placeable.width, placeable.height) {
+            placeable.placeAt(0, 0)
+        }
+    }
+}
+
 internal class FillModifier(
     val direction: Direction,
     val fraction: Float,
@@ -209,10 +234,6 @@ private fun orientedCopmonentMeasurableGroup(
 
             val width = if (orientation == Orientation.HORIZONTAL) mainAxisSize else crossAxisSize
             val height = if (orientation == Orientation.HORIZONTAL) crossAxisSize else mainAxisSize
-            if (orientation == Orientation.HORIZONTAL) {
-                println("Child count: ${measurables.size}")
-                println("with: $width, height: $height, constraints: $constraints")
-            }
             layout(width, height) {
                 val sizes = IntArray(placeables.size) { i -> placeables[i]!!.mainAxisSize(orientation) }
                 val outPositions = IntArray(placeables.size)
@@ -249,7 +270,7 @@ private fun orientedCopmonentMeasurableGroup(
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurables: List<IntrinsicMeasurable>,
-        height: Int
+        height: Int,
     ) = MinIntrinsicWidthMeasureBlock(orientation)(
         measurables,
         height,
@@ -258,7 +279,7 @@ private fun orientedCopmonentMeasurableGroup(
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurables: List<IntrinsicMeasurable>,
-        width: Int
+        width: Int,
     ) = MinIntrinsicHeightMeasureBlock(orientation)(
         measurables,
         width,
@@ -267,7 +288,7 @@ private fun orientedCopmonentMeasurableGroup(
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurables: List<IntrinsicMeasurable>,
-        height: Int
+        height: Int,
     ) = MaxIntrinsicWidthMeasureBlock(orientation)(
         measurables,
         height,
@@ -276,7 +297,7 @@ private fun orientedCopmonentMeasurableGroup(
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurables: List<IntrinsicMeasurable>,
-        width: Int
+        width: Int,
     ) = MaxIntrinsicHeightMeasureBlock(orientation)(
         measurables,
         width,
@@ -418,7 +439,7 @@ private fun intrinsicSize(
     crossAxisAvailable: Int,
     mainAxisSpacing: Int,
     layoutOrientation: Orientation,
-    intrinsicOrientation: Orientation
+    intrinsicOrientation: Orientation,
 ) = if (layoutOrientation == intrinsicOrientation) {
     intrinsicMainAxisSize(children, intrinsicMainSize, crossAxisAvailable, mainAxisSpacing)
 } else {
@@ -430,7 +451,7 @@ private fun intrinsicMainAxisSize(
     children: List<IntrinsicMeasurable>,
     mainAxisSize: IntrinsicMeasurable.(Int) -> Int,
     crossAxisAvailable: Int,
-    mainAxisSpacing: Int
+    mainAxisSpacing: Int,
 ): Int {
     var weightUnitSpace = 0
     var fixedSpace = 0
@@ -453,7 +474,7 @@ private fun intrinsicCrossAxisSize(
     children: List<IntrinsicMeasurable>,
     mainAxisSize: IntrinsicMeasurable.(Int) -> Int,
     crossAxisSize: IntrinsicMeasurable.(Int) -> Int,
-    mainAxisAvailable: Int
+    mainAxisAvailable: Int,
 ): Int {
     var fixedSpace = 0
     var crossAxisMax = 0

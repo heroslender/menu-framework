@@ -14,7 +14,7 @@ import kotlin.math.min
 class Context(
     override val canvas: ICanvas,
     override var root: Composable? = null,
-      classLoader: ClassLoader,
+    classLoader: ClassLoader,
 ) : RenderContext {
     override val manager: DummyManager = DummyManager(classLoader)
     override lateinit var menu: Menu
@@ -38,21 +38,65 @@ class Context(
 //            TODO("Not yet implemented")
         }
 
-        override fun getImage(url: String, width: Int, height: Int, cached: Boolean): Image? {
-            return getImageResource(url, width, height)
+        override val imageProvider: ImageProvider = object : ImageProvider {
+            override fun getImage(
+                url: String,
+                width: Int,
+                height: Int,
+                resizeMode: ImageProvider.ImageResizeMode,
+                cached: Boolean,
+            ): Image? {
+                return getImageResource(url, width, height, resizeMode)
+            }
         }
 
         override fun dispose() {
 //            TODO("Not yet implemented")
         }
 
-        private fun getImageResource(asset: String, width: Int, height: Int): Image? {
+        private fun getImageResource(
+            asset: String,
+            width: Int,
+            height: Int,
+            resizeMode: ImageProvider.ImageResizeMode,
+        ): Image? {
             val resource: InputStream = getResource(asset, this.classLoader) ?: return null
             var bImage: BufferedImage = ImageIO.read(resource)
 
             if (width > 0 || height > 0) {
-                val newWidth = if (width > 0) width else (height.toDouble() / bImage.height * bImage.width).toInt()
-                val newHeight = if (height > 0) height else (width.toDouble() / bImage.width * bImage.height).toInt()
+                val newWidth: Int
+                val newHeight: Int
+                if (width > 0 && height > 0) {
+                    when (resizeMode) {
+                        ImageProvider.ImageResizeMode.COVER -> {
+                            val w = (height.toDouble() / bImage.height * bImage.width).toInt()
+                            if (w < width) {
+                                newWidth = width
+                                newHeight = (width.toDouble() / bImage.width * bImage.height).toInt()
+                            } else {
+                                newWidth = w
+                                newHeight = height
+                            }
+                        }
+                        ImageProvider.ImageResizeMode.CONTAIN -> {
+                            val w = (height.toDouble() / bImage.height * bImage.width).toInt()
+                            if (w > width) {
+                                newWidth = width
+                                newHeight = (width.toDouble() / bImage.width * bImage.height).toInt()
+                            } else {
+                                newWidth = w
+                                newHeight = height
+                            }
+                        }
+                        ImageProvider.ImageResizeMode.STRETCH -> {
+                            newWidth = (height.toDouble() / bImage.height * bImage.width).toInt()
+                            newHeight = (width.toDouble() / bImage.width * bImage.height).toInt()
+                        }
+                    }
+                } else {
+                    newWidth = if (width > 0) width else (height.toDouble() / bImage.height * bImage.width).toInt()
+                    newHeight = if (height > 0) height else (width.toDouble() / bImage.width * bImage.height).toInt()
+                }
 
                 val resized = BufferedImage(newWidth, newHeight, 2)
                 val graphics = resized.createGraphics()
@@ -80,10 +124,9 @@ class Context(
             override fun Placeable.draw(canvas: Canvas) {
                 val imageWidth = this@ImageAsset.width
                 val imageHeight = this@ImageAsset.height
-
                 for (x in 0 until min(imageWidth, width)) {
                     for (y in 0 until min(imageHeight, height)) {
-                        val pixel = buffer[x + y * width]
+                        val pixel = buffer[x + y * imageWidth]
                         if (pixel != IColor.TRANSPARENT.id) {
                             canvas.setPixelByte(x, y, pixel)
                         }
@@ -151,10 +194,10 @@ class Context(
             this.offsetY += y
         }
 
-        override fun newCanvas(width: Int, height: Int): Canvas = UnverifiedMapCanvas(width, height)
+        override fun newCanvas(width: Int, height: Int): Canvas = ICanvas(width, height)
 
         override fun subCanvas(width: Int, height: Int, offsetX: Int, offsetY: Int): Canvas {
-            val canvas = UnverifiedMapCanvas(width, height)
+            val canvas = ICanvas(width, height)
 
 
             for (x in 0 until min(width, this.width - offsetX)) {
@@ -167,17 +210,5 @@ class Context(
         }
 
         operator fun get(x: Int, y: Int): Byte = getPixelByte(x, y)
-
-        class UnverifiedMapCanvas(
-            width: Int,
-            height: Int,
-        ) : ICanvas(width, height) {
-
-            override fun setPixelByte(x: Int, y: Int, color: Byte) {
-                buffer[x + offsetX + (y + offsetY) * width] = color
-            }
-
-            override fun getPixelByte(x: Int, y: Int): Byte = buffer[x + offsetX + (y + offsetY) * width]
-        }
     }
 }

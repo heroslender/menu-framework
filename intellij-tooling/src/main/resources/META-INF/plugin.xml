@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.heroslender.hmf.intellij</id>
-    <name>Template</name>
-    <vendor>HMF Tooling</vendor>
+    <name>HMF Tooling</name>
+    <vendor>HMF</vendor>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>

@@ -4,10 +4,9 @@ import com.heroslender.hmf.bukkit.BaseMenu
 import com.heroslender.hmf.bukkit.HmfBukkit
 import com.heroslender.hmf.bukkit.listeners.MenuListener
 import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
-import com.heroslender.hmf.bukkit.manager.ImageManager
 import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
 import com.heroslender.hmf.bukkit.utils.scheduleAsyncTimer
-import com.heroslender.hmf.core.ui.components.Image
+import com.heroslender.hmf.core.ImageProvider
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -22,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger
 class BukkitMenuManagerImpl(
     private val plugin: Plugin,
     val opts: Options = Options(),
-    val imageManager: ImageManager = ImageManagerImpl(),
+    override val imageProvider: ImageProvider = BukkitImageProviderImpl(),
 ) : BukkitMenuManager, PacketInterceptor.PacketInterceptorHandler {
     override val handlerId: String = "hmf_packet_handler_${handlerIdCounter.getAndIncrement()}"
 
@@ -104,9 +103,6 @@ class BukkitMenuManagerImpl(
             return@factory id
         }
     }
-
-    override fun getImage(url: String, width: Int, height: Int, cached: Boolean): Image? =
-        imageManager.getImage(url, width, height, cached)
 
     override fun handleInteraction(player: Player, entityId: Int, action: PacketInterceptor.Action): Boolean {
         if (!opts.listenClicks || entityId < opts.firstEntityId) {

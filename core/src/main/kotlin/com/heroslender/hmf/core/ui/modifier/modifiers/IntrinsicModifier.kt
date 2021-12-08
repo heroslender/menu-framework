@@ -33,7 +33,7 @@ private object MinIntrinsicWidthModifier : IntrinsicSizeModifier {
         constraints: Constraints
     ): Constraints {
         val width = measurable.minIntrinsicWidth(constraints.maxHeight)
-        return Constraints.fixedWidth(width)
+        return constraints.fixedWidth(width)
     }
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
@@ -48,7 +48,8 @@ private object MinIntrinsicHeightModifier : IntrinsicSizeModifier {
         constraints: Constraints
     ): Constraints {
         val height = measurable.minIntrinsicHeight(constraints.maxWidth)
-        return Constraints.fixedHeight(height)
+        println("constraints: $constraints")
+        return constraints.fixedHeight(height)
     }
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
@@ -63,7 +64,7 @@ private object MaxIntrinsicWidthModifier : IntrinsicSizeModifier {
         constraints: Constraints
     ): Constraints {
         val width = measurable.maxIntrinsicWidth(constraints.maxHeight)
-        return Constraints.fixedWidth(width)
+        return constraints.fixedWidth(width)
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
@@ -78,7 +79,7 @@ private object MaxIntrinsicHeightModifier : IntrinsicSizeModifier {
         constraints: Constraints
     ): Constraints {
         val height = measurable.maxIntrinsicHeight(constraints.maxWidth)
-        return Constraints.fixedHeight(height)
+        return constraints.fixedHeight(height)
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
@@ -95,7 +96,7 @@ private object RequiredMinIntrinsicWidthModifier : IntrinsicSizeModifier {
         constraints: Constraints
     ): Constraints {
         val width = measurable.minIntrinsicWidth(constraints.maxHeight)
-        return Constraints.fixedWidth(width)
+        return constraints.fixedWidth(width)
     }
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
@@ -112,7 +113,7 @@ private object RequiredMinIntrinsicHeightModifier : IntrinsicSizeModifier {
         constraints: Constraints
     ): Constraints {
         val height = measurable.minIntrinsicHeight(constraints.maxWidth)
-        return Constraints.fixedHeight(height)
+        return constraints.fixedHeight(height)
     }
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
@@ -129,7 +130,7 @@ private object RequiredMaxIntrinsicWidthModifier : IntrinsicSizeModifier {
         constraints: Constraints
     ): Constraints {
         val width = measurable.maxIntrinsicWidth(constraints.maxHeight)
-        return Constraints.fixedWidth(width)
+        return constraints.fixedWidth(width)
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
@@ -146,7 +147,7 @@ private object RequiredMaxIntrinsicHeightModifier : IntrinsicSizeModifier {
         constraints: Constraints
     ): Constraints {
         val height = measurable.maxIntrinsicHeight(constraints.maxWidth)
-        return Constraints.fixedHeight(height)
+        return constraints.fixedHeight(height)
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(

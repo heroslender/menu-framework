@@ -145,12 +145,12 @@ interface MeasurableGroup {
             measurables: List<Measurable>,
             constraints: Constraints,
         ): MeasureScope.MeasureResult = when {
-            measurables.isEmpty() -> layout(constraints.minWidth, constraints.minHeight) {}.also { println(0) }
+            measurables.isEmpty() -> layout(constraints.minWidth, constraints.minHeight) {}
             measurables.size == 1 -> {
                 val placeable = measurables[0].measure(constraints)
                 layout(placeable.width, placeable.height) {
                     placeable.placeAt(0, 0)
-                }.also { println(1) }
+                }
             }
             else -> {
                 val placeables = measurables.map {
