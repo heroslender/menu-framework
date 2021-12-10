@@ -48,7 +48,6 @@ private object MinIntrinsicHeightModifier : IntrinsicSizeModifier {
         constraints: Constraints
     ): Constraints {
         val height = measurable.minIntrinsicHeight(constraints.maxWidth)
-        println("constraints: $constraints")
         return constraints.fixedHeight(height)
     }
 
