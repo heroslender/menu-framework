@@ -41,6 +41,20 @@ class MenuListComponent(
                 parent.repaint()
             }
         })
+
+        addMouseWheelListener { event ->
+            if (event.wheelRotation < 0) {
+                opts.zoomFactor *= 1.1
+            } else {
+                opts.zoomFactor /= 1.1
+            }
+            val zoomDiv = opts.zoomFactor / opts.prevZoomFactor
+            val zoomedPixels = zoomDiv * parent.width - parent.width
+            opts.xOffset -= zoomedPixels * ((event.x - x) / width.toDouble())
+            opts.yOffset -= zoomedPixels * ((event.y - y) / height.toDouble())
+
+            parent.repaint()
+        }
     }
 
     override fun paint(g: Graphics) {
