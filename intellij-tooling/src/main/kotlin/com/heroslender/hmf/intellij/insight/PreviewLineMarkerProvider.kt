@@ -4,14 +4,16 @@ import com.heroslender.hmf.intellij.preview.components.MenuPreviewComponent
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import com.intellij.codeInsight.daemon.LineMarkerInfo
 import com.intellij.codeInsight.daemon.LineMarkerProvider
-import com.intellij.codeInsight.daemon.NavigateAction
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.editor.markup.GutterIconRenderer
+import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.RegisterToolWindowTask
+import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.ui.content.ContentFactory
 import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptorIfAny
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
@@ -42,23 +44,36 @@ class PreviewLineMarkerProvider : LineMarkerProvider {
                     RegisterToolWindowTask(
                         id = ID,
                         anchor = ToolWindowAnchor.RIGHT,
-                        component = MenuPreviewComponent(element.project, function),
+                        icon = MenuPreviewComponent.PreviewIcon
                     )
                 )
 
+                toolWindow.setIcon(IconLoader.getIcon("/hmf-icons/layoutPreviewOnly.svg",
+                    PreviewLineMarkerProvider::class.java))
                 toolWindow.stripeTitle = "Menu Preview"
-
                 toolWindow.isShowStripeButton = true
+                val contentManager = toolWindow.contentManager
+                val content = contentManager.findContent(function.name)
+                    ?: ContentFactory.SERVICE.getInstance().createContent(
+                        MenuPreviewComponent(element.project, function, toolWindow),
+                        function.name,
+                        true
+                    ).apply {
+                        (component as MenuPreviewComponent).content = this
+                        icon = MenuPreviewComponent.PreviewIcon
+                        putUserData(ToolWindow.SHOW_CONTENT_ICON, true)
+                        contentManager.addContent(this)
+                    }
+
                 toolWindow.activate {
-                    val component = toolWindow.contentManager.contents.first().component as MenuPreviewComponent
-                    component.setup()
-                    component.updateUI()
+                    contentManager.setSelectedContent(content)
+                    val component = content.component as MenuPreviewComponent
+                    component.rebuildTask.run()
                 }
             },
             GutterIconRenderer.Alignment.RIGHT,
             { "Preview" }
         )
-        NavigateAction.setNavigateAction(info, "View Preview", null)
 
         return info
     }

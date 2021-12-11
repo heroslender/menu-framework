@@ -1,18 +1,19 @@
 package com.heroslender.hmf.intellij.preview.components
 
+import com.heroslender.hmf.intellij.preview.RebuildManager
 import com.heroslender.hmf.intellij.preview.invokePreview
+import com.intellij.execution.runners.ExecutionUtil
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.openapi.vfs.newvfs.BulkFileListener
-import com.intellij.openapi.vfs.newvfs.events.VFileEvent
-import com.intellij.task.ProjectTaskManager
+import com.intellij.openapi.wm.ToolWindow
 import com.intellij.ui.AncestorListenerAdapter
-import com.intellij.util.messages.MessageBusConnection
+import com.intellij.ui.content.Content
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.FlowLayout
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import javax.swing.*
 import javax.swing.border.EmptyBorder
 import javax.swing.event.AncestorEvent
@@ -20,14 +21,17 @@ import javax.swing.event.AncestorEvent
 class MenuPreviewComponent(
     private val myProject: Project,
     private val myFunction: KtNamedFunction,
+    private val toolWindow: ToolWindow,
 ) : JLayeredPane() {
-    private val rebuildTask = RebuildTask(ProjectTaskManager.getInstance(myProject)) {
-        reCompose()
-        redraw()
-    }
+    lateinit var content: Content
+    val rebuildTask = RebuildManager.getOrCreateTask(myProject)
 
     private var menusPanel = MenuListComponent(this, MenuListComponent.Options())
-    private var messageBus: MessageBusConnection? = null
+
+    companion object {
+        val PreviewIcon = AllIcons.General.LayoutPreviewOnly
+        val PreviewBuildingIcon = ExecutionUtil.getLiveIndicator(PreviewIcon)
+    }
 
     init {
         layout = LayeredPaneLayout(this)
@@ -41,13 +45,23 @@ class MenuPreviewComponent(
             // Just to fix an issue that would cause the resized components to reset
         }
 
+        setup()
+
+        rebuildTask.listenStart {
+            content.icon = PreviewBuildingIcon
+        }
+
+        rebuildTask.listen {
+            content.icon = PreviewIcon
+            reCompose()
+            redraw()
+        }
+
         addAncestorListener(object : AncestorListenerAdapter() {
             override fun ancestorMoved(event: AncestorEvent) {
                 redraw()
             }
         })
-
-        setup()
     }
 
     private var component: MenuComponent? = null
@@ -56,24 +70,9 @@ class MenuPreviewComponent(
         component = invokePreview(myFunction)
     }
 
-    fun dispose() {
-        messageBus?.disconnect()
-        messageBus = null
-    }
-
     fun setup() {
         reCompose()
         redraw()
-
-        if (messageBus == null) {
-            this.messageBus = myProject.messageBus.connect().apply {
-                subscribe(VirtualFileManager.VFS_CHANGES, object : BulkFileListener {
-                    override fun after(events: List<VFileEvent?>) {
-                        rebuildTask.run()
-                    }
-                })
-            }
-        }
     }
 
     private fun redraw() {
@@ -117,6 +116,12 @@ class MenuPreviewComponent(
             )
 
             add(component)
+
+            addMouseListener(object : MouseAdapter() {
+                override fun mouseClicked(e: MouseEvent?) {
+                    toolWindow.activate(null)
+                }
+            })
         }
 
         val toolbar = ToolbarComponent().apply {
@@ -171,42 +176,6 @@ class MenuPreviewComponent(
             layout = BoxLayout(this, BoxLayout.X_AXIS)
 
             add(this@bindToLeft)
-        }
-    }
-
-    private class RebuildTask(
-        private val projectTaskManager: ProjectTaskManager,
-        private val onRebuild: () -> Unit,
-    ) : Runnable {
-        private var inProgress = false
-        private var shouldRebuild = false
-
-        private var lastRebuild = System.currentTimeMillis()
-
-        override fun run() {
-            val now = System.currentTimeMillis()
-            if (now - lastRebuild < 100) {
-                return
-            }
-            lastRebuild = now
-
-            if (inProgress) {
-                shouldRebuild = true
-                return
-            }
-
-            inProgress = true
-            projectTaskManager.buildAllModules().onSuccess {
-                onRebuild()
-
-                inProgress = false
-                if (shouldRebuild) {
-                    shouldRebuild = false
-                    run()
-                }
-            }
-
-            onRebuild()
         }
     }
 }
