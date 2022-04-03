@@ -8,7 +8,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.ui.AncestorListenerAdapter
 import com.intellij.ui.content.Content
+import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.psiUtil.containingClass
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.FlowLayout
@@ -65,9 +67,24 @@ class MenuPreviewComponent(
     }
 
     private var component: MenuComponent? = null
+    private var errorMsg: String? = null
 
     private fun reCompose() {
-        component = invokePreview(myFunction)
+        try {
+            errorMsg = null
+            component = invokePreview(myFunction)
+        } catch (e: ClassNotFoundException) {
+            val functionParent = myFunction.parent
+            val className: String = if (functionParent is KtFile) {
+                functionParent.packageFqName.asString() + '.' + functionParent.name
+            } else {
+                myFunction.containingClass()?.fqName?.asString() ?: "Unknown"
+            }
+
+            errorMsg = "Class not found: $className"
+        } catch (e: NoSuchMethodException) {
+            errorMsg = "Method not found: ${myFunction.name}"
+        }
     }
 
     fun setup() {
@@ -94,6 +111,15 @@ class MenuPreviewComponent(
                     },
                     BorderLayout.CENTER
                 )
+
+                if (errorMsg != null) {
+                    add(
+                        JLabel(errorMsg).bindToLeft().apply {
+                            border = EmptyBorder(0, 0, 5, 0)
+                        },
+                        BorderLayout.CENTER
+                    )
+                }
 
                 add(JButton("Rebuild").apply {
                     addActionListener {

@@ -1,8 +1,8 @@
 package com.heroslender.hmf.intellij.preview.components
 
 import com.heroslender.hmf.core.ui.ComposableNode
-import com.heroslender.hmf.intellij.preview.Context
-import com.heroslender.hmf.intellij.preview.JetpImageUtil
+import com.heroslender.hmf.intellij.preview.impl.PreviewCanvas
+import com.heroslender.hmf.intellij.preview.impl.JetpImageUtil
 import com.intellij.util.ui.ImageUtil
 import java.awt.Dimension
 import java.awt.Graphics
@@ -18,7 +18,7 @@ class MenuComponent(node: ComposableNode) : JPanel() {
         maximumSize = Dimension(node.width, node.height)
         layout = BoxLayout(this, BoxLayout.X_AXIS)
 
-        val dithered = (node.renderContext.canvas as Context.ICanvas).buffer
+        val dithered = (node.renderContext.canvas as PreviewCanvas).buffer
         val argb = IntArray(dithered.size)
         for (i in dithered.indices) {
             argb[i] = JetpImageUtil.getColorFromMinecraftPalette(dithered[i])

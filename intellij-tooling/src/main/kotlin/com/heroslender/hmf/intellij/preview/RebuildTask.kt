@@ -9,7 +9,7 @@ import com.intellij.util.messages.MessageBusConnection
 
 class RebuildTask(
     project: Project,
-) : Runnable {
+) {
     private val messageBus: MessageBusConnection
     private val projectTaskManager: ProjectTaskManager = ProjectTaskManager.getInstance(project)
 
@@ -40,7 +40,7 @@ class RebuildTask(
         onRebuildStart.add(onStart)
     }
 
-    override fun run() {
+    fun run(reschedule: Boolean = true) {
         val now = System.currentTimeMillis()
         if (now - lastRebuild < 100) {
             return
@@ -48,7 +48,7 @@ class RebuildTask(
         lastRebuild = now
 
         if (inProgress) {
-            shouldRebuild = true
+            shouldRebuild = reschedule
             return
         }
 

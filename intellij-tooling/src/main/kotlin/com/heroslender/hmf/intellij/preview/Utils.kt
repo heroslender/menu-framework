@@ -8,6 +8,8 @@ import com.heroslender.hmf.core.ui.modifier.modifiers.background
 import com.heroslender.hmf.core.ui.modifier.modifiers.maxSize
 import com.heroslender.hmf.intellij.insight.PreviewLineMarkerProvider.Companion.COMPOSABLE_QUALIFIED_NAME
 import com.heroslender.hmf.intellij.preview.components.MenuComponent
+import com.heroslender.hmf.intellij.preview.impl.PreviewCanvas
+import com.heroslender.hmf.intellij.preview.impl.PreviewRenderContext
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.OrderEnumerator
 import com.intellij.openapi.util.io.FileUtil
@@ -23,8 +25,9 @@ import java.net.MalformedURLException
 import java.net.URL
 import javax.swing.JComponent
 
+@Suppress("unused")
 fun drawPreview(method: Method, objInstance: Any?): MenuComponent {
-    val context = Context(Context.ICanvas(512, 380), classLoader = method.declaringClass.classLoader)
+    val context = PreviewRenderContext(PreviewCanvas(512, 380), classLoader = method.declaringClass.classLoader)
 
     val root = ComposableNode(
         parent = null,
@@ -68,19 +71,8 @@ fun invokePreview(function: KtNamedFunction): MenuComponent? {
 
     val module = function.module!!
     val loader = getClassLoader(module)
-    val aClass: Class<*> = try {
-        Class.forName(className, true, loader)
-    } catch (e: ClassNotFoundException) {
-        println("Cannot find class '$className'")
-        return null
-    }
-
-    val method = try {
-        aClass.getMethod(function.name!!, Class.forName(COMPOSABLE_QUALIFIED_NAME, true, loader))
-    } catch (e: NoSuchMethodException) {
-        return null
-    }
-
+    val aClass: Class<*> = Class.forName(className, true, loader)
+    val method = aClass.getMethod(function.name!!, Class.forName(COMPOSABLE_QUALIFIED_NAME, true, loader))
     val instance = if (isTopLevel) {
         null
     } else {

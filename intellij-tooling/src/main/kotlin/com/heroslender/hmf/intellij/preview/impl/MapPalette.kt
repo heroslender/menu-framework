@@ -1,4 +1,4 @@
-package com.heroslender.hmf.intellij.preview
+package com.heroslender.hmf.intellij.preview.impl
 
 import java.awt.Color
 import java.awt.Image
