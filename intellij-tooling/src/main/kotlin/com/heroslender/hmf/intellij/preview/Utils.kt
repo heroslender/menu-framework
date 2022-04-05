@@ -1,6 +1,7 @@
 package com.heroslender.hmf.intellij.preview
 
 import com.heroslender.hmf.core.IColor
+import com.heroslender.hmf.core.Preview
 import com.heroslender.hmf.core.ui.ComposableNode
 import com.heroslender.hmf.core.ui.modifier.Constraints
 import com.heroslender.hmf.core.ui.modifier.Modifier
@@ -27,7 +28,11 @@ import javax.swing.JComponent
 
 @Suppress("unused")
 fun drawPreview(method: Method, objInstance: Any?): MenuComponent {
-    val context = PreviewRenderContext(PreviewCanvas(512, 380), classLoader = method.declaringClass.classLoader)
+    val preview = method.getDeclaredAnnotation(Preview::class.java)
+    val context = PreviewRenderContext(
+        canvas = PreviewCanvas(preview.width, preview.height),
+        classLoader = method.declaringClass.classLoader
+    )
 
     val root = ComposableNode(
         parent = null,
@@ -54,7 +59,11 @@ fun drawPreview(method: Method, objInstance: Any?): MenuComponent {
 
     root.draw(context.canvas)
 
-    return MenuComponent(root)
+    var name = preview.name
+    if (name.isEmpty()) {
+        name = method.name
+    }
+    return MenuComponent(name, root)
 }
 
 fun invokePreview(function: KtNamedFunction): MenuComponent? {

@@ -21,6 +21,7 @@ import javax.swing.border.EmptyBorder
 import javax.swing.event.AncestorEvent
 
 class MenuPreviewComponent(
+    val menuPreviewId: String,
     private val myProject: Project,
     private val myFunction: KtNamedFunction,
     private val toolWindow: ToolWindow,
@@ -66,13 +67,18 @@ class MenuPreviewComponent(
         })
     }
 
-    private var component: MenuComponent? = null
+    var menuComponent: MenuComponent? = null
     private var errorMsg: String? = null
 
     private fun reCompose() {
         try {
             errorMsg = null
-            component = invokePreview(myFunction)
+            menuComponent = invokePreview(myFunction)
+            menuComponent?.menuName?.also {
+                if (this::content.isInitialized) {
+                    content.displayName = it
+                }
+            }
         } catch (e: ClassNotFoundException) {
             val functionParent = myFunction.parent
             val className: String = if (functionParent is KtFile) {
@@ -99,7 +105,7 @@ class MenuPreviewComponent(
         // clear the old UI
         myUi.removeAll()
 
-        val component = this.component
+        val component = this.menuComponent
         if (component == null) {
             myUi.add(JPanel().apply {
                 layout = BoxLayout(this, BoxLayout.PAGE_AXIS)

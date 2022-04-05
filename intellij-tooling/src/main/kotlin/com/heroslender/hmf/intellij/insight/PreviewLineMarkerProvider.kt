@@ -6,14 +6,14 @@ import com.intellij.codeInsight.daemon.LineMarkerInfo
 import com.intellij.codeInsight.daemon.LineMarkerProvider
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.editor.markup.GutterIconRenderer
-import com.intellij.openapi.util.IconLoader
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.RegisterToolWindowTask
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LeafPsiElement
-import com.intellij.ui.content.ContentFactory
+import com.intellij.ui.content.*
 import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptorIfAny
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
@@ -31,39 +31,17 @@ class PreviewLineMarkerProvider : LineMarkerProvider {
             leaf,
             leaf.textRange,
             AllIcons.Actions.RunAll,
-            {
-                "Execute preview"
-            },
+            { "Execute preview" },
             GutterIconNavigationHandler handler@{ _, psiElement ->
-                if (!psiElement.isWritable || !element.isValid) {
+                if (!psiElement.isWritable || !psiElement.isValid) {
                     return@handler
                 }
 
-                val manager = ToolWindowManager.getInstance(element.project)
-                val toolWindow = manager.getToolWindow(ID) ?: manager.registerToolWindow(
-                    RegisterToolWindowTask(
-                        id = ID,
-                        anchor = ToolWindowAnchor.RIGHT,
-                        icon = MenuPreviewComponent.PreviewIcon
-                    )
-                )
-
-                toolWindow.setIcon(IconLoader.getIcon("/hmf-icons/layoutPreviewOnly.svg",
-                    PreviewLineMarkerProvider::class.java))
-                toolWindow.stripeTitle = "Menu Preview"
-                toolWindow.isShowStripeButton = true
+                val previewId = function.containingFile.name + '#' + function.name
+                val toolWindow = getOrCreateToolWindow(psiElement.project)
                 val contentManager = toolWindow.contentManager
-                val content = contentManager.findContent(function.name)
-                    ?: ContentFactory.SERVICE.getInstance().createContent(
-                        MenuPreviewComponent(element.project, function, toolWindow),
-                        function.name,
-                        true
-                    ).apply {
-                        (component as MenuPreviewComponent).content = this
-                        icon = MenuPreviewComponent.PreviewIcon
-                        putUserData(ToolWindow.SHOW_CONTENT_ICON, true)
-                        contentManager.addContent(this)
-                    }
+                val content = contentManager.findContentMenuById(previewId)
+                    ?: createContent(previewId, psiElement.project, toolWindow, function)
 
                 toolWindow.activate {
                     contentManager.setSelectedContent(content)
@@ -78,7 +56,62 @@ class PreviewLineMarkerProvider : LineMarkerProvider {
         return info
     }
 
-    inline fun PsiElement.findPreview(): Pair<LeafPsiElement, KtNamedFunction>? {
+    private fun createContent(
+        previewId: String,
+        project: Project,
+        toolWindow: ToolWindow,
+        function: KtNamedFunction,
+    ): Content {
+        val previewComponent = MenuPreviewComponent(previewId, project, function, toolWindow)
+        val content = ContentFactory.SERVICE.getInstance().createContent(previewComponent, function.name, true)
+        previewComponent.content = content
+        previewComponent.menuComponent?.menuName?.also { content.displayName = it }
+        content.icon = MenuPreviewComponent.PreviewIcon
+        content.putUserData(ToolWindow.SHOW_CONTENT_ICON, true)
+        toolWindow.contentManager.addContent(content)
+
+        return content
+    }
+
+    private fun ContentManager.findContentMenuById(id: String): Content? {
+        for (content in contents) {
+            val component = content.component as? MenuPreviewComponent ?: continue
+            if (component.menuPreviewId == id) {
+                return content
+            }
+        }
+
+        return null
+    }
+
+    private fun getOrCreateToolWindow(project: Project): ToolWindow {
+        val manager = ToolWindowManager.getInstance(project)
+
+        var toolWindow = manager.getToolWindow(ID)
+        if (toolWindow == null) {
+            toolWindow = manager.registerToolWindow(
+                RegisterToolWindowTask(
+                    id = ID,
+                    anchor = ToolWindowAnchor.RIGHT,
+                    icon = MenuPreviewComponent.PreviewIcon,
+                    stripeTitle = { "Menu Preview" },
+                )
+            )
+
+            toolWindow.addContentManagerListener(object : ContentManagerListener {
+                override fun contentRemoved(content: ContentManagerEvent) {
+                    if (toolWindow.contentManagerIfCreated?.contents?.isEmpty() == true && toolWindow.isVisible) {
+                        toolWindow.isAvailable = false
+//                        ToolWindowManager.getInstance(project).unregisterToolWindow(ID)
+                    }
+                }
+            })
+        }
+
+        return toolWindow
+    }
+
+    private fun PsiElement.findPreview(): Pair<LeafPsiElement, KtNamedFunction>? {
         if (this !is LeafPsiElement || elementType.toString() != "fun") {
             return null
         }

@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage
 import javax.swing.BoxLayout
 import javax.swing.JPanel
 
-class MenuComponent(node: ComposableNode) : JPanel() {
+class MenuComponent(val menuName: String, node: ComposableNode) : JPanel() {
     private val image: BufferedImage
 
     init {
