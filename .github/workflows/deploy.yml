@@ -1,5 +1,6 @@
 name: Deploy to Nexus repository
 on:
+    workflow_dispatch:
     workflow_run:
         workflows: [ "Build" ]
         branches: [ main ]
