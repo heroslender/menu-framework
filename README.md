@@ -1,6 +1,6 @@
 # HMF - Heroslender Menu Framework
 
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/heroslender/menu-framework/Build?label=Build&logo=GitHub)](https://github.com/heroslender/menu-framework/actions/workflows/build.yml)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/heroslender/menu-framework/build.yml?label=Build&logo=GitHub)](https://github.com/heroslender/menu-framework/actions/workflows/build.yml)
 ![Maven metadata URL](https://img.shields.io/maven-metadata/v?label=Version&metadataUrl=https%3A%2F%2Fnexus.heroslender.com%2Frepository%2Fmaven-snapshots%2Fcom%2Fheroslender%2Fhmf-bukkit%2Fmaven-metadata.xml)
 [![GitHub stars](https://img.shields.io/github/stars/heroslender/menu-framework.svg?label=Stars)](https://github.com/heroslender/menu-framework/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues-raw/heroslender/menu-framework.svg?label=Issues)](https://github.com/heroslender/menu-framework/issues)
