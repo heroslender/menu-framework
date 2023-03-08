@@ -33,20 +33,25 @@ class PreviewLineMarkerProvider : LineMarkerProvider {
             AllIcons.Actions.RunAll,
             { "Execute preview" },
             GutterIconNavigationHandler handler@{ _, psiElement ->
-                if (!psiElement.isWritable || !psiElement.isValid) {
-                    return@handler
-                }
+                try {
+                    if (!psiElement.isWritable || !psiElement.isValid) {
+                        return@handler
+                    }
 
-                val previewId = function.containingFile.name + '#' + function.name
-                val toolWindow = getOrCreateToolWindow(psiElement.project)
-                val contentManager = toolWindow.contentManager
-                val content = contentManager.findContentMenuById(previewId)
-                    ?: createContent(previewId, psiElement.project, toolWindow, function)
+                    val previewId = function.containingFile.name + '#' + function.name
+                    val toolWindow = getOrCreateToolWindow(psiElement.project)
+                    val contentManager = toolWindow.contentManager
+                    val content = contentManager.findContentMenuById(previewId)
+                        ?: createContent(previewId, psiElement.project, toolWindow, function)
 
-                toolWindow.activate {
-                    contentManager.setSelectedContent(content)
-                    val component = content.component as MenuPreviewComponent
-                    component.rebuildTask.run()
+                    toolWindow.isAvailable = true
+                    toolWindow.activate {
+                        contentManager.setSelectedContent(content)
+                        val component = content.component as MenuPreviewComponent
+                        component.rebuildTask.run()
+                    }
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
                 }
             },
             GutterIconRenderer.Alignment.RIGHT,

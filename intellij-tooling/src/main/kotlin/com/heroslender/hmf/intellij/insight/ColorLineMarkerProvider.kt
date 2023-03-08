@@ -22,32 +22,27 @@ class ColorLineMarkerProvider : LineMarkerProvider {
         return info
     }
 
-    open class ColorInfo : MergeableLineMarkerInfo<PsiElement> {
-        protected val color: Color
+    open class ColorInfo(element: PsiElement, protected val color: Color) : MergeableLineMarkerInfo<PsiElement>(
+        element,
+        element.textRange,
+        ColorIcon(12, color),
+        FunctionUtil.nullConstant<Any, String>(),
+        GutterIconNavigationHandler handler@{ _, psiElement ->
+            if (!psiElement.isWritable || !element.isValid) {
+                return@handler
+            }
 
-        constructor(element: PsiElement, color: Color) : super(
-            element,
-            element.textRange,
-            ColorIcon(12, color),
-            FunctionUtil.nullConstant<Any, String>(),
-            GutterIconNavigationHandler handler@{ _, psiElement ->
-                if (!psiElement.isWritable || !element.isValid) {
-                    return@handler
-                }
+            val editor = PsiEditorUtil.findEditor(element) ?: return@handler
 
-                val editor = PsiEditorUtil.findEditor(element) ?: return@handler
-
-                println("Clicked on the color!")
-                val picker = ColorPicker(editor.component)
-                val newColor = picker.showDialog()
-                if (newColor != null) {
-                    element.setColor(newColor)
-                }
-            },
-            GutterIconRenderer.Alignment.RIGHT
-        ) {
-            this.color = color
-        }
+            println("Clicked on the color!")
+            val picker = ColorPicker(editor.component)
+            val newColor = picker.showDialog()
+            if (newColor != null) {
+                element.setColor(newColor)
+            }
+        },
+        GutterIconRenderer.Alignment.RIGHT
+    ) {
 
         override fun canMergeWith(info: MergeableLineMarkerInfo<*>) = info is ColorInfo
 

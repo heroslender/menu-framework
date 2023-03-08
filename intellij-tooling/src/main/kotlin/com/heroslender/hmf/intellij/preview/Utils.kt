@@ -23,7 +23,7 @@ import java.awt.Color
 import java.io.File
 import java.lang.reflect.Method
 import java.net.MalformedURLException
-import java.net.URL
+import java.nio.file.Path
 import javax.swing.JComponent
 
 @Suppress("unused")
@@ -99,15 +99,15 @@ fun invokePreview(function: KtNamedFunction): MenuComponent? {
 }
 
 private fun getClassLoader(module: Module): ClassLoader {
-    val urls: MutableList<URL> = ArrayList()
+    val files: MutableList<Path> = ArrayList()
     val list: List<String> = OrderEnumerator.orderEntries(module).recursively().runtimeOnly().pathsList.pathList
     for (path in list) {
         try {
-            urls.add(File(FileUtil.toSystemIndependentName(path)).toURI().toURL())
+            files.add(File(FileUtil.toSystemIndependentName(path)).toPath())
         } catch (e1: MalformedURLException) {
             e1.printStackTrace()
         }
     }
 
-    return UrlClassLoader.build().urls(urls).parent(MenuComponent::class.java.classLoader).get()
+    return UrlClassLoader.build().files(files).parent(MenuComponent::class.java.classLoader).get()
 }

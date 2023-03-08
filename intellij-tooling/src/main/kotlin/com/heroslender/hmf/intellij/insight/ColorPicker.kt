@@ -41,7 +41,7 @@ class ColorPicker(parent: JComponent) {
         row: Int,
         cols: Int,
         panel: JPanel,
-        iterator: Iterator<com.heroslender.hmf.intellij.insight.Color>,
+        iterator: Iterator<Color>,
     ) {
         for (i in 0 until cols) {
             if (!iterator.hasNext()) {
@@ -75,12 +75,12 @@ class ColorPicker(parent: JComponent) {
 
         init {
             title = "Choose Color"
-            setResizable(true)
+            isResizable = true
 
             init()
         }
 
-        override fun createCenterPanel(): JComponent? {
+        override fun createCenterPanel(): JComponent {
             return component
         }
     }

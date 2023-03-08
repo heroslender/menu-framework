@@ -40,7 +40,7 @@ class MenuPreviewComponent(
         layout = LayeredPaneLayout(this)
         isVisible = true
         minimumSize = Dimension(
-            50,
+            150,
             50
         )
 
@@ -138,16 +138,9 @@ class MenuPreviewComponent(
 
         val opts = menusPanel.opts
         menusPanel = MenuListComponent(myUi, opts).apply {
-            add(
-                JPanel().apply {
-                    layout = BoxLayout(this, BoxLayout.LINE_AXIS)
-                    border = EmptyBorder(40, 0, 10, 0) // Margin around the element
-
-                    add(JLabel(myFunction.name + " has @Preview! (${myFunction.fqName?.asString()})"))
-                }
-            )
-
+            myUi.add(this)
             add(component)
+            validate()
 
             addMouseListener(object : MouseAdapter() {
                 override fun mouseClicked(e: MouseEvent?) {
@@ -194,7 +187,6 @@ class MenuPreviewComponent(
         }
 
         myUi.setLayer(menusPanel, 0)
-        myUi.add(menusPanel)
 
         myUi.setLayer(panel, 1)
         myUi.add(panel)

@@ -1,13 +1,14 @@
 package com.heroslender.hmf.intellij.preview.components
 
+import com.intellij.util.ui.JBUI
 import java.awt.*
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
 import java.awt.geom.AffineTransform
-import javax.swing.BoxLayout
 import javax.swing.JComponent
 import javax.swing.JPanel
+import kotlin.math.max
 
 class MenuListComponent(
     parent: JComponent,
@@ -16,8 +17,7 @@ class MenuListComponent(
 
     init {
         preferredSize = parent.preferredSize
-        layout = BoxLayout(this, BoxLayout.Y_AXIS)
-        alignmentX = Component.LEFT_ALIGNMENT
+        layout = GridBagLayout()
 
         addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent) {
@@ -55,6 +55,39 @@ class MenuListComponent(
 
             parent.repaint()
         }
+    }
+
+    override fun add(comp: Component): Component {
+        add(comp, GridBagConstraints().apply {
+            anchor = GridBagConstraints.NORTH
+            weighty = 1.0
+            weightx = 1.0
+            insets = JBUI.insetsTop(32)
+        })
+
+        revalidate()
+
+        if (opts.xOffset == 0.0 && opts.yOffset == 0.0) {
+            var maxWidth = 0
+            for (i in 0 until componentCount) {
+                val c = getComponent(i)
+
+                maxWidth = max(maxWidth, c.width)
+            }
+
+            if (maxWidth > 0) {
+                val parentWidth = parent.width - 64.0
+                opts.zoomFactor = parentWidth / maxWidth
+                val zoomedPixels = opts.zoomFactor * parent.width - parent.width
+                opts.xOffset = -(zoomedPixels / 2)
+                opts.yOffset = -(opts.zoomFactor * 32 - 32)
+                opts.prevZoomFactor = opts.zoomFactor
+                opts.zoomer = false
+                println(opts)
+            }
+        }
+
+        return comp
     }
 
     override fun paint(g: Graphics) {
