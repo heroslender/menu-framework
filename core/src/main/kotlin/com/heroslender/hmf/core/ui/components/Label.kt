@@ -71,6 +71,12 @@ internal class TextDrawer(
         var startY = 0
         val xStart = startX
 
+        fun Canvas.paint(x: Int, y: Int, color: IColor) {
+            if (x < this@onDraw.width && y < this@onDraw.height) {
+                setPixel(x, y, color)
+            }
+        }
+
         var i = 0
         while (i < text.length) {
             val ch = text[i]
@@ -82,16 +88,16 @@ internal class TextDrawer(
                 val sprite = font.getChar(ch) ?: continue
 
                 sprite.stream { x, y ->
-                    canvas.setPixel(startX + x, startY + y, color)
+                    canvas.paint(startX + x, startY + y, color)
                 }
 
                 if (!borderColor.isTransparent) {
                     sprite.streamBorder { x, y ->
-                        canvas.setPixel(startX + x, startY + y, borderColor)
+                        canvas.paint(startX + x, startY + y, borderColor)
                     }
                 } else if (!shadowColor.isTransparent) {
                     sprite.streamShadow { x, y ->
-                        canvas.setPixel(startX + x, startY + y, shadowColor)
+                        canvas.paint(startX + x, startY + y, shadowColor)
                     }
                 }
 
