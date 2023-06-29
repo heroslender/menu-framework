@@ -60,7 +60,7 @@ class LayoutNode : Component {
 
     override fun <T> tryClick(x: Int, y: Int, data: T): Boolean {
         if (!hasClickable) {
-            return parent?.tryClick(x, y, data) ?: false
+            return false
         }
 
         var wrapper: ComponentWrapper? = outerWrapper
