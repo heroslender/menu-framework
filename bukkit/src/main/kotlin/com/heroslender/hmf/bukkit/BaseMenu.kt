@@ -1,5 +1,6 @@
 package com.heroslender.hmf.bukkit
 
+import androidx.compose.runtime.CompositionLocalProvider
 import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
 import com.heroslender.hmf.bukkit.map.MapCanvas
 import com.heroslender.hmf.bukkit.modifiers.ClickEventData
@@ -10,19 +11,23 @@ import com.heroslender.hmf.bukkit.screen.getMenuScreenChunks
 import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
 import com.heroslender.hmf.bukkit.utils.BoundingBox
 import com.heroslender.hmf.bukkit.utils.boundingBoxOf
+import com.heroslender.hmf.core.compose.*
+import com.heroslender.hmf.core.ui.modifier.Modifier
+import com.heroslender.hmf.core.ui.modifier.modifiers.size
 import org.bukkit.entity.Player
+import java.util.*
 
 abstract class BaseMenu(
     /** Menu specific options */
     val opts: MenuOptions,
     /** The manager that will handle this menu */
     val manager: BukkitMenuManager,
-    /** The context of the menu */
-    override val context: BukkitContext = Context(manager, MapCanvas(opts.width * 128, opts.height * 128)),
 ) : BukkitMenu {
 
     var screen: MenuScreen? = null
     final override var boundingBox: BoundingBox = BoundingBox.EMPTY
+
+    private var clickHandler: ClickHandler? = null
 
     fun hasEntityId(id: Int): Boolean {
         return screen?.holdsEntityId(id) ?: false
@@ -33,8 +38,6 @@ abstract class BaseMenu(
     }
 
     fun send() {
-        context.menu = this
-
         val chunks = manager.withEntityIdFactory { nextEntityId ->
             manager.register(this)
 
@@ -53,11 +56,27 @@ abstract class BaseMenu(
         screen.viewerTracker.tick()
         screen.spawn()
 
-        context.onUpdate {
-            screen.update(context.canvas)
-        }
+        val canvas = MapCanvas(opts.width * 128, opts.height * 128)
+        ComposeMenu().apply {
+            updateHandler = {
+                println("Updating...")
+                screen.update(canvas)
+                println(canvas.buffer.contentToString())
+            }
 
-        render()
+            rootNode.modifier = Modifier.size(canvas.width, canvas.height)
+            rootNode.canvas = canvas
+//
+            start {
+                clickHandler = LocalClickHandler.current
+                CompositionLocalProvider(LocalCanvas provides canvas) {
+                    println("Passing canvas")
+                    CompositionLocalProvider(LocalImageProvider provides manager.imageProvider) {
+                        getUi()
+                    }
+                }
+            }
+        }
     }
 
     override fun close() {
@@ -81,11 +100,13 @@ abstract class BaseMenu(
         val type = when (action) {
             PacketInterceptor.Action.RIGHT_CLICK ->
                 ClickType.RIGHT_CLICK
+
             else ->
                 ClickType.LEFT_CLICK
         }
 
-        context.handleClick(x, y, ClickEventData(type, player))
+        println("click to " + clickHandler)
+        clickHandler?.processClick(x, y, ClickEventData(type, player))
     }
 
     private fun calculateBoundingBox(): BoundingBox {
@@ -102,15 +123,18 @@ abstract class BaseMenu(
                 bbStartX = startX + .9375
                 bbEndX = bbStartX
             }
+
             1 -> {
                 bbStartX = startX + .0625
                 bbEndX = bbStartX
             }
+
             0 -> { // Equals to 0
                 val left = direction.rotateLeft()
                 bbStartX = if (left.x == -1) (startX + 1).toDouble() else startX.toDouble()
                 bbEndX = bbStartX + width * left.x
             }
+
             else -> {
                 bbStartX = startX.toDouble()
                 bbEndX = bbStartX
@@ -124,15 +148,18 @@ abstract class BaseMenu(
                 bbStartZ = startZ + .9375
                 bbEndZ = bbStartZ
             }
+
             1 -> {
                 bbStartZ = startZ + .0625
                 bbEndZ = bbStartZ
             }
+
             0 -> {
                 val left = direction.rotateLeft()
                 bbStartZ = if (left.z == -1) (startZ + 1).toDouble() else startZ.toDouble()
                 bbEndZ = bbStartZ + width * left.z
             }
+
             else -> {
                 bbStartZ = startZ.toDouble()
                 bbEndZ = bbStartZ

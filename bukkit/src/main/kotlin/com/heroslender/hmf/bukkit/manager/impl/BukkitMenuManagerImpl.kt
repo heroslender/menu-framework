@@ -39,7 +39,7 @@ class BukkitMenuManagerImpl(
 
     init {
         launchCursorTask(opts.cursorUpdateDelay)
-        launchRenderTask(opts.renderUpdateDelay)
+//        launchRenderTask(opts.renderUpdateDelay)
 
         if (opts.listenClicks) {
             this.menuClickListener = object : Listener {
@@ -163,18 +163,18 @@ class BukkitMenuManagerImpl(
         }
     }
 
-    private fun launchRenderTask(delay: Long) {
-        if (delay <= 0) return
-
-        renderTaskId = scheduleAsyncTimer(plugin, delay) {
-            for (menu in menus) {
-                val screen = menu.screen ?: continue
-
-                screen.viewerTracker.tick()
-                menu.also { render(it) }
-            }
-        }
-    }
+//    private fun launchRenderTask(delay: Long) {
+//        if (delay <= 0) return
+//
+//        renderTaskId = scheduleAsyncTimer(plugin, delay) {
+//            for (menu in menus) {
+//                val screen = menu.screen ?: continue
+//
+//                screen.viewerTracker.tick()
+//                menu.also { render(it) }
+//            }
+//        }
+//    }
 
     inline fun raytraceInteraction(player: Player, onIntersect: (menu: BaseMenu, x: Int, y: Int) -> Boolean): Boolean {
         for (menu in menus) {

@@ -1,14 +1,15 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.31"
+    kotlin("jvm") version "1.8.20"
+    id("org.jetbrains.compose") version "1.4.0"
     `maven-publish`
     `java-library`
 }
 
 allprojects {
     group = "com.heroslender"
-    version = "0.0.2-SNAPSHOT"
+    version = "0.0.2.1-SNAPSHOT"
 
     repositories {
         mavenCentral()
@@ -18,17 +19,27 @@ allprojects {
 subprojects {
     apply {
         plugin("org.jetbrains.kotlin.jvm")
+        plugin("org.jetbrains.compose")
         plugin("org.gradle.maven-publish")
     }
 
     repositories {
         maven("https://nexus.heroslender.com/repository/maven-public/")
+        google()
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 
     dependencies {
-        compileOnly(kotlin("stdlib-jdk8"))
+        implementation(kotlin("stdlib-jdk8"))
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
         // Custom minimized fastutil dep made using `./find-deps.sh`
         implementation("it.unimi.dsi:fastutil-min:8.5.11-HMF")
+
+        // Shaded
+        api(compose.runtime) {
+            exclude("org.jetbrains.kotlin")
+            exclude("org.jetbrains.kotlinx")
+        }
 
         testImplementation(platform("org.junit:junit-bom:5.7.1"))
         testImplementation("org.junit.jupiter:junit-jupiter")

@@ -1,23 +1,23 @@
 package com.heroslender.hmf.core.ui.components
 
+import androidx.compose.runtime.Composable
+import com.heroslender.hmf.core.compose.Layout
 import com.heroslender.hmf.core.ui.*
 import com.heroslender.hmf.core.ui.modifier.Constraints
 import com.heroslender.hmf.core.ui.modifier.Modifier
 import kotlin.math.max
 
-fun Composable.Box(
+@Composable
+fun Box(
     modifier: Modifier = Modifier,
     alignment: Alignment = Alignment.TopStart,
-    content: Composable.() -> Unit,
-) = appendComposable(modifier, content) {
-    measurableGroup = boxMeasurableGroup(alignment)
-}
+    content: @Composable () -> Unit,
+) = Layout(boxMeasurableGroup(alignment), modifier, content)
 
-fun Composable.Box(
+@Composable
+fun Box(
     modifier: Modifier = Modifier,
-) = appendComponent(modifier) {
-    measurableGroup = EmptyMeasurableGroup
-}
+) = Layout(EmptyMeasurableGroup, modifier)
 
 object EmptyMeasurableGroup : MeasurableGroup {
     override fun MeasureScope.measure(

@@ -42,8 +42,8 @@ open class MapCanvas(
     }
 
     override fun draw(other: Canvas, offsetX: Int, offsetY: Int) {
-        for (x in 0 until min(other.width, width)) {
-            for (y in 0 until min(other.height, height)) {
+        for (x in 0 until min(other.width - ((other as? MapCanvas)?.offsetX ?: 0), width)) {
+            for (y in 0 until min(other.height - ((other as? MapCanvas)?.offsetY ?: 0), height)) {
                 val color = other.getPixelByte(x, y)
                 if (color != Color.TRANSPARENT.id) {
                     buffer[x + offsetX + (y + offsetY) * width] = color

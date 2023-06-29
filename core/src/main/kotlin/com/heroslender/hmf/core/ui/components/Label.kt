@@ -2,33 +2,32 @@
 
 package com.heroslender.hmf.core.ui.components
 
+import androidx.compose.runtime.Composable
 import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.IColor
+import com.heroslender.hmf.core.compose.Layout
 import com.heroslender.hmf.core.font.Font
 import com.heroslender.hmf.core.font.FontStyle
-import com.heroslender.hmf.core.ui.Composable
 import com.heroslender.hmf.core.ui.Placeable
+import com.heroslender.hmf.core.ui.layout
 import com.heroslender.hmf.core.ui.modifier.Modifier
 import com.heroslender.hmf.core.ui.modifier.type.DrawerModifier
-import com.heroslender.hmf.core.ui.layout
 import kotlin.math.min
 
-fun Composable.Label(
+@Composable
+fun Label(
     text: String,
     style: FontStyle,
     modifier: Modifier = Modifier,
-) {
-    val mod = modifier.then(TextDrawer(text, style))
+) = Layout(
+    measurableGroup = newMeasurableGroup { _, constraints ->
+        val width = min(style.font.getWidth(text), constraints.maxWidth)
+        val height = min(style.font.height, constraints.maxHeight)
 
-    appendComponent(mod) {
-        measurableGroup = newMeasurableGroup { _, constraints ->
-            val width = min(style.font.getWidth(text), constraints.maxWidth)
-            val height = min(style.font.height, constraints.maxHeight)
-
-            layout(width, height)
-        }
-    }
-}
+        layout(width, height)
+    },
+    modifier =  modifier.then(TextDrawer(text, style))
+)
 
 internal class TextDrawer(
     private val text: String,

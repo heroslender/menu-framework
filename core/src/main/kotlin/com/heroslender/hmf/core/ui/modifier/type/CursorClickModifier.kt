@@ -6,7 +6,7 @@ import com.heroslender.hmf.core.ui.modifier.Modifier
 
 interface CursorClickModifier : Modifier.Element {
 
-    fun Placeable.onClick(x: Int, y: Int, component: Component, data: Any): Boolean
+    fun <T>Placeable.onClick(x: Int, y: Int, component: Component, data: T): Boolean
 }
 
 /**
