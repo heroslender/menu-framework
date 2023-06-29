@@ -15,7 +15,6 @@ inline fun Layout(
     name: String = "Unnamed"
 ) {
     val canvas = LocalCanvas.current
-    println("Layout canvas " + canvas)
     ComposeNode<Component, MenuNodeApplier>(
         factory = {LayoutNode()},
         update = {
@@ -24,6 +23,10 @@ inline fun Layout(
             set(canvas) { this.canvas = it}
             set(modifier) { this.modifier = it }
             set(name) { this.name = it}
+
+            reconcile {
+                flagDirty()
+            }
         },
         content = content,
     )
