@@ -126,7 +126,7 @@ class LayoutNode : Component {
 
     override fun draw(canvas: Canvas?): Boolean {
         try {
-            val canvas = if (canvas == null) this.canvas else null
+            val canvas = canvas ?: this.canvas
             if (width == 0 || height == 0 || !outerWrapper.isVisible || canvas == null) {
                 return false
             }
@@ -136,11 +136,16 @@ class LayoutNode : Component {
                     canvas.draw(it, positionX, positionY)
                 }
 
-                return false
+                var result = false
+                for (child in children) {
+                    result = result or child.draw(canvas)
+                }
+
+                return result
             }
 
             // Temporary canvas to handle transparent pixels
-            val tempCanvas: Canvas = getPrevCanvas(canvas)
+            val tempCanvas: Canvas = newPrevCanvas(canvas)
             outerWrapper.draw(tempCanvas)
 
             canvas.draw(tempCanvas, positionX, positionY)
@@ -155,15 +160,9 @@ class LayoutNode : Component {
         }
     }
 
-    private fun getPrevCanvas(canvas: Canvas): Canvas {
-        var prev = this.prevCanvas
-        if (prev == null) {
-            prev = canvas.newCanvas(this.width, this.height)
-            this.prevCanvas = prev
-        } else if (prev.width != this.width || prev.height != this.height) {
-            prev = canvas.newCanvas(this.width, this.height)
-            this.prevCanvas = prev
-        }
+    private fun newPrevCanvas(canvas: Canvas): Canvas {
+        val prev = canvas.newCanvas(this.width, this.height)
+        this.prevCanvas = prev
 
         return prev
     }
