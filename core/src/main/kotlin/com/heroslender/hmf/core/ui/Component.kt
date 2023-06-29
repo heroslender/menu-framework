@@ -8,7 +8,7 @@ import com.heroslender.hmf.core.ui.modifier.Modifier
  */
 interface Component : Measurable {
 
-    val name: String
+    var name: String
 
     /**
      * Component width, including padding and excluding its margin.

@@ -9,12 +9,16 @@ import com.heroslender.hmf.core.ui.modifier.type.DrawerModifier
 import com.heroslender.hmf.core.ui.modifier.type.LayoutModifier
 import com.heroslender.hmf.core.ui.modifier.type.MeasurableDataModifier
 
-class LayoutNode: Component {
+class LayoutNode : Component {
     override var parent: Component? = null
     override var modifier: Modifier = Modifier
+        set(value) {
+            field = value
+            outerWrapper = defaultOuter(value, innerWrapper)
+        }
     override var canvas: Canvas? = null
 
-    override val name: String = Throwable().stackTrace[2].methodName
+    override var name: String = Throwable().stackTrace[2].methodName
     override var positionX: Int = 0
     override var positionY: Int = 0
 
@@ -31,7 +35,7 @@ class LayoutNode: Component {
     override val children: MutableList<Component> = mutableListOf()
 
     val innerWrapper: ComponentWrapper = InnerComponentWrapper(this)
-    val outerWrapper: ComponentWrapper = defaultOuter(modifier, innerWrapper)
+    var outerWrapper: ComponentWrapper = defaultOuter(modifier, innerWrapper)
 
     override val parentData: Any?
         get() = outerWrapper.parentData
@@ -54,7 +58,7 @@ class LayoutNode: Component {
 
     private var hasClickable: Boolean = false
 
-    override fun<T> tryClick(x: Int, y: Int, data: T): Boolean {
+    override fun <T> tryClick(x: Int, y: Int, data: T): Boolean {
         if (!hasClickable) {
             return parent?.tryClick(x, y, data) ?: false
         }
@@ -124,7 +128,6 @@ class LayoutNode: Component {
         try {
             val canvas = if (canvas == null) this.canvas else null
             if (width == 0 || height == 0 || !outerWrapper.isVisible || canvas == null) {
-                println("1")
                 return false
             }
 
@@ -133,7 +136,6 @@ class LayoutNode: Component {
                     canvas.draw(it, positionX, positionY)
                 }
 
-                println("2")
                 return false
             }
 
@@ -189,4 +191,23 @@ class LayoutNode: Component {
 
         return m
     }
+
+    override fun toString(): String {
+        return "LayoutNode(name='$name')"
+    }
+
+    fun dump() {
+        if (children.isEmpty()) {
+            println(deepSpaces + name + "(" + width + "x" + height + ");")
+        } else {
+            println(deepSpaces + name + "(" + width + "x" + height + ") {")
+            for (child in children) {
+                (child as LayoutNode).dump()
+            }
+            println(deepSpaces + "}")
+        }
+    }
+
+    val deepSpaces: String
+        get() = " ".repeat(deepLevel)
 }

@@ -26,7 +26,7 @@ class ComposeMenu : CoroutineScope {
     val composeScope = CoroutineScope(Dispatchers.Default) + clock
     override val coroutineContext: CoroutineContext = composeScope.coroutineContext
 
-    val rootNode = LayoutNode()
+    val rootNode = LayoutNode().apply { name = "root" }
     var updateHandler: () -> Unit = {}
 
     var running = false
@@ -78,9 +78,6 @@ class ComposeMenu : CoroutineScope {
                     }
                 }) {
                     content()
-
-                    println("Set canvas to " + LocalCanvas.current)
-//                    rootNode.canvas = LocalCanvas.current
                 }
             }
 
@@ -89,13 +86,10 @@ class ComposeMenu : CoroutineScope {
                 if (hasFrameWaiters) {
                     hasFrameWaiters = false
                     clock.sendFrame(System.nanoTime()) // Frame time value is not used by Compose runtime.
-                    rootNode.measure(Constraints(rootNode.canvas?.width ?: 0, minHeight = rootNode.canvas?.height ?: 0))
+                    rootNode.measure(Constraints())
                     rootNode.outerWrapper.placeAt(0, 0)
                     val draw = rootNode.draw(null)
-                    println("Drawed to " + rootNode.canvas + "; width = " + rootNode.width + ", height = " + rootNode.height)
-                    updateHandler()
                     if (draw) {
-                        println("Send update request")
                         updateHandler()
                     }
                 }

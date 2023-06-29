@@ -26,6 +26,7 @@ fun Row(
     ),
     modifier = modifier,
     content = content,
+    name = "Row"
 )
 
 @Composable
@@ -38,6 +39,7 @@ fun Column(
     measurableGroup = orientedCopmonentMeasurableGroup(Orientation.VERTICAL, verticalArrangement, horizontalAlignment),
     modifier = modifier,
     content = content,
+    name = "Column"
 )
 
 enum class Direction {

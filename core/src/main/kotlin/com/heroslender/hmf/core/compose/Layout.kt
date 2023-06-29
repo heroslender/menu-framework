@@ -11,7 +11,8 @@ import com.heroslender.hmf.core.ui.modifier.Modifier
 inline fun Layout(
     measurableGroup: MeasurableGroup = MeasurableGroup,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit = {}
+    content: @Composable () -> Unit = {},
+    name: String = "Unnamed"
 ) {
     val canvas = LocalCanvas.current
     println("Layout canvas " + canvas)
@@ -22,6 +23,7 @@ inline fun Layout(
             //TODO dunno if this works
             set(canvas) { this.canvas = it}
             set(modifier) { this.modifier = it }
+            set(name) { this.name = it}
         },
         content = content,
     )

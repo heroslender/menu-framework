@@ -12,12 +12,12 @@ fun Box(
     modifier: Modifier = Modifier,
     alignment: Alignment = Alignment.TopStart,
     content: @Composable () -> Unit,
-) = Layout(boxMeasurableGroup(alignment), modifier, content)
+) = Layout(boxMeasurableGroup(alignment), modifier, content, "Box")
 
 @Composable
 fun Box(
     modifier: Modifier = Modifier,
-) = Layout(EmptyMeasurableGroup, modifier)
+) = Layout(EmptyMeasurableGroup, modifier, name = "Box")
 
 object EmptyMeasurableGroup : MeasurableGroup {
     override fun MeasureScope.measure(

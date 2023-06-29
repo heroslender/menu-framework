@@ -12,10 +12,10 @@ import com.heroslender.hmf.bukkit.sdk.nms.PacketInterceptor
 import com.heroslender.hmf.bukkit.utils.BoundingBox
 import com.heroslender.hmf.bukkit.utils.boundingBoxOf
 import com.heroslender.hmf.core.compose.*
+import com.heroslender.hmf.core.ui.components.Box
 import com.heroslender.hmf.core.ui.modifier.Modifier
-import com.heroslender.hmf.core.ui.modifier.modifiers.size
+import com.heroslender.hmf.core.ui.modifier.modifiers.maxSize
 import org.bukkit.entity.Player
-import java.util.*
 
 abstract class BaseMenu(
     /** Menu specific options */
@@ -59,20 +59,17 @@ abstract class BaseMenu(
         val canvas = MapCanvas(opts.width * 128, opts.height * 128)
         ComposeMenu().apply {
             updateHandler = {
-                println("Updating...")
                 screen.update(canvas)
-                println(canvas.buffer.contentToString())
             }
 
-            rootNode.modifier = Modifier.size(canvas.width, canvas.height)
             rootNode.canvas = canvas
-//
             start {
-                clickHandler = LocalClickHandler.current
-                CompositionLocalProvider(LocalCanvas provides canvas) {
-                    println("Passing canvas")
-                    CompositionLocalProvider(LocalImageProvider provides manager.imageProvider) {
-                        getUi()
+                Box(modifier = Modifier.maxSize(canvas.width, canvas.height)) {
+                    clickHandler = LocalClickHandler.current
+                    CompositionLocalProvider(LocalCanvas provides canvas) {
+                        CompositionLocalProvider(LocalImageProvider provides manager.imageProvider) {
+                            getUi()
+                        }
                     }
                 }
             }
@@ -105,7 +102,6 @@ abstract class BaseMenu(
                 ClickType.LEFT_CLICK
         }
 
-        println("click to " + clickHandler)
         clickHandler?.processClick(x, y, ClickEventData(type, player))
     }
 
