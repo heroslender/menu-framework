@@ -26,7 +26,8 @@ fun Label(
 
         layout(width, height)
     },
-    modifier =  modifier.then(TextDrawer(text, style))
+    modifier =  modifier.then(TextDrawer(text, style)),
+    name = "Label",
 )
 
 internal class TextDrawer(

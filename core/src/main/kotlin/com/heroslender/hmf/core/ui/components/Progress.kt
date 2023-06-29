@@ -1,14 +1,13 @@
 package com.heroslender.hmf.core.ui.components
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.IColor
-import com.heroslender.hmf.core.State
 import com.heroslender.hmf.core.compose.Layout
 import com.heroslender.hmf.core.ui.Placeable
 import com.heroslender.hmf.core.ui.modifier.Modifier
 import com.heroslender.hmf.core.ui.modifier.type.DrawerModifier
-import com.heroslender.hmf.core.ui.withState
 
 @Composable
 fun ProgressBar(
@@ -24,7 +23,10 @@ fun ProgressBar(
     filledColor: IColor,
     backgroundColor: IColor,
     modifier: Modifier = Modifier,
-) = Layout(modifier = modifier.then(ProgressBarDrawer(progress, filledColor, backgroundColor)))
+) = Layout(
+    modifier = modifier.then(ProgressBarDrawer(progress, filledColor, backgroundColor)),
+    name = "ProgressBar",
+)
 
 class StatedProgressBarDrawer(
     private val progressState: State<Int>,

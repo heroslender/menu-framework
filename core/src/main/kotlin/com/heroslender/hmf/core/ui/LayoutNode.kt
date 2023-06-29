@@ -197,15 +197,17 @@ class LayoutNode : Component {
 
     fun dump() {
         if (children.isEmpty()) {
-            println(deepSpaces + name + "(" + width + "x" + height + ");")
+            println(deepSpaces + getDumpText() + ";")
         } else {
-            println(deepSpaces + name + "(" + width + "x" + height + ") {")
+            println(deepSpaces + getDumpText() + " {")
             for (child in children) {
                 (child as LayoutNode).dump()
             }
             println(deepSpaces + "}")
         }
     }
+
+    fun getDumpText(): String = name + "(" + width + "x" + height + ")"
 
     val deepSpaces: String
         get() = " ".repeat(deepLevel)

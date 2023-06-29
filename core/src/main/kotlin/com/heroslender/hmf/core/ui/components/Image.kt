@@ -36,6 +36,7 @@ inline fun Image(
     Layout(
         measurableGroup = imageAssetDrawer,
         modifier = modifier.then(imageAssetDrawer),
+        name = "Image",
     )
 }
 
@@ -50,7 +51,8 @@ inline fun Image(
 
         layout(width, height)
     },
-    modifier = modifier.then(ImageDrawer(image))
+    modifier = modifier.then(ImageDrawer(image)),
+    name = "Image",
 )
 
 class ImageDrawer(
