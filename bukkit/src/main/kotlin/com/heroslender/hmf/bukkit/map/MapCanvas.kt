@@ -62,7 +62,7 @@ open class MapCanvas(
         this.offsetY += y
     }
 
-    override fun newCanvas(width: Int, height: Int): Canvas = UnverifiedMapCanvas(width, height)
+    override fun newCanvas(width: Int, height: Int): Canvas = MapCanvas(width, height)
 
     override fun subCanvas(width: Int, height: Int, offsetX: Int, offsetY: Int): Canvas {
         val canvas = UnverifiedMapCanvas(width, height)

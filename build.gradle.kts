@@ -9,7 +9,7 @@ plugins {
 
 allprojects {
     group = "com.heroslender"
-    version = "0.0.2.1-SNAPSHOT"
+    version = "0.1.0-SNAPSHOT"
 
     repositories {
         mavenCentral()
@@ -24,8 +24,8 @@ subprojects {
     }
 
     repositories {
-        maven("https://nexus.heroslender.com/repository/maven-public/")
         google()
+        maven("https://nexus.heroslender.com/repository/maven-public/")
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 
