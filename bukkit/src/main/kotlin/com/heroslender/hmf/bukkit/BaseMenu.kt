@@ -28,6 +28,7 @@ abstract class BaseMenu(
     final override var boundingBox: BoundingBox = BoundingBox.EMPTY
 
     private var clickHandler: ClickHandler? = null
+    private var composeMenu: ComposeMenu? = null
 
     fun hasEntityId(id: Int): Boolean {
         return screen?.holdsEntityId(id) ?: false
@@ -38,6 +39,8 @@ abstract class BaseMenu(
     }
 
     fun send() {
+        close()
+
         val chunks = manager.withEntityIdFactory { nextEntityId ->
             manager.register(this)
 
@@ -64,12 +67,15 @@ abstract class BaseMenu(
 
             rootNode.canvas = canvas
             start {
-                Box(modifier = Modifier.maxSize(canvas.width, canvas.height)) {
-                    clickHandler = LocalClickHandler.current
-                    CompositionLocalProvider(LocalCanvas provides canvas) {
-                        CompositionLocalProvider(LocalImageProvider provides manager.imageProvider) {
-                            getUi()
-                        }
+                clickHandler = LocalClickHandler.current
+
+                CompositionLocalProvider(
+                    LocalCanvas provides canvas,
+                    LocalMenu provides this@BaseMenu,
+                    LocalImageProvider provides manager.imageProvider,
+                ) {
+                    Box(modifier = Modifier.maxSize(canvas.width, canvas.height)) {
+                        getUi()
                     }
                 }
             }
@@ -77,16 +83,9 @@ abstract class BaseMenu(
     }
 
     override fun close() {
-        dispose()
-        destroy()
-    }
-
-    fun destroy() {
-        screen?.despawn()
-    }
-
-    fun dispose() {
         manager.unregister(this)
+        screen?.despawn()
+        composeMenu?.exit()
     }
 
     override fun tickCursor(player: Player, x: Int, y: Int) {

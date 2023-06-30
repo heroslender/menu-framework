@@ -33,3 +33,5 @@ data class ClickEvent<T>(
      */
     val data: T,
 )
+
+fun ClickEvent<*>.closeMenu() = component.menu.close()

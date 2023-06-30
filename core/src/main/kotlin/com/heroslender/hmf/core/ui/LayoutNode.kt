@@ -1,6 +1,7 @@
 package com.heroslender.hmf.core.ui
 
 import com.heroslender.hmf.core.Canvas
+import com.heroslender.hmf.core.Menu
 import com.heroslender.hmf.core.ui.modifier.Constraints
 import com.heroslender.hmf.core.ui.modifier.Modifier
 import com.heroslender.hmf.core.ui.modifier.node.*
@@ -16,6 +17,7 @@ class LayoutNode : Component {
             field = value
             outerWrapper = defaultOuter(value, innerWrapper)
         }
+    override lateinit var menu: Menu
     override var canvas: Canvas? = null
 
     override var name: String = Throwable().stackTrace[2].methodName

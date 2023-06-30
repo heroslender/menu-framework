@@ -1,6 +1,7 @@
 package com.heroslender.hmf.core.ui
 
 import com.heroslender.hmf.core.Canvas
+import com.heroslender.hmf.core.Menu
 import com.heroslender.hmf.core.ui.modifier.Modifier
 
 /**
@@ -9,6 +10,8 @@ import com.heroslender.hmf.core.ui.modifier.Modifier
 interface Component : Measurable {
 
     var name: String
+
+    var menu: Menu
 
     /**
      * Component width, including padding and excluding its margin.

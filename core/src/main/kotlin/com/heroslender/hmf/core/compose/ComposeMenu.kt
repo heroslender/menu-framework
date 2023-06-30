@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.Snapshot
 import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.ImageProvider
+import com.heroslender.hmf.core.Menu
 import com.heroslender.hmf.core.ui.LayoutNode
 import com.heroslender.hmf.core.ui.modifier.Constraints
 import kotlinx.coroutines.*
@@ -15,6 +16,8 @@ val LocalCanvas: ProvidableCompositionLocal<Canvas?> =
     staticCompositionLocalOf { null }
 val LocalImageProvider: ProvidableCompositionLocal<ImageProvider> =
     staticCompositionLocalOf { error("No provider for local image provider") }
+val LocalMenu: ProvidableCompositionLocal<Menu> =
+    staticCompositionLocalOf { error("No provider for local menu") }
 
 interface ClickHandler {
     fun <T> processClick(x: Int, y: Int, data: T)
@@ -64,9 +67,7 @@ class ComposeMenu : CoroutineScope {
             composition.setContent {
                 CompositionLocalProvider(LocalClickHandler provides object : ClickHandler {
                     override fun <T> processClick(x: Int, y: Int, data: T) {
-                        hasFrameWaiters = true
-                        println("click")
-                        rootNode.foldOut(false) { acc, component ->
+                        val result = rootNode.foldOut(false) { acc, component ->
                             if (!acc) {
                                 if (component.checkIntersects(x, y)) {
                                     return@foldOut component.tryClick(x, y, data)
@@ -74,6 +75,10 @@ class ComposeMenu : CoroutineScope {
                             }
 
                             return@foldOut acc
+                        }
+
+                        if (result) {
+                            hasFrameWaiters = true
                         }
                     }
                 }) {

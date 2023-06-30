@@ -12,17 +12,21 @@ inline fun Layout(
     measurableGroup: MeasurableGroup = MeasurableGroup,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit = {},
-    name: String = "Unnamed"
+    name: String = "Unnamed",
 ) {
     val canvas = LocalCanvas.current
+    val menu = LocalMenu.current
     ComposeNode<Component, MenuNodeApplier>(
-        factory = {LayoutNode()},
+        factory = {
+            LayoutNode().apply {
+                this.name = name
+                this.menu = menu
+            }
+        },
         update = {
             set(measurableGroup) { this.measurableGroup = it }
-            //TODO dunno if this works
-            set(canvas) { this.canvas = it}
+            set(canvas) { this.canvas = it }
             set(modifier) { this.modifier = it }
-            set(name) { this.name = it}
 
             reconcile {
                 flagDirty()
