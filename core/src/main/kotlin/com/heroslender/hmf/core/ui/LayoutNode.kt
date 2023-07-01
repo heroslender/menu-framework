@@ -1,7 +1,7 @@
 package com.heroslender.hmf.core.ui
 
 import com.heroslender.hmf.core.Canvas
-import com.heroslender.hmf.core.RenderContext
+import com.heroslender.hmf.core.Menu
 import com.heroslender.hmf.core.ui.modifier.Constraints
 import com.heroslender.hmf.core.ui.modifier.Modifier
 import com.heroslender.hmf.core.ui.modifier.node.*
@@ -10,13 +10,17 @@ import com.heroslender.hmf.core.ui.modifier.type.DrawerModifier
 import com.heroslender.hmf.core.ui.modifier.type.LayoutModifier
 import com.heroslender.hmf.core.ui.modifier.type.MeasurableDataModifier
 
-abstract class AbstractNode(
-    override val parent: Composable?,
-    override val modifier: Modifier = Modifier,
-    override val renderContext: RenderContext = parent!!.renderContext,
-) : Component {
+class LayoutNode : Component {
+    override var parent: Component? = null
+    override var modifier: Modifier = Modifier
+        set(value) {
+            field = value
+            outerWrapper = defaultOuter(value, innerWrapper)
+        }
+    override lateinit var menu: Menu
+    override var canvas: Canvas? = null
 
-    override val name: String = Throwable().stackTrace[2].methodName
+    override var name: String = Throwable().stackTrace[2].methodName
     override var positionX: Int = 0
     override var positionY: Int = 0
 
@@ -25,8 +29,15 @@ abstract class AbstractNode(
     override val height: Int
         get() = outerWrapper.height
 
-    abstract val innerWrapper: ComponentWrapper
-    abstract val outerWrapper: ComponentWrapper
+    override var childOffsetX: Int = 0
+        private set
+    override var childOffsetY: Int = 0
+        private set
+
+    override val children: MutableList<Component> = mutableListOf()
+
+    val innerWrapper: ComponentWrapper = InnerComponentWrapper(this)
+    var outerWrapper: ComponentWrapper = defaultOuter(modifier, innerWrapper)
 
     override val parentData: Any?
         get() = outerWrapper.parentData
@@ -49,9 +60,9 @@ abstract class AbstractNode(
 
     private var hasClickable: Boolean = false
 
-    override fun tryClick(x: Int, y: Int, data: Any): Boolean {
+    override fun <T> tryClick(x: Int, y: Int, data: T): Boolean {
         if (!hasClickable) {
-            return parent?.tryClick(x, y, data) ?: false
+            return false
         }
 
         var wrapper: ComponentWrapper? = outerWrapper
@@ -78,6 +89,9 @@ abstract class AbstractNode(
     }
 
     override fun onNodePlaced() {
+        childOffsetX = childOffset(0) { it.x }
+        childOffsetY = childOffset(0) { it.y }
+
         this.positionX = (parent?.positionX ?: 0) + (parent?.childOffsetX ?: 0) + outerWrapper.x
         this.positionY = (parent?.positionY ?: 0) + (parent?.childOffsetY ?: 0) + outerWrapper.y
 
@@ -112,9 +126,10 @@ abstract class AbstractNode(
     // this component won't be drawn over the previous
     private var prevCanvas: Canvas? = null
 
-    override fun draw(canvas: Canvas): Boolean {
+    override fun draw(canvas: Canvas?): Boolean {
         try {
-            if (width == 0 || height == 0 || !outerWrapper.isVisible) {
+            val canvas = canvas ?: this.canvas
+            if (width == 0 || height == 0 || !outerWrapper.isVisible || canvas == null) {
                 return false
             }
 
@@ -123,14 +138,23 @@ abstract class AbstractNode(
                     canvas.draw(it, positionX, positionY)
                 }
 
-                return false
+                var result = false
+                for (child in children) {
+                    result = result or child.draw(canvas)
+                }
+
+                return result
             }
 
             // Temporary canvas to handle transparent pixels
-            val tempCanvas: Canvas = getPrevCanvas()
+            val tempCanvas: Canvas = newPrevCanvas(canvas)
             outerWrapper.draw(tempCanvas)
 
             canvas.draw(tempCanvas, positionX, positionY)
+
+            for (child in children) {
+                child.draw(canvas)
+            }
 
             return true
         } finally {
@@ -138,15 +162,9 @@ abstract class AbstractNode(
         }
     }
 
-    private fun getPrevCanvas(): Canvas {
-        var prev = this.prevCanvas
-        if (prev == null) {
-            prev = renderContext.canvas.newCanvas(this.width, this.height)
-            this.prevCanvas = prev
-        } else if (prev.width != this.width || prev.height != this.height) {
-            prev = renderContext.canvas.newCanvas(this.width, this.height)
-            this.prevCanvas = prev
-        }
+    private fun newPrevCanvas(canvas: Canvas): Canvas {
+        val prev = canvas.newCanvas(this.width, this.height)
+        this.prevCanvas = prev
 
         return prev
     }
@@ -158,4 +176,41 @@ abstract class AbstractNode(
     override fun minIntrinsicHeight(width: Int): Int = outerWrapper.minIntrinsicHeight(width)
 
     override fun maxIntrinsicHeight(width: Int): Int = outerWrapper.maxIntrinsicHeight(width)
+
+    /**
+     * Calculate the offset added to children, this
+     * could be padding for example.
+     */
+    private inline fun childOffset(metric: Int, op: (wrapper: ComponentWrapper) -> Int): Int {
+        var m = metric
+        var wrapper: ComponentWrapper? = outerWrapper.wrapped
+        while (wrapper != null) {
+            m += op(wrapper)
+
+            wrapper = wrapper.wrapped
+        }
+
+        return m
+    }
+
+    override fun toString(): String {
+        return "LayoutNode(name='$name')"
+    }
+
+    fun dump() {
+        if (children.isEmpty()) {
+            println(deepSpaces + getDumpText() + ";")
+        } else {
+            println(deepSpaces + getDumpText() + " {")
+            for (child in children) {
+                (child as LayoutNode).dump()
+            }
+            println(deepSpaces + "}")
+        }
+    }
+
+    fun getDumpText(): String = name + "(" + width + "x" + height + ")"
+
+    val deepSpaces: String
+        get() = " ".repeat(deepLevel)
 }

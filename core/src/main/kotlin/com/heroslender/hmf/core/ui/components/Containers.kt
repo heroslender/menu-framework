@@ -1,5 +1,7 @@
 package com.heroslender.hmf.core.ui.components
 
+import androidx.compose.runtime.Composable
+import com.heroslender.hmf.core.compose.Layout
 import com.heroslender.hmf.core.ui.*
 import com.heroslender.hmf.core.ui.modifier.Constraints
 import com.heroslender.hmf.core.ui.modifier.Modifier
@@ -10,23 +12,35 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sign
 
-fun Composable.Row(
+@Composable
+fun Row(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Horizontal.Start,
     verticalAlignment: Alignment.Vertical = Alignment.Vertical.Top,
-    content: Composable.() -> Unit,
-) = appendComposable(modifier, content) {
-    measurableGroup = orientedCopmonentMeasurableGroup(Orientation.HORIZONTAL, horizontalArrangement, verticalAlignment)
-}
+    content: @Composable () -> Unit,
+) = Layout(
+    measurableGroup = orientedCopmonentMeasurableGroup(
+        Orientation.HORIZONTAL,
+        horizontalArrangement,
+        verticalAlignment
+    ),
+    modifier = modifier,
+    content = content,
+    name = "Row"
+)
 
-fun Composable.Column(
+@Composable
+fun Column(
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.Vertical.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Horizontal.Start,
-    content: Composable.() -> Unit,
-) = appendComposable(modifier, content) {
-    measurableGroup = orientedCopmonentMeasurableGroup(Orientation.VERTICAL, verticalArrangement, horizontalAlignment)
-}
+    content: @Composable () -> Unit,
+) = Layout(
+    measurableGroup = orientedCopmonentMeasurableGroup(Orientation.VERTICAL, verticalArrangement, horizontalAlignment),
+    modifier = modifier,
+    content = content,
+    name = "Column"
+)
 
 enum class Direction {
     HORIZONTAL,

@@ -7,7 +7,7 @@ class ClickableModifierWrapper(
     modifier: CursorClickModifier,
 ) : ModifierElementWrapper<CursorClickModifier>(wrapped, modifier) {
 
-    fun click(x: Int, y: Int, data: Any): Boolean =
+    fun <T>click(x: Int, y: Int, data: T): Boolean =
         with(modifier) {
             return onClick(
                 x = x,

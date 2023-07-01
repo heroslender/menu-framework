@@ -2,8 +2,11 @@
 
 package com.heroslender.hmf.core.ui.components
 
+import androidx.compose.runtime.Composable
 import com.heroslender.hmf.core.Canvas
 import com.heroslender.hmf.core.ImageProvider
+import com.heroslender.hmf.core.compose.Layout
+import com.heroslender.hmf.core.compose.LocalImageProvider
 import com.heroslender.hmf.core.ui.*
 import com.heroslender.hmf.core.ui.modifier.Constraints
 import com.heroslender.hmf.core.ui.modifier.Modifier
@@ -18,21 +21,47 @@ interface Image {
     fun Placeable.draw(canvas: Canvas)
 }
 
-inline fun Composable.Image(
+@Composable
+inline fun Image(
     asset: String,
     resizeMode: ImageProvider.ImageResizeMode = ImageProvider.ImageResizeMode.CONTAIN,
     cached: Boolean = true,
     modifier: Modifier = Modifier,
-) {
-    val imageAssetDrawer = ImageAssetDrawer(
-        imageProvider = renderContext.manager.imageProvider,
-        asset = asset,
-        resizeMode = resizeMode,
-        cached = cached,
+) = ImageAssetDrawer(
+    imageProvider = LocalImageProvider.current,
+    asset = asset,
+    resizeMode = resizeMode,
+    cached = cached,
+).let { imageAssetDrawer ->
+    Layout(
+        measurableGroup = imageAssetDrawer,
+        modifier = modifier.then(imageAssetDrawer),
+        name = "Image",
     )
+}
 
-    appendComponent(modifier.then(imageAssetDrawer)) {
-        measurableGroup = imageAssetDrawer
+@Composable
+inline fun Image(
+    image: Image,
+    modifier: Modifier = Modifier,
+) = Layout(
+    measurableGroup = newMeasurableGroup { _, constraints ->
+        val width = min(image.width, constraints.maxWidth)
+        val height = min(image.height, constraints.maxHeight)
+
+        layout(width, height)
+    },
+    modifier = modifier.then(ImageDrawer(image)),
+    name = "Image",
+)
+
+class ImageDrawer(
+    val image: Image,
+) : DrawerModifier {
+    override fun Placeable.onDraw(canvas: Canvas) {
+        with(image) {
+            draw(canvas)
+        }
     }
 }
 
@@ -66,54 +95,6 @@ class ImageAssetDrawer(
 
     override fun Placeable.onDraw(canvas: Canvas) {
         with(image ?: return) {
-            draw(canvas)
-        }
-    }
-}
-
-@Deprecated("Use Image(asset, width, height, resizeMode, cached, modifier)")
-inline fun Composable.Image(
-    asset: String,
-    width: Int = -1,
-    height: Int = -1,
-    cached: Boolean = true,
-    modifier: Modifier = Modifier,
-) {
-    val image = renderContext.manager.imageProvider.getImage(asset,
-        width,
-        height,
-        ImageProvider.ImageResizeMode.STRETCH,
-        cached) ?: return
-
-    Image(
-        image = image,
-        modifier = modifier,
-    )
-}
-
-@Deprecated("Use Image(asset, width, height, resizeMode, cached, modifier)")
-inline fun Composable.Image(
-    image: Image,
-    modifier: Modifier = Modifier,
-) {
-    val mod = modifier.then(ImageDrawer(image))
-
-    appendComponent(mod) {
-        measurableGroup = newMeasurableGroup { _, constraints ->
-            val width = min(image.width, constraints.maxWidth)
-            val height = min(image.height, constraints.maxHeight)
-
-            layout(width, height)
-        }
-    }
-}
-
-@Deprecated("Use ImageAssetDrawer")
-class ImageDrawer(
-    val image: Image,
-) : DrawerModifier {
-    override fun Placeable.onDraw(canvas: Canvas) {
-        with(image) {
             draw(canvas)
         }
     }

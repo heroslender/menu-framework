@@ -27,7 +27,7 @@ fun Modifier.clickable(onClick: ClickListener?): Modifier {
  */
 fun clickableListener(callback: ClickListener): CursorClickModifier {
     return object : CursorClickModifier {
-        override fun Placeable.onClick(x: Int, y: Int, component: Component, data: Any): Boolean {
+        override fun <T> Placeable.onClick(x: Int, y: Int, component: Component, data: T): Boolean {
             val eventData = data as? ClickEventData ?: return false
 
             ClickEvent(

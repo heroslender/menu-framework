@@ -1,7 +1,7 @@
 package com.heroslender.hmf.core.ui
 
 import com.heroslender.hmf.core.Canvas
-import com.heroslender.hmf.core.RenderContext
+import com.heroslender.hmf.core.Menu
 import com.heroslender.hmf.core.ui.modifier.Modifier
 
 /**
@@ -9,7 +9,9 @@ import com.heroslender.hmf.core.ui.modifier.Modifier
  */
 interface Component : Measurable {
 
-    val name: String
+    var name: String
+
+    var menu: Menu
 
     /**
      * Component width, including padding and excluding its margin.
@@ -24,20 +26,16 @@ interface Component : Measurable {
     /**
      * Modifiers to be applied to this component.
      */
-    val modifier: Modifier
-        get() = Modifier
+    var modifier: Modifier
+
+    var canvas: Canvas?
 
     /**
      * The parent component that holds this.
      *
      * This will be null for the root component.
      */
-    val parent: Composable?
-
-    /**
-     * The context in which this component is being rendered.
-     */
-    val renderContext: RenderContext
+    var parent: Component?
 
     /**
      * The `x` position for this component in the canvas.
@@ -54,6 +52,14 @@ interface Component : Measurable {
      */
     var isDirty: Boolean
 
+    val childOffsetX: Int
+    val childOffsetY: Int
+
+    /**
+     * List of children this composable holds.
+     */
+    val children: MutableList<Component>
+
     /**
      * Flag the component as dirty, this will mark it to
      * be redrawn during the next cycle.
@@ -64,17 +70,33 @@ interface Component : Measurable {
 
     fun checkIntersects(x: Int, y: Int): Boolean
 
-    fun tryClick(x: Int, y: Int, data: Any): Boolean
+    fun <T>tryClick(x: Int, y: Int, data: T): Boolean
 
     var measurableGroup: MeasurableGroup
 
     fun onNodePlaced()
 
-    fun draw(canvas: Canvas): Boolean
+    fun draw(canvas: Canvas?): Boolean
 
-    fun <R> foldIn(acc: R, op: (R, Component) -> R): R = op(acc, this)
+    fun <R> foldIn(acc: R, op: (R, Component) -> R): R {
+        var a = op(acc, this)
 
-    fun <R> foldOut(acc: R, op: (R, Component) -> R): R = op(acc, this)
+        for (child in children) {
+            a = child.foldIn(a, op)
+        }
+
+        return a
+    }
+
+    fun <R> foldOut(acc: R, op: (R, Component) -> R): R {
+        var a = acc
+
+        for (child in children.reversed()) {
+            a = child.foldOut(a, op)
+        }
+
+        return op(acc, this)
+    }
 
     /**
      * Used for debugging.

@@ -42,8 +42,8 @@ open class MapCanvas(
     }
 
     override fun draw(other: Canvas, offsetX: Int, offsetY: Int) {
-        for (x in 0 until min(other.width, width)) {
-            for (y in 0 until min(other.height, height)) {
+        for (x in 0 until min(other.width - ((other as? MapCanvas)?.offsetX ?: 0), width)) {
+            for (y in 0 until min(other.height - ((other as? MapCanvas)?.offsetY ?: 0), height)) {
                 val color = other.getPixelByte(x, y)
                 if (color != Color.TRANSPARENT.id) {
                     buffer[x + offsetX + (y + offsetY) * width] = color
@@ -62,7 +62,7 @@ open class MapCanvas(
         this.offsetY += y
     }
 
-    override fun newCanvas(width: Int, height: Int): Canvas = UnverifiedMapCanvas(width, height)
+    override fun newCanvas(width: Int, height: Int): Canvas = MapCanvas(width, height)
 
     override fun subCanvas(width: Int, height: Int, offsetX: Int, offsetY: Int): Canvas {
         val canvas = UnverifiedMapCanvas(width, height)

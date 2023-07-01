@@ -1,3 +1,7 @@
+plugins {
+    id("com.github.johnrengelman.shadow") version "5.2.0"
+}
+
 repositories {
     maven("https://oss.sonatype.org/content/repositories/snapshots")
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots")

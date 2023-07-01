@@ -31,16 +31,19 @@ class SampleMenu(player: Player, manager: BukkitMenuManager) : BaseMenu(
     },
     manager = manager,
 ) {
-    private val counter = mutableStateOf(0)
-    
-    override fun Composable.getUi() {
+    private val counterState = mutableStateOf(0)
+
+    @Composable
+    override fun getUi() {
         Column(modifier = Modifier.fillSize().background(Color.CYAN_7)) {
+            var counter by counterState
+            
             Box(
                 modifier = Modifier
                     .padding(10)
                     .size(50, 50)
                     .clickable {
-                        counter.value++
+                        counter++
                         whoCLicked.sendMessage("${ChatColor.GREEN}Counter incremented to ${counter.value}!")
                     }
                     .border(Color.BLACK_1)
@@ -51,18 +54,15 @@ class SampleMenu(player: Player, manager: BukkitMenuManager) : BaseMenu(
                     .padding(0, 10)
                     .size(50, 50)
                     .clickable {
-                        counter.value--
+                        counter--
                         whoCLicked.sendMessage("${ChatColor.RED}Counter decremented to ${counter.value}!")
                     }
                     .border(Color.BLACK_1)
                     .background(Color.RED_1)
             )
 
-            // Bind the state to this component, so that the
-            // component updates with it.
-            val count = withState(counter)
             Label(
-                "Couter value: $count",
+                "Couter value: $counter",
                 style = FontStyle(
                     font = UBUNTU_MONO_16,
                     color = Color.BLACK_1,
@@ -90,11 +90,14 @@ val manager = BukkitMenuManager(yourPlugin)
 val menu = SampleMenu(player, manager)
 menu.send()
 
-// To close the menu just call the `Menu#destroy` method.
-menu.destroy()
+// To close the menu just call the `Menu#close` method.
+menu.close()
+// or if inside a click modifier
+closeMenu()
 ```
 
-## Dependency
+## Dependency ![Maven metadata URL](https://img.shields.io/maven-metadata/v?label=Version&metadataUrl=https%3A%2F%2Fnexus.heroslender.com%2Frepository%2Fmaven-snapshots%2Fcom%2Fheroslender%2Fhmf-bukkit%2Fmaven-metadata.xml)
+
 
 ### Gradle kts
 
@@ -104,7 +107,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.heroslender:hmf-bukkit:0.0.1-SNAPSHOT")
+    implementation("com.heroslender:hmf-bukkit:{version}")
 }
 ```
 
@@ -121,7 +124,7 @@ dependencies {
 <dependency>
     <groupId>com.heroslender</groupId>
     <artifactId>hmf-bukkit</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>{version}</version>
     <scope>compile</scope>
 </dependency>
 ```
