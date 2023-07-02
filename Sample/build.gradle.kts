@@ -1,5 +1,6 @@
 plugins {
-    kotlin("jvm") version "1.4.31"
+    kotlin("jvm") version "1.8.20"
+    id("org.jetbrains.compose") version "1.4.0"
     id("com.github.johnrengelman.shadow") version "5.2.0"
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
 }
@@ -12,9 +13,10 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib"))
+    implementation(kotlin("stdlib-jdk8"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
-    implementation("com.heroslender:hmf-bukkit:0.0.1-SNAPSHOT")
+    implementation("com.heroslender:hmf-bukkit:0.1.0-SNAPSHOT")
 
     compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
 }

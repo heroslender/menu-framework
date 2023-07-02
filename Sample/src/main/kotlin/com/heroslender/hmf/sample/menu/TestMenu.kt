@@ -1,5 +1,8 @@
 package com.heroslender.hmf.sample.menu
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import com.heroslender.hmf.bukkit.BaseMenu
 import com.heroslender.hmf.bukkit.MenuOptions
 import com.heroslender.hmf.bukkit.manager.BukkitMenuManager
@@ -7,13 +10,11 @@ import com.heroslender.hmf.bukkit.map.Color
 import com.heroslender.hmf.bukkit.modifiers.clickable
 import com.heroslender.hmf.bukkit.privateFor
 import com.heroslender.hmf.core.Preview
-import com.heroslender.hmf.core.mutableStateOf
 import com.heroslender.hmf.core.ui.Alignment
-import com.heroslender.hmf.core.ui.Composable
 import com.heroslender.hmf.core.ui.components.*
 import com.heroslender.hmf.core.ui.modifier.Modifier
 import com.heroslender.hmf.core.ui.modifier.modifiers.*
-import com.heroslender.hmf.core.ui.withState
+import com.heroslender.hmf.core.ui.modifier.type.closeMenu
 import com.heroslender.hmf.sample.menu.components.ButtonBackgroundColors
 import com.heroslender.hmf.sample.menu.components.Text
 import com.heroslender.hmf.sample.menu.components.TextButton
@@ -24,7 +25,8 @@ import org.bukkit.entity.Player
     width = 512,
     height = 512,
 )
-fun Composable.menuPreview() {
+@Composable
+fun menuPreview() {
     val counter = mutableStateOf(0)
 
     Column(
@@ -45,7 +47,7 @@ fun Composable.menuPreview() {
             }
         }
 
-        val count = withState(counter)
+        val count by counter
         Text("Counter: $count", modifier = Modifier.padding(left = 5))
     }
 }
@@ -55,7 +57,8 @@ fun Composable.menuPreview() {
     width = 512,
     height = 380,
 )
-fun Composable.menuPreview2() {
+@Composable
+fun menuPreview2() {
     val counter = mutableStateOf(0)
 
     Column(
@@ -76,13 +79,14 @@ fun Composable.menuPreview2() {
             }
         }
 
-        val count = withState(counter)
+        val count by counter
         Text("Counter: $count", modifier = Modifier.padding(left = 5))
     }
 }
 
 @Preview
-fun Composable.defaultP() {
+@Composable
+fun defaultP() {
     val counter = mutableStateOf(0)
 
     Column(
@@ -103,7 +107,7 @@ fun Composable.defaultP() {
             }
         }
 
-        val count = withState(counter)
+        val count by counter
         Text("Counter: $count", modifier = Modifier.padding(left = 5))
     }
 }
@@ -119,7 +123,8 @@ class TestMenu(player: Player, manager: BukkitMenuManager) : BaseMenu(
 ) {
     private val counter = mutableStateOf(0)
 
-    override fun Composable.getUi() {
+    @Composable
+    override fun getUi() {
 
         Column(
             modifier = Modifier.fillSize().background(Color.BLUE_3)
@@ -139,13 +144,14 @@ class TestMenu(player: Player, manager: BukkitMenuManager) : BaseMenu(
                 }
             }
 
-            val count = withState(counter)
+            val count by counter
             Text("Counter: $count", modifier = Modifier.padding(left = 5))
         }
     }
 }
 
-private fun Composable.Header() {
+@Composable
+private fun Header() {
     Row(
         modifier = Modifier
             .maxSize(height = 44)
@@ -159,8 +165,8 @@ private fun Composable.Header() {
     }
 }
 
-
-private fun Composable.HeaderButton(text: String) {
+@Composable
+private fun HeaderButton(text: String) {
     TextButton(
         text = text,
         modifier = Modifier
@@ -175,7 +181,8 @@ private fun Composable.HeaderButton(text: String) {
     )
 }
 
-private fun Composable.HeaderCloseButton() {
+@Composable
+private fun HeaderCloseButton() {
     Box(
         alignment = Alignment.Center,
         modifier = Modifier
@@ -183,7 +190,7 @@ private fun Composable.HeaderCloseButton() {
             .background(Color.CYAN_3)
             .clickable {
                 // Close the menu
-                renderContext.menu.close()
+                closeMenu()
             }
             .padding(5)
     ) {

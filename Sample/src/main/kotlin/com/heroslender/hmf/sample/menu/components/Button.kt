@@ -2,6 +2,7 @@
 
 package com.heroslender.hmf.sample.menu.components
 
+import androidx.compose.runtime.Composable
 import com.heroslender.hmf.bukkit.map.Color
 import com.heroslender.hmf.bukkit.modifiers.ClickListener
 import com.heroslender.hmf.bukkit.modifiers.clickable
@@ -10,7 +11,6 @@ import com.heroslender.hmf.core.IColor
 import com.heroslender.hmf.core.font.FontStyle
 import com.heroslender.hmf.core.font.MINECRAFTIA_8
 import com.heroslender.hmf.core.ui.Alignment
-import com.heroslender.hmf.core.ui.Composable
 import com.heroslender.hmf.core.ui.Placeable
 import com.heroslender.hmf.core.ui.components.Box
 import com.heroslender.hmf.core.ui.components.Label
@@ -22,7 +22,8 @@ import com.heroslender.hmf.core.ui.modifier.type.DrawerModifier
 
 val DefaultFont: FontStyle = FontStyle(font = MINECRAFTIA_8, color = Color.BLACK_1, shadowColor = Color.GRAY_3)
 
-fun Composable.Text(
+@Composable
+fun Text(
     text: String,
     style: FontStyle = DefaultFont,
     modifier: Modifier = Modifier,
@@ -30,7 +31,8 @@ fun Composable.Text(
     Label(text, style, modifier)
 }
 
-fun Composable.TextButton(
+@Composable
+fun TextButton(
     text: String,
     fontStyle: FontStyle = DefaultFont,
     modifier: Modifier = Modifier,
@@ -53,13 +55,14 @@ fun Composable.TextButton(
     }
 }
 
-fun Composable.Button(
+@Composable
+fun Button(
     modifier: Modifier = Modifier,
     alignment: Alignment = Alignment.Center,
     padding: PaddingValues = PaddingValues(7, 10),
     colors: ButtonBackgroundColors = ButtonBackgroundColors.Default,
     onClick: ClickListener? = null,
-    content: Composable.() -> Unit,
+    content: @Composable () -> Unit,
 ) {
     val bgDrawer = if (colors === ButtonBackgroundColors.Default) {
         ButtonBackgroundDrawer
