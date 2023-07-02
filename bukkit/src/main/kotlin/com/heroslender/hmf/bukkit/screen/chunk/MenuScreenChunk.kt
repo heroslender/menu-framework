@@ -28,13 +28,36 @@ class MenuScreenChunk(
     }
 
     override fun updateBuffer(source: ByteArray, sourceWidth: Int, offsetX: Int, offsetY: Int, players: Array<Player>) {
+        var minX = 128
+        var minZ = 128
+        var maxX = 0
+        var maxZ = 0
+
         for (x in 0 until min(sourceWidth, 128)) {
-            for (y in 0 until min(source.size / sourceWidth, 128)) {
-                buffer[x + y * 128] = source[x + offsetX + (y + offsetY) * sourceWidth]
+            for (z in 0 until min(source.size / sourceWidth, 128)) {
+                val buffIndex = x + z * 128
+                val currentColor = buffer[buffIndex]
+                val newColor = source[x + offsetX + (z + offsetY) * sourceWidth]
+                if (currentColor != newColor) {
+                    if (x < minX) {
+                        minX = x
+                    }
+                    if (x > maxX) {
+                        maxX = x
+                    }
+                    if (z < minZ) {
+                        minZ = z
+                    }
+                    if (z > maxZ) {
+                        maxZ = z
+                    }
+
+                    buffer[buffIndex] = newColor
+                }
             }
         }
 
-        sendUpdate(players)
+        sendUpdate(players, minX, minZ, maxX - minX + 1, maxZ - minZ + 1)
     }
 
     override fun sendCursorUpdate(cursor: MapIcon?, players: Array<Player>) {
@@ -51,17 +74,21 @@ class MenuScreenChunk(
         )
     }
 
-    private fun sendUpdate(players: Array<Player>) {
+    private fun sendUpdate(players: Array<Player>, offsetX: Int, offsetZ: Int, sizeX: Int, sizeZ: Int) {
+        if (sizeX <= 0 || sizeZ <= 0) {
+            return
+        }
+
         packetAdapter.updateMap(
-            id,
-            0,
-            emptyList(),
-            buffer,
-            0,
-            0,
-            128,
-            128,
-            players
+            mapId = id,
+            scale = 0,
+            icons = emptyList(),
+            data = buffer,
+            offsetX = offsetX,
+            offsetY = offsetZ,
+            sizeX = sizeX,
+            sizeZ = sizeZ,
+            players = players
         )
     }
 
