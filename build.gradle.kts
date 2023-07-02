@@ -85,7 +85,7 @@ subprojects {
 
         publications {
             create<MavenPublication>("maven") {
-                artifactId = project.path.replace(":", "hmf-").removeSuffix("-").toLowerCase()
+                artifactId = project.path.replace(":", "hmf-").removeSuffix("-").lowercase()
                 groupId = project.group.toString()
                 version = project.version.toString()
 

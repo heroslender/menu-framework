@@ -8,6 +8,7 @@ import java.awt.FontFormatException
 import java.awt.GraphicsEnvironment
 import java.awt.image.BufferedImage
 import java.io.IOException
+import kotlin.math.min
 
 @Suppress("MemberVisibilityCanBePrivate")
 object FontParser {
@@ -54,11 +55,10 @@ object FontParser {
         graphics.color = Color.BLACK
 
         val width = graphics.fontMetrics.stringWidth(char.toString())
-        val height = graphics.fontMetrics.height
+        val height = graphics.fontMetrics.ascent
         graphics.drawString(char.toString(), 0, graphics.fontMetrics.ascent)
 
-        val rgb = bufferedImage.getRGB(0, 0, width, height, null, 0, width)
-
+        val rgb = bufferedImage.getRGB(0, 0, min(128, width), min(128, height), null, 0, width)
         val rows = rgb.toList().chunked(width).toMutableList()
         val data = BooleanArray(rows.size * width)
 

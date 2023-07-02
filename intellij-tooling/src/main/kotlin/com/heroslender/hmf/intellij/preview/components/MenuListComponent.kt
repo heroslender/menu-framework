@@ -1,6 +1,5 @@
 package com.heroslender.hmf.intellij.preview.components
 
-import com.intellij.util.ui.JBUI
 import java.awt.*
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
@@ -16,8 +15,7 @@ class MenuListComponent(
 ) : JPanel() {
 
     init {
-        preferredSize = parent.preferredSize
-        layout = GridBagLayout()
+        layout = BorderLayout()
 
         addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent) {
@@ -58,12 +56,7 @@ class MenuListComponent(
     }
 
     override fun add(comp: Component): Component {
-        add(comp, GridBagConstraints().apply {
-            anchor = GridBagConstraints.NORTH
-            weighty = 1.0
-            weightx = 1.0
-            insets = JBUI.insetsTop(32)
-        })
+        add(comp, BorderLayout.CENTER)
 
         revalidate()
 

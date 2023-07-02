@@ -90,6 +90,9 @@ class MenuPreviewComponent(
             errorMsg = "Class not found: $className"
         } catch (e: NoSuchMethodException) {
             errorMsg = "Method not found: ${myFunction.name}"
+        } catch (e: Exception) {
+            errorMsg = "Failed to start: ${e.message}"
+            e.printStackTrace()
         }
     }
 

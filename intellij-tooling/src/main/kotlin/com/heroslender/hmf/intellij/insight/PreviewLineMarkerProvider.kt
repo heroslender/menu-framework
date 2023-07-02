@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 class PreviewLineMarkerProvider : LineMarkerProvider {
     companion object {
         const val PREVIEW_QUALIFIED_NAME: String = "com.heroslender.hmf.core.Preview"
-        const val COMPOSABLE_QUALIFIED_NAME: String = "com.heroslender.hmf.core.ui.Composable"
+        const val COMPOSABLE_QUALIFIED_NAME: String = "androidx.compose.runtime.Composer"
         const val ID = "HMF_PREVIEW"
     }
 
