@@ -30,8 +30,8 @@ subprojects {
     }
 
     dependencies {
-        implementation(kotlin("stdlib-jdk8"))
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+        compileOnly(kotlin("stdlib-jdk8"))
+        compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
         // Custom minimized fastutil dep made using `./find-deps.sh`
         implementation("it.unimi.dsi:fastutil-min:8.5.11-HMF")
 
