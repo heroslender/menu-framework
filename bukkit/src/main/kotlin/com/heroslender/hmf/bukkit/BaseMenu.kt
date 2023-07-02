@@ -60,7 +60,7 @@ abstract class BaseMenu(
         screen.spawn()
 
         val canvas = MapCanvas(opts.width * 128, opts.height * 128)
-        ComposeMenu().apply {
+        this.composeMenu = ComposeMenu().apply {
             updateHandler = {
                 screen.update(canvas)
             }
