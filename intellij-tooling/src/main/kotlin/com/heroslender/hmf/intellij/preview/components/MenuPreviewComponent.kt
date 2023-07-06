@@ -1,12 +1,23 @@
 package com.heroslender.hmf.intellij.preview.components
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import com.heroslender.hmf.core.Menu
+import com.heroslender.hmf.core.compose.ComposeMenu
+import com.heroslender.hmf.core.compose.LocalCanvas
+import com.heroslender.hmf.core.compose.LocalImageProvider
+import com.heroslender.hmf.core.compose.LocalMenu
+import com.heroslender.hmf.core.ui.components.Box
+import com.heroslender.hmf.core.ui.modifier.Modifier
+import com.heroslender.hmf.core.ui.modifier.modifiers.maxSize
 import com.heroslender.hmf.intellij.preview.RebuildManager
+import com.heroslender.hmf.intellij.preview.impl.PreviewCanvas
+import com.heroslender.hmf.intellij.preview.impl.PreviewMenuManager
 import com.heroslender.hmf.intellij.preview.invokePreview
 import com.intellij.execution.runners.ExecutionUtil
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
-import com.intellij.ui.AncestorListenerAdapter
 import com.intellij.ui.content.Content
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
@@ -18,7 +29,6 @@ import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.*
 import javax.swing.border.EmptyBorder
-import javax.swing.event.AncestorEvent
 
 class MenuPreviewComponent(
     val menuPreviewId: String,
@@ -29,7 +39,45 @@ class MenuPreviewComponent(
     lateinit var content: Content
     val rebuildTask = RebuildManager.getOrCreateTask(myProject)
 
-    private var menusPanel = MenuListComponent(this, MenuListComponent.Options())
+    private var menusPanel = MenuCanvasComponent(this, MenuCanvasComponent.Options())
+
+    val panel = JPanel().apply {
+        layout = FlowLayout(FlowLayout.CENTER, 0, 0)
+
+        val toolbar = ToolbarComponent().apply {
+            addButton(AllIcons.General.Add) {
+                menusPanel.opts.zoomFactor *= 1.1
+                this@MenuPreviewComponent.repaint()
+            }
+            addButton(AllIcons.General.Remove) {
+                menusPanel.opts.zoomFactor /= 1.1
+                this@MenuPreviewComponent.repaint()
+            }
+            addButton(AllIcons.General.ActualZoom) {
+                menusPanel.opts.apply {
+                    zoomFactor = 1.0
+                    xOffset = 0.0
+                    yOffset = 0.0
+                    xDiff = 0
+                    yDiff = 0
+                    dragger = true
+                    released = true
+                }
+                this@MenuPreviewComponent.repaint()
+            }
+            addButton(AllIcons.Actions.Restart) {
+                rebuildTask.run()
+            }
+        }
+
+        add(toolbar)
+        setBounds(
+            width - (this.preferredSize.width + 20),
+            height - (this.preferredSize.height + 50),
+            this.preferredSize.width,
+            this.preferredSize.height
+        )
+    }
 
     companion object {
         val PreviewIcon = AllIcons.General.LayoutPreviewOnly
@@ -37,7 +85,7 @@ class MenuPreviewComponent(
     }
 
     init {
-        layout = LayeredPaneLayout(this)
+        layout = MenuPreviewLayout(this)
         isVisible = true
         minimumSize = Dimension(
             150,
@@ -59,12 +107,6 @@ class MenuPreviewComponent(
             reCompose()
             redraw()
         }
-
-        addAncestorListener(object : AncestorListenerAdapter() {
-            override fun ancestorMoved(event: AncestorEvent) {
-                redraw()
-            }
-        })
     }
 
     var menuComponent: MenuComponent? = null
@@ -73,7 +115,39 @@ class MenuPreviewComponent(
     private fun reCompose() {
         try {
             errorMsg = null
-            menuComponent = invokePreview(myFunction)
+            val (preview, composable) = invokePreview(myFunction)
+
+            val manager = PreviewMenuManager(preview.javaClass.classLoader)
+            val canvas = PreviewCanvas(preview.width, preview.height)
+
+            val composeMenu = ComposeMenu().apply {
+                rootNode.canvas = canvas
+                start {
+                    CompositionLocalProvider(
+                        LocalCanvas provides canvas,
+                        LocalImageProvider provides manager.imageProvider,
+                        LocalMenu provides object : Menu {
+                            @Composable
+                            override fun getUi() {
+                            }
+
+                            override fun close() {
+                            }
+                        },
+                    ) {
+                        Box(modifier = Modifier.maxSize(canvas.width, canvas.height)) {
+                            composable()
+                        }
+                    }
+
+                }
+            }
+            var name = preview.name
+            if (name.isEmpty()) {
+                name = myFunction.name ?: "Unknown"
+            }
+
+            menuComponent = MenuComponent(name, composeMenu)
             menuComponent?.menuName?.also {
                 if (this::content.isInitialized) {
                     content.displayName = it
@@ -139,11 +213,9 @@ class MenuPreviewComponent(
             return
         }
 
-        val opts = menusPanel.opts
-        menusPanel = MenuListComponent(myUi, opts).apply {
-            myUi.add(this)
+        menusPanel = MenuCanvasComponent(myUi, menusPanel.opts).apply {
+            myUi.add(this, 0, -1)
             add(component)
-            validate()
 
             addMouseListener(object : MouseAdapter() {
                 override fun mouseClicked(e: MouseEvent?) {
@@ -152,48 +224,7 @@ class MenuPreviewComponent(
             })
         }
 
-        val toolbar = ToolbarComponent().apply {
-            addButton(AllIcons.General.Add) {
-                menusPanel.opts.zoomFactor *= 1.1
-                myUi.repaint()
-            }
-            addButton(AllIcons.General.Remove) {
-                menusPanel.opts.zoomFactor /= 1.1
-                myUi.repaint()
-            }
-            addButton(AllIcons.General.ActualZoom) {
-                menusPanel.opts.apply {
-                    zoomFactor = 1.0
-                    xOffset = 0.0
-                    yOffset = 0.0
-                    xDiff = 0
-                    yDiff = 0
-                    dragger = true
-                    released = true
-                }
-                myUi.repaint()
-            }
-            addButton(AllIcons.Actions.Restart) {
-                rebuildTask.run()
-            }
-        }
-
-        val panel = JPanel().apply {
-            layout = FlowLayout(FlowLayout.CENTER, 0, 0)
-            add(toolbar)
-            setBounds(
-                myUi.width - (this.preferredSize.width + 20),
-                myUi.height - (this.preferredSize.height + 50),
-                this.preferredSize.width,
-                this.preferredSize.height
-            )
-        }
-
-        myUi.setLayer(menusPanel, 0)
-
-        myUi.setLayer(panel, 1)
-        myUi.add(panel)
-
+        myUi.add(panel, 1, -1)
         myUi.validate()
     }
 

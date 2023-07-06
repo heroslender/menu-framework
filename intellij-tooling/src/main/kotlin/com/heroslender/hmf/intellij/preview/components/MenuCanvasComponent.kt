@@ -9,13 +9,18 @@ import javax.swing.JComponent
 import javax.swing.JPanel
 import kotlin.math.max
 
-class MenuListComponent(
+
+/**
+ * Canvas used to zoom and move the menu
+ */
+class MenuCanvasComponent(
     parent: JComponent,
     val opts: Options,
 ) : JPanel() {
 
     init {
-        layout = BorderLayout()
+        layout = GridBagLayout()
+        preferredSize = parent.size
 
         addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent) {
@@ -56,9 +61,7 @@ class MenuListComponent(
     }
 
     override fun add(comp: Component): Component {
-        add(comp, BorderLayout.CENTER)
-
-        revalidate()
+        add(comp, GridBagConstraints())
 
         if (opts.xOffset == 0.0 && opts.yOffset == 0.0) {
             var maxWidth = 0
