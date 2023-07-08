@@ -8,4 +8,8 @@ object RebuildManager {
     fun getOrCreateTask(project: Project): RebuildTask {
         return tasks.getOrPut(project) { RebuildTask(project) }
     }
+
+    fun getOrNullTask(project: Project): RebuildTask? {
+        return tasks[project]
+    }
 }

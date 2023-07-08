@@ -15,6 +15,7 @@ import kotlin.math.max
  */
 class MenuCanvasComponent(
     parent: JComponent,
+    val menuComponent: MenuComponent,
     val opts: Options,
 ) : JPanel() {
 
@@ -58,6 +59,8 @@ class MenuCanvasComponent(
 
             parent.repaint()
         }
+
+        add(menuComponent)
     }
 
     override fun add(comp: Component): Component {

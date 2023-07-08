@@ -79,4 +79,8 @@ open class PreviewCanvas(
     }
 
     operator fun get(x: Int, y: Int): Byte = getPixelByte(x, y)
+
+    companion object {
+        val EMPTY = PreviewCanvas(0, 0)
+    }
 }

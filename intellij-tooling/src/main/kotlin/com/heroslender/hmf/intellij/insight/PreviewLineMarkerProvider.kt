@@ -1,5 +1,6 @@
 package com.heroslender.hmf.intellij.insight
 
+import com.heroslender.hmf.intellij.preview.RebuildManager
 import com.heroslender.hmf.intellij.preview.components.MenuPreviewComponent
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import com.intellij.codeInsight.daemon.LineMarkerInfo
@@ -68,9 +69,8 @@ class PreviewLineMarkerProvider : LineMarkerProvider {
         function: KtNamedFunction,
     ): Content {
         val previewComponent = MenuPreviewComponent(previewId, project, function, toolWindow)
-        val content = ContentFactory.SERVICE.getInstance().createContent(previewComponent, function.name, true)
+        val content = ContentFactory.getInstance().createContent(previewComponent, function.name, true)
         previewComponent.content = content
-        previewComponent.menuComponent?.menuName?.also { content.displayName = it }
         content.icon = MenuPreviewComponent.PreviewIcon
         content.putUserData(ToolWindow.SHOW_CONTENT_ICON, true)
         toolWindow.contentManager.addContent(content)
@@ -109,6 +109,9 @@ class PreviewLineMarkerProvider : LineMarkerProvider {
                         toolWindow.isAvailable = false
 //                        ToolWindowManager.getInstance(project).unregisterToolWindow(ID)
                     }
+
+                    val component = content.content.component as MenuPreviewComponent
+                    RebuildManager.getOrNullTask(project)?.removeListeners(component.menuPreviewId)
                 }
             })
         }

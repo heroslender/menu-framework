@@ -1,5 +1,6 @@
 package com.heroslender.hmf.intellij.preview
 
+import com.heroslender.hmf.intellij.preview.components.MenuPreviewComponent
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFileManager
@@ -20,8 +21,8 @@ class RebuildTask(
 
     private var lastRebuild = System.currentTimeMillis()
 
-    private val onRebuildStart: MutableList<() -> Unit> = mutableListOf()
-    private val onRebuildFinish: MutableList<() -> Unit> = mutableListOf()
+    private val onRebuildStart: MutableMap<String, () -> Unit> = mutableMapOf()
+    private val onRebuildFinish: MutableMap<String, () -> Unit> = mutableMapOf()
 
     init {
         this.messageBus = myProject.messageBus.connect().apply {
@@ -33,12 +34,17 @@ class RebuildTask(
         }
     }
 
-    fun listen(onRebuild: () -> Unit) {
-        this.onRebuildFinish.add(onRebuild)
+    fun MenuPreviewComponent.listen(onRebuild: () -> Unit) {
+        onRebuildFinish[menuPreviewId] = onRebuild
     }
 
-    fun listenStart(onStart: () -> Unit) {
-        onRebuildStart.add(onStart)
+    fun MenuPreviewComponent.listenStart(onStart: () -> Unit) {
+        onRebuildStart[menuPreviewId] = onStart
+    }
+
+    fun removeListeners(previewId: String) {
+        onRebuildFinish.remove(previewId)
+        onRebuildStart.remove(previewId)
     }
 
     fun run(reschedule: Boolean = true) {
@@ -54,7 +60,7 @@ class RebuildTask(
         }
 
         inProgress = true
-        onRebuildStart.forEach { it() }
+        onRebuildStart.values.forEach { it() }
         val buildTask = projectTaskManager.createModulesBuildTask(
             /* modules = */ ModuleManager.getInstance(myProject).modules,
             /* isIncrementalBuild = */ true,
@@ -70,7 +76,7 @@ class RebuildTask(
             }.onSuccess {
                 inProgress = false
 
-                onRebuildFinish.forEach { it() }
+                onRebuildFinish.values.forEach { it() }
 
                 if (shouldRebuild) {
                     shouldRebuild = false
