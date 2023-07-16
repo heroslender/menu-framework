@@ -10,12 +10,11 @@ import com.heroslender.hmf.core.ui.modifier.type.MeasurableDataModifier
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
-import kotlin.math.sign
 
 @Composable
 fun Row(
     modifier: Modifier = Modifier,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.Horizontal.Start,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalAlignment: Alignment.Vertical = Alignment.Vertical.Top,
     content: @Composable () -> Unit,
 ) = Layout(
@@ -32,7 +31,7 @@ fun Row(
 @Composable
 fun Column(
     modifier: Modifier = Modifier,
-    verticalArrangement: Arrangement.Vertical = Arrangement.Vertical.Top,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Horizontal.Start,
     content: @Composable () -> Unit,
 ) = Layout(
@@ -178,106 +177,31 @@ private fun orientedCopmonentMeasurableGroup(
     ): MeasureScope.MeasureResult = when {
         measurables.isEmpty() -> layout(constraints.minWidth, constraints.minHeight) {}
         else -> {
-            val axisConstraints = constraints.toAxisConstraints(orientation)
             val placeables = arrayOfNulls<Placeable>(measurables.size)
-            val datas = Array(measurables.size) { i -> measurables[i].containerData }
 
-            var totalWeight = 0
-            var weightCount = 0
+            val measurementHelper = RowColumnMeasurementHelper(
+                orientation,
+                mainAxisArrangment,
+                mainAxisArrangment.spacing,
+                crossAxisAlignment,
+                measurables,
+                placeables
+            )
 
-            var usedSize = 0
-            var crossAxisUsedSize = 0
-            measurables.forEachIndexed { index, measurable ->
-                val data = datas[index]
-                val weight = data?.weight ?: 0
+            val measureResult = measurementHelper.measureWithoutPlacing(constraints, 0, measurables.size)
 
-                if (weight > 0) {
-                    totalWeight += weight
-                    ++weightCount
-                } else {
-                    val placeable = measurable.measure(
-                        axisConstraints.copy(
-                            mainAxisMin = 0,
-                            mainAxisMax = if (axisConstraints.mainAxisMax == Constraints.Infinity) {
-                                axisConstraints.mainAxisMax
-                            } else {
-                                axisConstraints.mainAxisMax - usedSize
-                            },
-                            crossAxisMin = 0
-                        ).toConstraints(orientation)
-                    )
-                    usedSize += placeable.mainAxisSize(orientation)
-                    crossAxisUsedSize = max(crossAxisUsedSize, placeable.crossAxisSize(orientation))
-                    placeables[index] = placeable
-                }
+            val width: Int
+            val height: Int
+            if (orientation == Orientation.HORIZONTAL) {
+                width = measureResult.mainAxisSize
+                height = measureResult.crossAxisSize
+            } else {
+                width = measureResult.crossAxisSize
+                height = measureResult.mainAxisSize
             }
 
-            if (weightCount > 0) {
-                val freeSize = axisConstraints.mainAxisMax - usedSize
-                val weightUnitSize = freeSize / totalWeight
-                var remainder = freeSize - datas.sumOf { it.weight * weightUnitSize }
-
-                for (i in measurables.indices) {
-                    if (placeables[i] != null) {
-                        continue
-                    }
-
-                    val measurable = measurables[i]
-                    val data = datas[i]
-                    val weight = data?.weight ?: 0
-                    require(weight > 0) { "Non weighted components should have been measured already" }
-
-                    val remainderSign = remainder.sign
-                    remainder -= remainderSign
-                    val childSize = max(0, weightUnitSize * weight + remainder)
-                    val placeable = measurable.measure(
-                        axisConstraints.copy(
-                            mainAxisMin = childSize,
-                            mainAxisMax = childSize,
-                            crossAxisMin = 0,
-                        ).toConstraints(orientation)
-                    )
-                    usedSize += placeable.mainAxisSize(orientation)
-                    crossAxisUsedSize = max(crossAxisUsedSize, placeable.crossAxisSize(orientation))
-                    placeables[i] = placeable
-                }
-            }
-
-            val mainAxisSize = max(usedSize, axisConstraints.mainAxisMin)
-            val crossAxisSize = max(crossAxisUsedSize, axisConstraints.crossAxisMin)
-
-            val width = if (orientation == Orientation.HORIZONTAL) mainAxisSize else crossAxisSize
-            val height = if (orientation == Orientation.HORIZONTAL) crossAxisSize else mainAxisSize
             layout(width, height) {
-                val sizes = IntArray(placeables.size) { i -> placeables[i]!!.mainAxisSize(orientation) }
-                val outPositions = IntArray(placeables.size)
-                mainAxisArrangment.arrange(mainAxisSize, sizes, outPositions)
-
-                placeables.forEachIndexed { index, placeable ->
-                    placeable!!
-                    if (!placeable.hasBoundingBox) {
-                        placeable.isVisible = false
-                        return@forEachIndexed
-                    }
-
-                    val crossAxisPos =
-                        crossAxisAlignment.align(crossAxisUsedSize - placeable.crossAxisSize(orientation))
-
-                    val x: Int
-                    val y: Int
-                    if (orientation == Orientation.HORIZONTAL) {
-                        x = outPositions[index]
-                        y = crossAxisPos
-                    } else {
-                        x = crossAxisPos
-                        y = outPositions[index]
-                    }
-                    placeable.placeAt(x, y)
-
-                    if (x > constraints.maxWidth || y > constraints.maxHeight) {
-                        placeable.isVisible = false
-                    }
-                }
+                measurementHelper.placeHelper(measureResult, 0)
             }
         }
     }
