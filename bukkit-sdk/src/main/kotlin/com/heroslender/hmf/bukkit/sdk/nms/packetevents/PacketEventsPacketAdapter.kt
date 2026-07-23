@@ -68,9 +68,13 @@ class PacketEventsPacketAdapter : PacketAdapter {
             // Place the filled map on the item frame via entity metadata
             val mapItem = createMapItem(mapID, serverVersion)
             val itemSlotIndex = itemFrameItemSlotIndex(serverVersion)
+            // Index 0 = INVISIBLE flag (0x20), hides the frame/border — item inside stays visible
             val metadataPacket = WrapperPlayServerEntityMetadata(
                 itemFrameID,
-                listOf(EntityData(itemSlotIndex, EntityDataTypes.ITEMSTACK, mapItem)),
+                listOf(
+                    EntityData(0, EntityDataTypes.BYTE, 0x20.toByte()),
+                    EntityData(itemSlotIndex, EntityDataTypes.ITEMSTACK, mapItem),
+                ),
             )
             user.sendPacket(metadataPacket)
         }
