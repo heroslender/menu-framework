@@ -151,7 +151,7 @@ class BukkitMenuManagerImpl(
                     if (loc.distanceSquared(player.location) < opts.maxInteractDistanceSqr) {
                         val viewerTracker = menu.screen?.viewerTracker ?: continue
 
-                        if (viewerTracker.isTracked(player) && viewerTracker.canInteract(player)) {
+                        if (viewerTracker.isTracked(player) && viewerTracker.canCursor(player)) {
                             menu.raytrace(player) { x, y ->
                                 menu.tickCursor(player, x, y)
                             }
