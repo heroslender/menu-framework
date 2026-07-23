@@ -103,22 +103,33 @@ infix fun MenuOptions.Builder.width(newWidth: Int): MenuOptions.Builder = apply 
 
 infix fun MenuOptions.Builder.privateFor(owner: Player): MenuOptions.Builder = privateViewerTracker(owner)
 
-infix fun MenuOptions.Builder.privateViewerTracker(owner: Player): MenuOptions.Builder = apply {
-    viewerTracker = PrivateViewerTrackerOptions(owner)
+fun MenuOptions.Builder.privateFor(owner: Player, allowCursor: Boolean = true, allowInteraction: Boolean = true): MenuOptions.Builder =
+    privateViewerTracker(owner, allowCursor, allowInteraction)
+
+fun MenuOptions.Builder.privateViewerTracker(
+    owner: Player,
+    allowCursor: Boolean = true,
+    allowInteraction: Boolean = true,
+): MenuOptions.Builder = apply {
+    viewerTracker = PrivateViewerTrackerOptions(owner, allowCursor, allowInteraction)
 }
 
 fun MenuOptions.Builder.publicViewerTracker(
     center: Location,
     range: Int = 50,
     lifetime: Int = 1000,
+    allowCursor: Boolean = true,
+    allowInteraction: Boolean = true,
 ): MenuOptions.Builder = apply {
-    viewerTracker = PublicViewerTrackerOptions(center, range, lifetime)
+    viewerTracker = PublicViewerTrackerOptions(center, range, lifetime, allowCursor, allowInteraction)
 }
 
 fun MenuOptions.Builder.publicViewerTracker(
     player: Player,
     range: Int = 50,
     lifetime: Int = 1000,
+    allowCursor: Boolean = true,
+    allowInteraction: Boolean = true,
 ): MenuOptions.Builder = apply {
     viewerTracker = PublicViewerTrackerOptions(
         center = player.location.clone()
@@ -126,5 +137,7 @@ fun MenuOptions.Builder.publicViewerTracker(
             .let { it.add(it.direction.multiply(2)) },
         range = range,
         lifetime = lifetime,
+        allowCursor = allowCursor,
+        allowInteraction = allowInteraction,
     )
 }

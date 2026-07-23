@@ -19,9 +19,15 @@ data class PrivateViewerTrackerOptions(
      * The sole viewer of the menu.
      */
     val owner: Player,
+    val allowCursor: Boolean = true,
+    val allowInteraction: Boolean = true,
 ) : ViewerTrackerOptions {
 
-    override fun make(): ViewerTracker = PrivateViewerTracker(owner, StaticCursorTracker(), StaticInteractorTracker())
+    override fun make(): ViewerTracker = PrivateViewerTracker(
+        owner,
+        StaticCursorTracker(allowCursor),
+        StaticInteractorTracker(allowInteraction),
+    )
 }
 
 data class PublicViewerTrackerOptions(
@@ -40,7 +46,13 @@ data class PublicViewerTrackerOptions(
      * For how long each check gets cached. This is in milliseconds.
      */
     val lifetime: Int,
+    val allowCursor: Boolean = true,
+    val allowInteraction: Boolean = true,
 ) : ViewerTrackerOptions {
 
-    override fun make(): ViewerTracker = NearbyViewerTracker(center, range, lifetime, StaticCursorTracker(), StaticInteractorTracker())
+    override fun make(): ViewerTracker = NearbyViewerTracker(
+        center, range, lifetime,
+        StaticCursorTracker(allowCursor),
+        StaticInteractorTracker(allowInteraction),
+    )
 }
