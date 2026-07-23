@@ -5,11 +5,11 @@ import org.bukkit.Location
 import org.bukkit.entity.Player
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
-enum class Direction(val x: Int, val y: Int, val z: Int, val rotation: Int) {
-    NORTH(0, 0, -1, 2),
-    EAST(1, 0, 0, 3),
-    SOUTH(0, 0, 1, 0),
-    WEST(-1, 0, 0, 1);
+enum class Direction(val x: Int, val y: Int, val z: Int, val rotation: Int, val rotation3D: Int) {
+    NORTH(0, 0, -1, 2, 2),
+    EAST(1, 0, 0, 3, 5),
+    SOUTH(0, 0, 1, 0, 3),
+    WEST(-1, 0, 0, 1, 4);
 
     val yaw: Int = rotation * 90
     val packetYaw: Int = (yaw * 256.0F / 360.0F).toInt()

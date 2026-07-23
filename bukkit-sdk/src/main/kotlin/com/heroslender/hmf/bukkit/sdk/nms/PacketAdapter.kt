@@ -39,9 +39,25 @@ interface PacketAdapter {
 
     companion object {
         @JvmStatic
-        fun current(): PacketAdapter = when (ServerVersion.CURRENT) {
-            ServerVersion.V1_8_R3 -> com.heroslender.hmf.bukkit.sdk.nms.v1_8.PacketAdapterImpl()
-            ServerVersion.V1_12_R1 -> com.heroslender.hmf.bukkit.sdk.nms.v1_12.PacketAdapterImpl()
+        fun current(): PacketAdapter {
+            // Prefer PacketEvents if it's on the classpath — it supports all modern versions
+            if (isPacketEventsAvailable()) {
+                return com.heroslender.hmf.bukkit.sdk.nms.packetevents.PacketEventsPacketAdapter()
+            }
+
+            return when (ServerVersion.CURRENT) {
+                ServerVersion.V1_8_R3 -> com.heroslender.hmf.bukkit.sdk.nms.v1_8.PacketAdapterImpl()
+                ServerVersion.V1_12_R1 -> com.heroslender.hmf.bukkit.sdk.nms.v1_12.PacketAdapterImpl()
+            }
+        }
+
+        private fun isPacketEventsAvailable(): Boolean {
+            return try {
+                Class.forName("com.github.retrooper.packetevents.PacketEvents")
+                true
+            } catch (_: ClassNotFoundException) {
+                false
+            }
         }
     }
 }

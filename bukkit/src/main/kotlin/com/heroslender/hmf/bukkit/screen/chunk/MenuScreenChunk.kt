@@ -33,6 +33,7 @@ class MenuScreenChunk(
         var maxX = 0
         var maxZ = 0
 
+        var dirty = false
         for (x in 0 until min(sourceWidth, 128)) {
             for (z in 0 until min(source.size / sourceWidth, 128)) {
                 val buffIndex = x + z * 128
@@ -53,11 +54,14 @@ class MenuScreenChunk(
                     }
 
                     buffer[buffIndex] = newColor
+                    dirty = true
                 }
             }
         }
 
-        sendUpdate(players, minX, minZ, maxX - minX + 1, maxZ - minZ + 1)
+        if (dirty) {
+            sendUpdate(players, minX, minZ, maxX - minX + 1, maxZ - minZ + 1)
+        }
     }
 
     override fun sendCursorUpdate(cursor: MapIcon?, players: Array<Player>) {
@@ -79,11 +83,18 @@ class MenuScreenChunk(
             return
         }
 
+        val temp = ByteArray(sizeX * sizeZ)
+        for (x in 0 until sizeX) {
+            for (z in 0 until sizeZ) {
+                temp[x + z * sizeX] = buffer[x + offsetX + (z + offsetZ) * 128]
+            }
+        }
+
         packetAdapter.updateMap(
             mapId = id,
             scale = 0,
             icons = emptyList(),
-            data = buffer,
+            data = temp,
             offsetX = offsetX,
             offsetY = offsetZ,
             sizeX = sizeX,
